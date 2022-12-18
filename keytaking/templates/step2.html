@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Выберите кабинет</title>
+</head>
+<body>
+<form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+        <div style="display: block">
+                {{ field }}
+        </div>
+        {% endfor %}
+        <input type="submit" value="Далее" />
+</form>
+</body>
+</html>
