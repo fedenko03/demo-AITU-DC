@@ -7,6 +7,8 @@ class ChooseRoom(forms.Form):
 
 class ChooserData(forms.Form):
     fullname = forms.CharField(max_length=50)
-    status = forms.CharField(
-        choices=[(1, 'Professor'), (2, 'Student'), (3, 'Other')]
+    status = forms.ChoiceField(
+        choices=[('Professor', 'Professor'),
+                 ('Student', 'Student'),
+                 ('Other', 'Other')]
     )

@@ -1,11 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Выберите кабинет</title>
-</head>
-<body>
-<form method="post">
+{% extends 'base.html' %}
+{% block title %}Step 2{% endblock %}
+{% block content %}
+    <form method="post">
     {% csrf_token %}
     {% for field in form %}
         <div style="display: block">
@@ -14,5 +10,4 @@
         {% endfor %}
         <input type="submit" value="Далее" />
 </form>
-</body>
-</html>
+{% endblock %}

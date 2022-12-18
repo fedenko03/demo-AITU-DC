@@ -1,13 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Отсканируйте QR</title>
-</head>
-<body>
-Кабинет - {{ room }}
+{% extends 'base.html' %}
+{% block title %}Step 3{% endblock %}
+{% block content %}
+    Кабинет - {{ room }}
 
 Подтвердите действие, отсканировав QR:
+{% if qr_image %}
+    <img src="/media/qr.png" alt="not found">
+{% endif %}
 
-</body>
-</html>
+<form method="post">
+    {% csrf_token %}
+<input type="submit" value="Или введите данные вручную" />
+</form>
+{% endblock %}

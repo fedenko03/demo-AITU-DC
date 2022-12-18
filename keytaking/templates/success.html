@@ -1,10 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Успешно!</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block title %}Success{% endblock %}
+{% block content %}
+    Успешно!
 {{ room }}
-</body>
-</html>
+{{ fullname }}
+{{ status }}
+{% endblock %}
+
