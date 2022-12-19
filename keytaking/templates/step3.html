@@ -1,15 +1,42 @@
 {% extends 'base.html' %}
-{% block title %}Step 3{% endblock %}
+{% block title %}Шаг 3{% endblock %}
 {% block content %}
-    Кабинет - {{ room }}
 
-Подтвердите действие, отсканировав QR:
-{% if qr_image %}
-    <img src="/media/qr.png" alt="not found">
-{% endif %}
+    <div id="step3a" class="container">
+          <div class="text-center p-4 p-lg-5">
+            <p class="fw-bold text-center text-primary mb-2">Шаг 3 · Взять ключ · {{ room }}</p>
+            <h1 class="fw-bold text-center mb-4">Подтвердите действие</h1>
+            <div class="row">
+              <div class="col-md-6">
+                <div style="text-align: right;">
+                    {% if qr_image %}
+                        <img src="/media/qr.png" alt="not found" width="195" height="195">
+                    {% endif %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div style="height: 100%;">
+                  <h5
+                    style="color: rgb(46,86,199);vertical-align: middle;font-weight: bold;padding-top: 0px;margin-top: 20px;text-align: left">
+                    Отсканируйте QR-код<br><br>(В целях безопасности QR-коды<br>меняются каждые 5 минут)</h5>
+                </div>
+              </div>
+            </div>
+              <form method="post">
+                  {% csrf_token %}
+                  <h5 class="fw-bold text-center mb-4" style="color: rgb(60,61,64);">Нет аккаунта?
+              <span style="color: rgb(51,19,245);text-decoration: underline;padding-left: 10px;">
+                  <button class="btn btn-link d-sm-inline-block" type="submit" id="btn_step3a" href="#">Ввести данные вручную</button>
+              </span>
+            </h5>
+              </form>
+            <p style="margin-top: 10px;"><a href="/keytaking/step2/" class="fw-bold" style="text-align: left;color: rgb(96,96,96); text-decoration:none">
+              <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-reply-all-fill">
+              <path d="M8.021 11.9 3.453 8.62a.719.719 0 0 1 0-1.238L8.021 4.1a.716.716 0 0 1 1.079.619V6c1.5 0 6 0 7 8-2.5-4.5-7-4-7-4v1.281c0 .56-.606.898-1.079.62z"></path>
+              <path d="M5.232 4.293a.5.5 0 0 1-.106.7L1.114 7.945a.5.5 0 0 1-.042.028.147.147 0 0 0 0 .252.503.503 0 0 1 .042.028l4.012 2.954a.5.5 0 1 1-.593.805L.539 9.073a1.147 1.147 0 0 1 0-1.946l3.994-2.94a.5.5 0 0 1 .699.106z"></path>
+          </svg>&nbsp;Вернуться в начало</a></p>
+            <hr>
+          </div>
+        </div>
 
-<form method="post">
-    {% csrf_token %}
-<input type="submit" value="Или введите данные вручную" />
-</form>
 {% endblock %}

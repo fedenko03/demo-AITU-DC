@@ -47,6 +47,7 @@ function ActiveRoom(el, mode) {
         document.getElementById('chosedroom_confirm').classList.remove('hidden_step');
         document.querySelector('#btn_step2a').disabled = false;
         document.getElementById('textmenuchosed').innerHTML = el.getAttribute("id");
+        document.getElementById('id_room').value = el.getAttribute("id");
         lastClicked = el;
     }
 }

@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect
+from django.utils import timezone
+
 from .forms import ChooseRoom, ChooserData
 import qrcode
 
@@ -33,23 +35,25 @@ def step3(request):
 def step4(request):
     if request.method == 'POST':
         form = ChooserData(request.POST)
+        print(request.POST)
+        print(form.is_valid())
         if form.is_valid():
             request.session['fullname'] = form.cleaned_data['fullname']
             request.session['status'] = form.cleaned_data['status']
             return redirect('success')
     else:
         form = ChooserData()
-    return render(request, 'step4.html', {'form': form})
+    room = request.session.get('room')
+    return render(request, 'step4.html', {
+        'form': form,
+        'room': room
+    })
 
 
 def success(request):
-    # retrieve form data from session
     room = request.session.get('room')
     fullname = request.session.get('fullname')
     status = request.session.get('status')
-    # process the form data
-    # ...
-    # clear the session data
     request.session.flush()
     return render(request, 'success.html', {
         'room': room,
