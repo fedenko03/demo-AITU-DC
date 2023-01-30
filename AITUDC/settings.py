@@ -35,8 +35,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'main',
     'keytaking',
-    'keyreturning'
+    'keyreturning',
 ]
 
 MIDDLEWARE = [
@@ -73,14 +74,13 @@ WSGI_APPLICATION = 'AITUDC.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'aituDC',
-        'USER': 'postgres',
-        'PASSWORD': '1234567',
-        'HOST': 'localhost',
-        'PORT': '',
-    }
+        'default': {
+            'ENGINE': 'djongo',
+            'NAME': 'aituDC',
+            'CLIENT': {
+                'host': 'mongodb+srv://admin:1111@aitudc.zqbnhzs.mongodb.net/?retryWrites=true&w=majority'
+            }
+        }
 }
 
 # Password validation

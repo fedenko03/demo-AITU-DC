@@ -24,10 +24,11 @@ function ActiveRoom(el, mode) {
         el.classList.add('active');
         pointerElem = document.getElementById('menuchosed');
         nav = document.getElementById('nav');
-        if (mode == 0) {
+        if (mode == 0) { // через карту
             var mouseX = event.pageX+1;
+            console.log(event.pageX)
             var mouseY = event.pageY-30;
-        } else if (mode == 1) {
+        } else if (mode == 1) { // через поиск
             //console.log("getBoundingClientRect() " + el.getBoundingClientRect());
             let box = el.getBoundingClientRect();
             //console.log(box);
@@ -36,6 +37,7 @@ function ActiveRoom(el, mode) {
             var mouseY = box.top + window.pageYOffset;
         }
         pointerElem.style.left = Math.floor(mouseX) + 'px';
+        console.log(pointerElem.style.left)
         //console.log("pointerElem.style.left " + pointerElem.style.left);
         //console.log("mouseX " + mouseX);
         //console.log("mouseY " + mouseY);
@@ -89,3 +91,4 @@ $(document).ready(function () {
         language: "en"
     });
 });
+

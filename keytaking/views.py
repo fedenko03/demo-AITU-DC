@@ -24,7 +24,7 @@ def step3(request):
         return redirect('step4')
     else:
         room = request.session.get('room')
-        img = qrcode.make("https://vk.com")  # qrcode.make(data)
+        img = qrcode.make("https://youtube.com")  # qrcode.make(data)
         img.save("media/qr.png")
         qr_image = True
     return render(request, 'step3.html', {
