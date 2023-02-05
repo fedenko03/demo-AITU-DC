@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'main',
+    'user',
     'keytaking',
     'keyreturning',
 ]
@@ -73,14 +74,25 @@ WSGI_APPLICATION = 'AITUDC.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+# DATABASES = {
+#         'default': {
+#             'ENGINE': 'djongo',
+#             'NAME': 'aituDC',
+#             'CLIENT': {
+#                 'host': 'mongodb+srv://admin:1111@aitudc.zqbnhzs.mongodb.net/?retryWrites=true&w=majority'
+#             }
+#         }
+# }
+
 DATABASES = {
-        'default': {
-            'ENGINE': 'djongo',
-            'NAME': 'aituDC',
-            'CLIENT': {
-                'host': 'mongodb+srv://admin:1111@aitudc.zqbnhzs.mongodb.net/?retryWrites=true&w=majority'
-            }
-        }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'aituDC',
+        'USER': 'postgres',
+        'PASSWORD': '1234567',
+        'HOST': 'localhost',
+        'PORT': '',
+    }
 }
 
 # Password validation
@@ -131,3 +143,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'alexfedenko0303200306@gmail.com'
+EMAIL_HOST_PASSWORD = 'vbtfilqdusgxseqn'

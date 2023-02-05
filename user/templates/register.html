@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+  <h2>Register</h2>
+     <form class="text-center" method="post">
+                  {%  csrf_token %}
+                 {% if messages %}
+                    {% for message in messages %}
+                  <div>{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+         <input name="fullname" placeholder="Username">
+         <input name="email" placeholder="Email">
+         <input type="password" name="password" placeholder="Password">
+         <button type="submit" id="nextstep" >Next</button>
+         </form>
+{% endblock %}
