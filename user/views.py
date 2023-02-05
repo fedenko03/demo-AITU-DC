@@ -2,7 +2,7 @@ import random
 import string
 import uuid
 
-from django.contrib.auth import login
+from django.contrib.auth import *
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.utils import timezone
@@ -37,7 +37,7 @@ def register(request):
                 messages.error(request, 'This email is already in use.')
                 return redirect('register')
 
-            user_obj = User(username=fullname, email=email)
+            user_obj = User(username=email, email=email, first_name=fullname)
             user_obj.set_password(password)
             user_obj.save()
             auth_token = str(uuid.uuid4())
@@ -69,6 +69,9 @@ def register(request):
 
 
 def confirm(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+
     if request.method == 'POST':
         code = request.POST.get('code')
         try:
@@ -85,6 +88,41 @@ def confirm(request):
     return render(request, 'confirm.html')
 
 
-@login_required(login_url='register')
+def login_user(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        user_obj = User.objects.filter(email=email).first()
+        if user_obj is None:
+            messages.success(request, 'User not found.')
+            return redirect('login_user')
+
+        profile_obj = CustomUser.objects.filter(user=user_obj).first()
+
+        if not profile_obj.is_active:
+            messages.success(request, 'Profile is not verified. Please, enter the code from email or register again.')
+            return redirect('login_user')
+
+        user = authenticate(username=email, password=password)
+        if user is None:
+            messages.success(request, 'Wrong password.')
+            return redirect('login_user')
+
+        login(request, user)
+        return redirect('home')
+
+    return render(request, 'login_user.html')
+
+
+def logout_user(request):
+    logout(request)
+    return redirect('login_user')
+
+
+@login_required(login_url='login_user')
 def home(request):
     return render(request, 'home.html')

@@ -2,7 +2,7 @@
 
 {% block content %}
 
-  <h2>Register</h2>
+  <h2>Login</h2>
      <form class="text-center" method="post">
                   {%  csrf_token %}
                  {% if messages %}
@@ -10,11 +10,10 @@
                   <div>{{ message }}</div>
                     {% endfor %}
                 {% endif %}
-         <input name="fullname" placeholder="Username">
          <input name="email" placeholder="Email">
          <input type="password" name="password" placeholder="Password">
-         <button type="submit" id="nextstep" >Next</button>
+         <button type="submit" id="nextstep" >Login</button>
          </form>
 
-    <a href="{% url 'login_user' %}">login user</a>
+    <a href="{% url 'register' %}">register</a>
 {% endblock %}
