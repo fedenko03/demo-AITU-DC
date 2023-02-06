@@ -19,6 +19,6 @@ class ChooserData(forms.Form):
                                                              'id': 'fullname_step4',
                                                              'placeholder': 'ФИО'
                                                              }))
-    status = forms.ChoiceField(choices=choices,
-                               widget=forms.RadioSelect(),
-                               required=True)
+    role = forms.ChoiceField(choices=choices,
+                             widget=forms.RadioSelect(),
+                             required=True)

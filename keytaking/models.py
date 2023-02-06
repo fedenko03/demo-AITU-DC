@@ -3,13 +3,40 @@ from django.db import models
 from user.models import *
 
 
+UserRole = [
+    ('Student', 'Student'),
+    ('Professor', 'Professor'),
+    ('Other', 'Other')
+]
+
+
+RoomCategory = [
+    ('Staff only', 'Staff only'),
+    ('For everyone', 'For everyone')
+]
+
+
+class Room(models.Model):
+    name = models.CharField(max_length=15)
+    category = models.CharField(max_length=15, choices=RoomCategory)
+    is_occupied = models.BooleanField(default=False)
+    is_visible = models.BooleanField(default=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True, null=True)
+    date = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Room'
+        verbose_name_plural = 'Rooms'
+
+
 class History(models.Model):
-    room = models.CharField(max_length=25)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE, blank=True, null=True)
     fullname = models.CharField(max_length=50)
-    status = models.CharField(max_length=10, default=False)
+    role = models.CharField(max_length=32, choices=UserRole)
+    is_verified = models.BooleanField(default=False)
     is_return = models.BooleanField(default=False)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True, null=True)
-    date = models.DateTimeField(max_length=10, auto_now_add=True)
+    date = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return self.room
@@ -23,7 +50,10 @@ class SettingsKeyTaking(models.Model):
     confirmation_code = models.CharField(max_length=100)
     code_timestamp = models.DateTimeField(blank=True, null=True)
     is_confirm = models.BooleanField(default=False)
-    room = models.CharField(max_length=20, default="")
+    room = models.ForeignKey(Room, on_delete=models.CASCADE, blank=True, null=True)
+
+    def __str__(self):
+        return self.confirmation_code
 
     class Meta:
         verbose_name = 'Settings KeyTaking'

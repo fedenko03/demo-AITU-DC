@@ -34,22 +34,24 @@ def step3(request):
         settings_obj = SettingsKeyTaking.objects.first()
         settings_obj.confirmation_code = generate_code()
         settings_obj.code_timestamp = timezone.now()
+        settings_obj.room = room
         settings_obj.is_confirm = False
 
         # settings_obj = SettingsKeyTaking.objects.create(
         #     confirmation_code=generate_code(),
         #     code_timestamp=timezone.now(),
+        # )
 
         settings_obj.save()
-        link_confirm = "http://127.0.0.1:8000/user/confirm_keytaking/token="+settings_obj.confirmation_code
+        link_confirm = "http://127.0.0.1:8000/user/confirm_keytaking/token=" + settings_obj.confirmation_code
         img = qrcode.make(link_confirm)
         img.save("media/qr.png")
         qr_image = True
-    return render(request, 'step3.html', {
-        'qr_image': qr_image,
-        'room': room,
-        'link': link_confirm
-    })
+        return render(request, 'step3.html', {
+            'qr_image': qr_image,
+            'room': room,
+            'link': link_confirm
+        })
 
 
 def step4(request):
@@ -57,13 +59,14 @@ def step4(request):
         form = ChooserData(request.POST)
         if form.is_valid():
             request.session['fullname'] = form.cleaned_data['fullname']
-            request.session['status'] = form.cleaned_data['status']
             request.session['date'] = timezone.now().strftime('%Y-%m-%d %H:%M:%S')
-            history = History(
+            request.session['role'] = form.cleaned_data['role']
+            history = History.objects.create(
                 room=request.session.get('room'),
                 fullname=request.session.get('fullname'),
-                status=request.session.get('status'),
-                date=request.session.get('date')
+                is_verified=False,
+                role=request.session.get('role'),
+                date=timezone.now()
             )
             history.save()
             return redirect('success')
@@ -79,12 +82,12 @@ def step4(request):
 def success(request):
     room = request.session.get('room')
     fullname = request.session.get('fullname')
-    status = request.session.get('status')
+    role = request.session.get('role')
     date = request.session.get('date')
     request.session.flush()
     return render(request, 'success.html', {
         'room': room,
         'fullname': fullname,
-        'status': status,
+        'role': role,
         'date': date
     })

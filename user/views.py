@@ -11,7 +11,7 @@ from django.core.mail import send_mail
 
 from AITUDC import settings
 from .models import *
-from keytaking.models import SettingsKeyTaking
+from keytaking.models import SettingsKeyTaking, History
 
 
 def generate_code():
@@ -140,7 +140,17 @@ def confirm_keytaking(request, confirmation_code):
                 messages.success(request, 'Срок действия QR кода истёк.')
                 return redirect('home')
             settings_obj.is_confirm = True
+            profile_obj = CustomUser.objects.filter(email=request.user.username).first()
+            history = History.objects.create(
+                room=settings_obj.room,
+                fullname=profile_obj.full_name,
+                is_verified=True,
+                role=profile_obj.role,
+                user=profile_obj,
+                date=timezone.now()
+            )
             settings_obj.save()
+            history.save()
             messages.success(request, 'Заявка на взятие ключа подтверждена успешно.')
             return redirect('home')
         else:
