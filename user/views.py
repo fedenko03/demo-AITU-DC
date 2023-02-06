@@ -11,6 +11,7 @@ from django.core.mail import send_mail
 
 from AITUDC import settings
 from .models import *
+from keytaking.models import SettingsKeyTaking
 
 
 def generate_code():
@@ -37,6 +38,10 @@ def register(request):
                 messages.error(request, 'This email is already in use.')
                 return redirect('register')
 
+            if not email.endswith('@astanait.edu.kz'):
+                messages.error(request, 'Email must be from @astanait.edu.kz domain.')
+                return redirect('register')
+
             user_obj = User(username=email, email=email, first_name=fullname)
             user_obj.set_password(password)
             user_obj.save()
@@ -58,17 +63,17 @@ def register(request):
             recipient_list = [profile_obj.email]
             send_mail(subject, message, from_email, recipient_list)
 
-            return redirect('confirm')
+            return redirect('confirm_registration')
 
         except Exception as e:
             print(e)
             messages.error(request, e)
-            return redirect('confirm')
+            return redirect('confirm_registration')
 
     return render(request, 'register.html')
 
 
-def confirm(request):
+def confirm_registration(request):
     if request.user.is_authenticated:
         return redirect('home')
 
@@ -76,16 +81,16 @@ def confirm(request):
         code = request.POST.get('code')
         try:
             user = CustomUser.objects.get(confirmation_code=code)
-            if timezone.now() - user.code_timestamp <= timezone.timedelta(minutes=20):
+            if timezone.now() - user.code_timestamp <= timezone.timedelta(minutes=5):
                 user.is_active = True
                 user.save()
                 login(request, user.user)
                 return redirect('home')
             else:
-                return render(request, 'confirm.html', {'error': 'Code expired'})
+                return render(request, 'confirm_registration.html', {'error': 'Code expired'})
         except CustomUser.DoesNotExist:
-            return render(request, 'confirm.html', {'error': 'Invalid code'})
-    return render(request, 'confirm.html')
+            return render(request, 'confirm_registration.html', {'error': 'Invalid code'})
+    return render(request, 'confirm_registration.html')
 
 
 def login_user(request):
@@ -118,11 +123,35 @@ def login_user(request):
     return render(request, 'login_user.html')
 
 
-def logout_user(request):
+def logout_user(request, ):
     logout(request)
     return redirect('login_user')
 
 
 @login_required(login_url='login_user')
+def confirm_keytaking(request, confirmation_code):
+    try:
+        settings_obj = SettingsKeyTaking.objects.filter(confirmation_code=confirmation_code).first()
+        if settings_obj:
+            if settings_obj.is_confirm:
+                messages.success(request, 'Сканированный QR код уже был подтверждён. Вернитесь к 1 шагу.')
+                return redirect('home')
+            if timezone.now() - settings_obj.code_timestamp >= timezone.timedelta(minutes=5):
+                messages.success(request, 'Срок действия QR кода истёк.')
+                return redirect('home')
+            settings_obj.is_confirm = True
+            settings_obj.save()
+            messages.success(request, 'Заявка на взятие ключа подтверждена успешно.')
+            return redirect('home')
+        else:
+            messages.success(request, 'Произошла какая-то ошибка. Попробуйте снова')
+            return redirect('home')
+    except Exception as e:
+        print(e)
+        return redirect('home')
+
+
+@login_required(login_url='login_user')
 def home(request):
-    return render(request, 'home.html')
+    profile_obj = CustomUser.objects.filter(email=request.user.username).first()
+    return render(request, 'home.html', {'profile': profile_obj})

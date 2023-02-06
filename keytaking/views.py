@@ -1,9 +1,16 @@
 from django.shortcuts import render, redirect
 from django.utils import timezone
 
-from .models import History
+from .models import *
 from .forms import ChooseRoom, ChooserData
 import qrcode
+import random
+import string
+
+
+def generate_code():
+    # Generate a random confirmation code
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=32))
 
 
 def step2(request):
@@ -24,12 +31,24 @@ def step3(request):
         return redirect('step4')
     else:
         room = request.session.get('room')
-        img = qrcode.make("https://youtube.com")  # qrcode.make(data)
+        settings_obj = SettingsKeyTaking.objects.first()
+        settings_obj.confirmation_code = generate_code()
+        settings_obj.code_timestamp = timezone.now()
+        settings_obj.is_confirm = False
+
+        # settings_obj = SettingsKeyTaking.objects.create(
+        #     confirmation_code=generate_code(),
+        #     code_timestamp=timezone.now(),
+
+        settings_obj.save()
+        link_confirm = "http://127.0.0.1:8000/user/confirm_keytaking/token="+settings_obj.confirmation_code
+        img = qrcode.make(link_confirm)
         img.save("media/qr.png")
         qr_image = True
     return render(request, 'step3.html', {
         'qr_image': qr_image,
-        'room': room
+        'room': room,
+        'link': link_confirm
     })
 
 

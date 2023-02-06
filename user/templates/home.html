@@ -1,12 +1,17 @@
 {% extends 'base_user.html' %}
 
 {% block content %}
-  <h2>Welcome, {{ user.full_name }}!</h2>
+  <h2>Welcome, {{ profile.full_name }}!</h2>
     <a href="{% url 'logout_user' %}">Log out</a>
 
     <section class="py-5">
         <div class="container py-5">
             <div class="row mb-5">
+                {% if messages %}
+                    {% for message in messages %}
+                        <span class="badge bg-dark mb-2">{{ message }}</span>
+                    {% endfor %}
+                {% endif %}
                 <div class="col-md-8 col-xl-6 text-center mx-auto">
                     <p class="fw-bold text-success mb-2">AITU Digital Controling</p>
                     <h2 class="fw-bold">Взять ключ от кабинета</h2>

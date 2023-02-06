@@ -16,7 +16,7 @@
                             {%  csrf_token %}
                  {% if messages %}
                     {% for message in messages %}
-                  <div>{{ message }}</div>
+                        <span class="badge bg-dark mb-2">{{ message }}</span>
                     {% endfor %}
                 {% endif %}
                             <div class="mb-3">
