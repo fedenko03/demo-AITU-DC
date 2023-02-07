@@ -1,5 +1,7 @@
 from django import forms
 
+from user.models import Category
+
 
 class ChooseRoom(forms.Form):
     room = forms.CharField(max_length=25,
@@ -8,17 +10,12 @@ class ChooseRoom(forms.Form):
 
 
 class ChooserData(forms.Form):
-    choices = (
-        ('Professor', 'Professor'),
-        ('Student', 'Student'),
-        ('Other', 'Other'),
-    )
     fullname = forms.CharField(max_length=50,
                                required=True,
                                widget=forms.TextInput(attrs={'class': 'form-control',
                                                              'id': 'fullname_step4',
                                                              'placeholder': 'ФИО'
                                                              }))
-    role = forms.ChoiceField(choices=choices,
+    role = forms.ChoiceField(choices=[(c.name, c.name) for c in Category.objects.exclude(name='All')],
                              widget=forms.RadioSelect(),
                              required=True)

@@ -10,13 +10,14 @@ from django.contrib import messages
 from django.core.mail import send_mail
 
 from AITUDC import settings
+from keytaking.forms import ChooserData
 from .models import *
 from keytaking.models import SettingsKeyTaking, History
 
 
 def generate_code():
     # Generate a random confirmation code
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=32))
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
 
 
 def register(request):
@@ -27,7 +28,7 @@ def register(request):
         fullname = request.POST.get('fullname')
         email = request.POST.get('email')
         password = request.POST.get('password')
-        print(password)
+        role = request.POST.get('role')
 
         try:
             if fullname == '':
@@ -53,6 +54,7 @@ def register(request):
                 auth_token=auth_token,
                 confirmation_code=generate_code(),
                 code_timestamp=timezone.now(),
+                role=Category.objects.filter(name=role).first()
             )
             profile_obj.save()
 
@@ -70,7 +72,9 @@ def register(request):
             messages.error(request, e)
             return redirect('confirm_registration')
 
-    return render(request, 'register.html')
+    return render(request, 'register.html', {
+        'form': ChooserData()
+    })
 
 
 def confirm_registration(request):
@@ -134,10 +138,10 @@ def confirm_keytaking(request, confirmation_code):
         settings_obj = SettingsKeyTaking.objects.filter(confirmation_code=confirmation_code).first()
         if settings_obj:
             if settings_obj.is_confirm:
-                messages.success(request, 'Сканированный QR код уже был подтверждён. Вернитесь к 1 шагу.')
+                messages.error(request, 'Сканированный QR код уже был подтверждён. Вернитесь к 1 шагу.')
                 return redirect('home')
             if timezone.now() - settings_obj.code_timestamp >= timezone.timedelta(minutes=5):
-                messages.success(request, 'Срок действия QR кода истёк.')
+                messages.error(request, 'Срок действия QR кода истёк.')
                 return redirect('home')
             settings_obj.is_confirm = True
             profile_obj = CustomUser.objects.filter(email=request.user.username).first()
@@ -145,7 +149,7 @@ def confirm_keytaking(request, confirmation_code):
                 room=settings_obj.room,
                 fullname=profile_obj.full_name,
                 is_verified=True,
-                role=profile_obj.role,
+                role=Category.objects.filter(name=profile_obj.role.name).first(),
                 user=profile_obj,
                 date=timezone.now()
             )
@@ -154,7 +158,7 @@ def confirm_keytaking(request, confirmation_code):
             messages.success(request, 'Заявка на взятие ключа подтверждена успешно.')
             return redirect('home')
         else:
-            messages.success(request, 'Произошла какая-то ошибка. Попробуйте снова')
+            messages.error(request, 'Произошла какая-то ошибка. Попробуйте снова')
             return redirect('home')
     except Exception as e:
         print(e)

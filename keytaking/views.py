@@ -96,9 +96,12 @@ def takeroom3(request):
             messages.error(request, error)
             return redirect('takeroomFinal')
 
+        settings_obj.type = 'Manually'
+        settings_obj.save()
         return redirect('takeroom4')
     else:
 
+        settings_obj.confirmation_code = generate_code()
         settings_obj.code_timestamp = timezone.now()
         settings_obj.room = Room.objects.filter(name=room).first()
         settings_obj.is_confirm = False
