@@ -5,7 +5,7 @@ from keytaking.models import *
 @admin.register(History)
 class PersonAdmin(admin.ModelAdmin):
     list_display = ("room", "user", "fullname", "role", "is_verified", "is_return", "date")
-    search_fields = ("room__startswith",)
+    search_fields = ("fullname__startswith",)
 
 
 @admin.register(SettingsKeyTaking)
@@ -15,5 +15,10 @@ class PersonAdmin(admin.ModelAdmin):
 
 @admin.register(Room)
 class PersonAdmin(admin.ModelAdmin):
-    list_display = ("name", "category", "is_occupied", "is_visible", "user", "date")
+    list_display = ("name", "floor", "is_occupied", "is_visible", "date")
+    filter_horizontal = ("category",)
 
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ("name",)

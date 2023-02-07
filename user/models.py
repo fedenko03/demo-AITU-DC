@@ -2,11 +2,15 @@ from django.contrib.auth.models import User
 from django.db import models
 
 
-UserRole = [
-    ('Student', 'Student'),
-    ('Professor', 'Professor'),
-    ('Other', 'Other')
-]
+class Category(models.Model):
+    name = models.CharField(max_length=15, default='Other')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Category'
+        verbose_name_plural = 'Categories'
 
 
 class CustomUser(models.Model):
@@ -15,7 +19,7 @@ class CustomUser(models.Model):
     email = models.EmailField(unique=True)
     confirmation_code = models.CharField(max_length=32, blank=True, null=True)
     code_timestamp = models.DateTimeField(blank=True, null=True)
-    role = models.CharField(max_length=32, choices=UserRole)
+    role = models.ForeignKey(Category, on_delete=models.CASCADE)
     auth_token = models.CharField(max_length=100)
     is_active = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
