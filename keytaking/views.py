@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import *
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.contrib import messages
@@ -58,10 +59,20 @@ def check_time_out(request, code_timestamp):
     return None
 
 
+def step_checker(request):
+    settings_obj = SettingsKeyTaking.objects.first()
+
+
 def clear_session(request):
     del request.session['room']
 
 
+def is_staff(user):
+    return user.is_staff
+
+
+@login_required(login_url='login_user')
+@user_passes_test(is_staff)
 def takeroom2(request):
     if request.method == 'POST':
         form = ChooseRoom(request.POST)
@@ -81,6 +92,8 @@ def takeroom2(request):
     return render(request, 'takeroom2.html', {'form': form})
 
 
+@login_required(login_url='login_user')
+@user_passes_test(is_staff)
 def takeroom3(request):
     settings_obj = SettingsKeyTaking.objects.first()
     room = request.session.get('room')
@@ -122,6 +135,8 @@ def takeroom3(request):
         })
 
 
+@login_required(login_url='login_user')
+@user_passes_test(is_staff)
 def takeroom4(request):
     if request.method == 'POST':
         form = ChooserData(request.POST)
@@ -157,6 +172,9 @@ def takeroom4(request):
                 role=Category.objects.filter(name=role).first(),
                 date=timezone.now()
             )
+            room_obj = Room.objects.filter(name=room).first()
+            room_obj.is_occupied = True
+            room_obj.save()
             history.save()
             clear_session(request)
             return redirect('takeroomFinal')
@@ -169,11 +187,21 @@ def takeroom4(request):
         })
 
 
+@login_required(login_url='login_user')
+@user_passes_test(is_staff)
 def takeroomFinal(request):
+    settings_obj = SettingsKeyTaking.objects.first()
     last_history_obj = History.objects.last()
-    return render(request, 'takeroomFinal.html', {
-        'history': last_history_obj
-    })
+    if settings_obj.type == 'QR':
+        return render(request, 'takeroomFinal.html', {
+            'history': last_history_obj,
+            'error': settings_obj.error
+        })
+    else:
+        return render(request, 'takeroomFinal.html', {
+            'history': last_history_obj,
+            'error': None
+        })
 
 
 def takeroom_isVar_changed(request):

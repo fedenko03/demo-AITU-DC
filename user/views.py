@@ -10,9 +10,10 @@ from django.contrib import messages
 from django.core.mail import send_mail
 
 from AITUDC import settings
+from keytaking.views import check_room
 from keytaking.forms import ChooserData
 from .models import *
-from keytaking.models import SettingsKeyTaking, History
+from keytaking.models import SettingsKeyTaking, History, Room
 
 
 def generate_code():
@@ -106,6 +107,10 @@ def login_user(request):
         password = request.POST.get('password')
 
         user_obj = User.objects.filter(email=email).first()
+        if user_obj.is_staff:
+            messages.error(request, 'This form not for admin.')
+            return redirect('login_user')
+
         if user_obj is None:
             messages.success(request, 'User not found.')
             return redirect('login_user')
@@ -127,9 +132,44 @@ def login_user(request):
     return render(request, 'login_user.html')
 
 
-def logout_user(request, ):
+def logout_user(request,):
     logout(request)
     return redirect('login_user')
+
+
+def role_checker(room, role):
+    has_category = False
+    room_obj = Room.objects.filter(name=room).first()
+    for category in room_obj.category.all():
+        if category.name == role or category.name == 'All':
+            has_category = True
+            break
+    if not has_category:
+        return "Ваш статус не позволяет взять ключ от этого кабинета"
+
+
+def qr_checker(request, settings_obj):
+    if settings_obj.is_confirm:
+        error = 'Сканированный QR код уже был подтверждён. Вернитесь к 1 шагу.'
+        return error
+    if timezone.now() - settings_obj.code_timestamp >= timezone.timedelta(minutes=5):
+        error = 'Срок действия QR кода истёк.'
+        return error
+    if not settings_obj.type == 'QR':
+        error = 'Невозможно активировать используя QR-код, попробуйте сначала.'
+        settings_obj.error = error
+        settings_obj.is_confirm = True
+        settings_obj.save()
+        return error
+    if check_room(settings_obj.room.name):
+        error = 'Выбранная комната выбрана неверно или уже занята'
+        settings_obj.error = error
+        settings_obj.is_confirm = True
+        settings_obj.save()
+        return error
+    user_obj = CustomUser.objects.filter(email=request.user.username).first()
+    error = role_checker(settings_obj.room.name, user_obj.role.name)
+    return error
 
 
 @login_required(login_url='login_user')
@@ -137,14 +177,16 @@ def confirm_keytaking(request, confirmation_code):
     try:
         settings_obj = SettingsKeyTaking.objects.filter(confirmation_code=confirmation_code).first()
         if settings_obj:
-            if settings_obj.is_confirm:
-                messages.error(request, 'Сканированный QR код уже был подтверждён. Вернитесь к 1 шагу.')
-                return redirect('home')
-            if timezone.now() - settings_obj.code_timestamp >= timezone.timedelta(minutes=5):
-                messages.error(request, 'Срок действия QR кода истёк.')
+            error = qr_checker(request, settings_obj)
+            if error:
+                messages.error(request, error)
                 return redirect('home')
             settings_obj.is_confirm = True
             profile_obj = CustomUser.objects.filter(email=request.user.username).first()
+            if not profile_obj:
+                messages.error(request, 'Пользователь не найден или не авторизован')
+                redirect('home')
+
             history = History.objects.create(
                 room=settings_obj.room,
                 fullname=profile_obj.full_name,
@@ -153,6 +195,9 @@ def confirm_keytaking(request, confirmation_code):
                 user=profile_obj,
                 date=timezone.now()
             )
+            room_obj = Room.objects.filter(name=settings_obj.room.name).first()
+            room_obj.is_occupied = True
+            room_obj.save()
             settings_obj.save()
             history.save()
             messages.success(request, 'Заявка на взятие ключа подтверждена успешно.')

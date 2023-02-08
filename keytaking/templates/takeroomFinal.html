@@ -8,7 +8,7 @@
                     <div class="card-header py-3">
                         <p class="text-primary m-0 fw-bold">Взятие ключа</p>
                     </div>
-                    {% if not messages %}
+                    {% if not error and not messages %}
                         <div class="card-body">
                             <section class="text-center newsletter-subscribe py-4 py-xl-5">
                                 <div class="container">
@@ -23,7 +23,8 @@
                                         <div class="col text-center me-2">
                                             <div>
                                                 <h5 class="text-primary mb-0"><strong>Информация:</strong></h5>
-                                                <h6 class="mb-0"><strong>ФИО:</strong> {{ history.fullname }} ({{ history.role.name }})
+                                                <h6 class="mb-0"><strong>ФИО:</strong> {{ history.fullname }}
+                                                    ({{ history.role.name }})
                                                     {% if history.is_verified %}
                                                         <span class="text-xs">&nbsp;(через QR)</span> {% endif %}</h6>
                                                 <h6 class="mb-0"><strong>Кабинет:</strong> {{ history.room }}</h6>
@@ -50,9 +51,13 @@
                                         <div class="col text-center me-2">
                                             <div>
                                                 <h5 class="text-primary mb-0"><strong>Информация:</strong></h5>
-                                                {% for message in messages %}
-                                                    <h6 class="mb-0"><strong>{{ message }}</strong></h6>
-                                                {% endfor %}
+                                                {% if messages %}
+                                                    {% for message in messages %}
+                                                        <h6 class="mb-0"><strong>{{ message }}</strong></h6>
+                                                    {% endfor %}
+                                                {% elif error %}
+                                                        <h6 class="mb-0"><strong>{{ error }}</strong></h6>
+                                                {% endif %}
                                             </div>
                                         </div>
                                     </div>

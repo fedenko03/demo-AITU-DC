@@ -54,6 +54,7 @@ class SettingsKeyTaking(models.Model):
     is_confirm = models.BooleanField(default=False)
     room = models.ForeignKey(Room, on_delete=models.CASCADE, blank=True, null=True)
     type = models.CharField(default='Manually', max_length=10, choices=TypeTakeRoom)
+    step = models.IntegerField(default=1)
     error = models.CharField(max_length=100, default='', blank=True, null=True)
 
     def __str__(self):
