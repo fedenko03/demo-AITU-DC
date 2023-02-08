@@ -74,6 +74,7 @@ def is_staff(user):
 @login_required(login_url='login_user')
 @user_passes_test(is_staff)
 def takeroom2(request):
+    settings_obj = SettingsKeyTaking.objects.first()
     if request.method == 'POST':
         form = ChooseRoom(request.POST)
 
@@ -85,9 +86,13 @@ def takeroom2(request):
                 messages.error(request, error)
                 return redirect('takeroom2')
 
+            settings_obj.step = 3
+            settings_obj.save()
             request.session['room'] = room
             return redirect('takeroom3')
     else:
+        settings_obj.step = 2
+        settings_obj.save()
         form = ChooseRoom()
     return render(request, 'takeroom2.html', {'form': form})
 
@@ -109,16 +114,25 @@ def takeroom3(request):
             messages.error(request, error)
             return redirect('takeroomFinal')
 
+        settings_obj.step = 4
         settings_obj.type = 'Manually'
         settings_obj.save()
         return redirect('takeroom4')
     else:
+        if settings_obj.step != 3:
+            settings_obj.step = 2
+            settings_obj.is_confirm = True
+            settings_obj.confirmation_code = generate_code()
+            settings_obj.save()
+            messages.error(request, 'Возникла ошибка с очередностью шагов. Попробуйте сначала.')
+            return redirect('takeroom2')
 
         settings_obj.confirmation_code = generate_code()
         settings_obj.code_timestamp = timezone.now()
         settings_obj.room = Room.objects.filter(name=room).first()
         settings_obj.is_confirm = False
         settings_obj.type = 'QR'
+        settings_obj.step = 3
         settings_obj.error = ''
         settings_obj.save()
 
@@ -138,6 +152,7 @@ def takeroom3(request):
 @login_required(login_url='login_user')
 @user_passes_test(is_staff)
 def takeroom4(request):
+    settings_obj = SettingsKeyTaking.objects.first()
     if request.method == 'POST':
         form = ChooserData(request.POST)
         if form.is_valid():
@@ -150,7 +165,6 @@ def takeroom4(request):
                 messages.error(request, error)
                 return redirect('takeroomFinal')
 
-            settings_obj = SettingsKeyTaking.objects.first()
             error = check_time_out(request, settings_obj.code_timestamp)
             if error:
                 messages.error(request, error)
@@ -163,6 +177,7 @@ def takeroom4(request):
 
             settings_obj = SettingsKeyTaking.objects.first()
             settings_obj.type = 'Manually'
+            settings_obj.step = 5
             settings_obj.save()
 
             history = History.objects.create(
@@ -179,6 +194,14 @@ def takeroom4(request):
             clear_session(request)
             return redirect('takeroomFinal')
     else:
+        if settings_obj.step != 4:
+            settings_obj.step = 2
+            settings_obj.is_confirm = True
+            settings_obj.confirmation_code = generate_code()
+            settings_obj.save()
+            messages.error(request, 'Возникла ошибка с очередностью шагов. Попробуйте сначала.')
+            return redirect('takeroom2')
+
         form = ChooserData()
         room = request.session.get('room')
         return render(request, 'takeroom4.html', {
@@ -191,13 +214,24 @@ def takeroom4(request):
 @user_passes_test(is_staff)
 def takeroomFinal(request):
     settings_obj = SettingsKeyTaking.objects.first()
+    if settings_obj.step != 5 and settings_obj.type == 'Manually':
+        settings_obj.step = 2
+        settings_obj.is_confirm = True
+        settings_obj.confirmation_code = generate_code()
+        settings_obj.save()
+        messages.error(request, 'Возникла ошибка с очередностью шагов. Попробуйте сначала.')
+        return redirect('takeroom2')
     last_history_obj = History.objects.last()
-    if settings_obj.type == 'QR':
+    if settings_obj.type == 'QR' and settings_obj.step == 4:
+        settings_obj.step = 2
+        settings_obj.save()
         return render(request, 'takeroomFinal.html', {
             'history': last_history_obj,
             'error': settings_obj.error
         })
     else:
+        settings_obj.step = 2
+        settings_obj.save()
         return render(request, 'takeroomFinal.html', {
             'history': last_history_obj,
             'error': None

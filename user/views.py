@@ -107,12 +107,12 @@ def login_user(request):
         password = request.POST.get('password')
 
         user_obj = User.objects.filter(email=email).first()
-        if user_obj.is_staff:
-            messages.error(request, 'This form not for admin.')
-            return redirect('login_user')
 
         if user_obj is None:
             messages.success(request, 'User not found.')
+            return redirect('login_user')
+        if user_obj.is_staff:
+            messages.error(request, 'This form not for admin.')
             return redirect('login_user')
 
         profile_obj = CustomUser.objects.filter(user=user_obj).first()
@@ -173,15 +173,24 @@ def qr_checker(request, settings_obj):
 
 
 @login_required(login_url='login_user')
-def confirm_keytaking(request, confirmation_code):
+def confirm_keytaking(request, confirmation_code): #step 4
     try:
         settings_obj = SettingsKeyTaking.objects.filter(confirmation_code=confirmation_code).first()
+        if settings_obj.step != 3 and settings_obj.type == 'QR':
+            settings_obj.is_confirm = True
+            settings_obj.step = 2
+            settings_obj.confirmation_code = generate_code()
+            settings_obj.save()
+            messages.error(request, 'Возникла ошибка с очередностью шагов. Попробуйте сначала.')
+            return redirect('home')
+
         if settings_obj:
             error = qr_checker(request, settings_obj)
             if error:
                 messages.error(request, error)
                 return redirect('home')
             settings_obj.is_confirm = True
+            settings_obj.step = 4
             profile_obj = CustomUser.objects.filter(email=request.user.username).first()
             if not profile_obj:
                 messages.error(request, 'Пользователь не найден или не авторизован')
