@@ -109,7 +109,7 @@ def takeroom3(request):
         settings_obj.error = ''
         settings_obj.save()
 
-        link_confirm = "http://127.0.0.1:8000/user/confirm_keytaking/token=" + settings_obj.confirmation_code
+        link_confirm = "http://" + request.get_host() + "/user/confirm_keytaking/token=" + settings_obj.confirmation_code
         img = qrcode.make(link_confirm)
         img.save("media/qr.png")
         qr_image = True
@@ -179,3 +179,6 @@ def takeroomFinal(request):
 def takeroom_isVar_changed(request):
     settings_obj = SettingsKeyTaking.objects.first()
     return JsonResponse({'variable_is_confirm': settings_obj.is_confirm})
+
+
+# http://172.20.10.2:8020/keytaking/st3/
