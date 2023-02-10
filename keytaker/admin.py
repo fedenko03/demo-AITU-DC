@@ -1,5 +1,5 @@
 from django.contrib import admin
-from keytaking.models import *
+from .models import *
 
 
 @admin.register(History)
@@ -17,8 +17,3 @@ class PersonAdmin(admin.ModelAdmin):
 class PersonAdmin(admin.ModelAdmin):
     list_display = ("name", "floor", "is_occupied", "is_visible", "date")
     filter_horizontal = ("category",)
-
-
-@admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("name",)

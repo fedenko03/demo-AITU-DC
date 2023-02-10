@@ -2,24 +2,24 @@ from django.contrib.auth.models import User
 from django.db import models
 
 
-class Category(models.Model):
+class Role(models.Model):
     name = models.CharField(max_length=15, default='Other')
 
     def __str__(self):
         return self.name
 
     class Meta:
-        verbose_name = 'Category'
-        verbose_name_plural = 'Categories'
+        verbose_name = 'Role'
+        verbose_name_plural = 'Roles'
 
 
-class CustomUser(models.Model):
+class MainUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     full_name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
     confirmation_code = models.CharField(max_length=32, blank=True, null=True)
     code_timestamp = models.DateTimeField(blank=True, null=True)
-    role = models.ForeignKey(Category, on_delete=models.CASCADE)
+    role = models.ForeignKey(Role, on_delete=models.CASCADE)
     auth_token = models.CharField(max_length=100)
     is_active = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

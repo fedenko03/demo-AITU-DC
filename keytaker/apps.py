@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class KeyreturningConfig(AppConfig):
+class KeytakingConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'keyreturning'
+    name = 'keytaker'

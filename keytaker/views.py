@@ -24,7 +24,7 @@ def check_fullnameAndRole(fullname, role, room):
     if not 4 <= len(fullname) <= 50:
         return "The length of the variable must be between 4 and 50 characters."
     # Check role
-    if not Category.objects.filter(name=role).first():
+    if not Role.objects.filter(name=role).first():
         return "Your role does not exist"
 
     has_category = False
@@ -124,7 +124,7 @@ def takeroom3(request):
             settings_obj.is_confirm = True
             settings_obj.confirmation_code = generate_code()
             settings_obj.save()
-            messages.error(request, 'Возникла ошибка с очередностью шагов. Попробуйте сначала.')
+            messages.error(request, 'Соблюдайте очередность шагов.')
             return redirect('takeroom2')
 
         settings_obj.confirmation_code = generate_code()
@@ -136,7 +136,7 @@ def takeroom3(request):
         settings_obj.error = ''
         settings_obj.save()
 
-        link_confirm = "http://" + request.get_host() + "/user/confirm_keytaking/token=" + settings_obj.confirmation_code
+        link_confirm = "http://" + request.get_host() + "/confirm_keytaking/token=" + settings_obj.confirmation_code
         img = qrcode.make(link_confirm)
         img.save("media/qr.png")
         qr_image = True
@@ -178,13 +178,14 @@ def takeroom4(request):
             settings_obj = SettingsKeyTaking.objects.first()
             settings_obj.type = 'Manually'
             settings_obj.step = 5
+            settings_obj.is_confirm = True
             settings_obj.save()
 
             history = History.objects.create(
                 room=Room.objects.filter(name=room).first(),
                 fullname=fullname,
                 is_verified=False,
-                role=Category.objects.filter(name=role).first(),
+                role=Role.objects.filter(name=role).first(),
                 date=timezone.now()
             )
             room_obj = Room.objects.filter(name=room).first()
@@ -199,7 +200,7 @@ def takeroom4(request):
             settings_obj.is_confirm = True
             settings_obj.confirmation_code = generate_code()
             settings_obj.save()
-            messages.error(request, 'Возникла ошибка с очередностью шагов. Попробуйте сначала.')
+            messages.error(request, 'Соблюдайте очередность шагов.')
             return redirect('takeroom2')
 
         form = ChooserData()
@@ -214,15 +215,19 @@ def takeroom4(request):
 @user_passes_test(is_staff)
 def takeroomFinal(request):
     settings_obj = SettingsKeyTaking.objects.first()
+    if not settings_obj.is_confirm:
+        settings_obj.confirmation_code = generate_code()
+        settings_obj.save()
+        return redirect('takeroom2')
     if settings_obj.step != 5 and settings_obj.type == 'Manually':
         settings_obj.step = 2
         settings_obj.is_confirm = True
         settings_obj.confirmation_code = generate_code()
         settings_obj.save()
-        messages.error(request, 'Возникла ошибка с очередностью шагов. Попробуйте сначала.')
+        messages.error(request, 'Соблюдайте очередность шагов.')
         return redirect('takeroom2')
     last_history_obj = History.objects.last()
-    if settings_obj.type == 'QR' and settings_obj.step == 4:
+    if settings_obj.type == 'QR':
         settings_obj.step = 2
         settings_obj.save()
         return render(request, 'takeroomFinal.html', {

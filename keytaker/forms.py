@@ -1,6 +1,6 @@
 from django import forms
 
-from user.models import Category
+from user.models import Role
 
 
 class ChooseRoom(forms.Form):
@@ -16,6 +16,6 @@ class ChooserData(forms.Form):
                                                              'id': 'fullname_step4',
                                                              'placeholder': 'ФИО'
                                                              }))
-    role = forms.ChoiceField(choices=[(c.name, c.name) for c in Category.objects.exclude(name='All')],
+    role = forms.ChoiceField(choices=[(c.name, c.name) for c in Role.objects.exclude(name='All')],
                              widget=forms.RadioSelect(),
                              required=True)

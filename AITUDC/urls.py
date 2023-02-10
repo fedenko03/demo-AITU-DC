@@ -20,10 +20,11 @@ from django.urls import path, include
 from django.contrib.auth.views import LoginView
 
 urlpatterns = [
-    path('keytaking/', include('keytaking.urls')),
-    path('user/', include('user.urls')),
+    path('', include('user.urls')),
+    path('main/', include('main.urls')),
+    path('keytaker/', include('keytaker.urls')),
     path('admin/', admin.site.urls),
-    path('login/', LoginView.as_view(), name='login'),
+    # path('login/', LoginView.as_view(), name='login'),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

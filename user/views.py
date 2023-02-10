@@ -10,10 +10,10 @@ from django.contrib import messages
 from django.core.mail import send_mail
 
 from AITUDC import settings
-from keytaking.views import check_room
-from keytaking.forms import ChooserData
+from keytaker.views import check_room
+from keytaker.forms import ChooserData
 from .models import *
-from keytaking.models import SettingsKeyTaking, History, Room
+from keytaker.models import SettingsKeyTaking, History, Room
 
 
 def generate_code():
@@ -48,14 +48,14 @@ def register(request):
             user_obj.set_password(password)
             user_obj.save()
             auth_token = str(uuid.uuid4())
-            profile_obj = CustomUser.objects.create(
+            profile_obj = MainUser.objects.create(
                 user=user_obj,
                 full_name=fullname,
                 email=email,
                 auth_token=auth_token,
                 confirmation_code=generate_code(),
                 code_timestamp=timezone.now(),
-                role=Category.objects.filter(name=role).first()
+                role=Role.objects.filter(name=role).first()
             )
             profile_obj.save()
 
@@ -85,7 +85,7 @@ def confirm_registration(request):
     if request.method == 'POST':
         code = request.POST.get('code')
         try:
-            user = CustomUser.objects.get(confirmation_code=code)
+            user = MainUser.objects.get(confirmation_code=code)
             if timezone.now() - user.code_timestamp <= timezone.timedelta(minutes=5):
                 user.is_active = True
                 user.save()
@@ -93,7 +93,7 @@ def confirm_registration(request):
                 return redirect('home')
             else:
                 return render(request, 'confirm_registration.html', {'error': 'Code expired'})
-        except CustomUser.DoesNotExist:
+        except MainUser.DoesNotExist:
             return render(request, 'confirm_registration.html', {'error': 'Invalid code'})
     return render(request, 'confirm_registration.html')
 
@@ -115,7 +115,7 @@ def login_user(request):
             messages.error(request, 'This form not for admin.')
             return redirect('login_user')
 
-        profile_obj = CustomUser.objects.filter(user=user_obj).first()
+        profile_obj = MainUser.objects.filter(user=user_obj).first()
 
         if not profile_obj.is_active:
             messages.success(request, 'Profile is not verified. Please, enter the code from email or register again.')
@@ -167,7 +167,7 @@ def qr_checker(request, settings_obj):
         settings_obj.is_confirm = True
         settings_obj.save()
         return error
-    user_obj = CustomUser.objects.filter(email=request.user.username).first()
+    user_obj = MainUser.objects.filter(email=request.user.username).first()
     error = role_checker(settings_obj.room.name, user_obj.role.name)
     return error
 
@@ -176,13 +176,6 @@ def qr_checker(request, settings_obj):
 def confirm_keytaking(request, confirmation_code): #step 4
     try:
         settings_obj = SettingsKeyTaking.objects.filter(confirmation_code=confirmation_code).first()
-        if settings_obj.step != 3 and settings_obj.type == 'QR':
-            settings_obj.is_confirm = True
-            settings_obj.step = 2
-            settings_obj.confirmation_code = generate_code()
-            settings_obj.save()
-            messages.error(request, 'Возникла ошибка с очередностью шагов. Попробуйте сначала.')
-            return redirect('home')
 
         if settings_obj:
             error = qr_checker(request, settings_obj)
@@ -190,17 +183,16 @@ def confirm_keytaking(request, confirmation_code): #step 4
                 messages.error(request, error)
                 return redirect('home')
             settings_obj.is_confirm = True
-            settings_obj.step = 4
-            profile_obj = CustomUser.objects.filter(email=request.user.username).first()
+            profile_obj = MainUser.objects.filter(email=request.user.username).first()
             if not profile_obj:
                 messages.error(request, 'Пользователь не найден или не авторизован')
-                redirect('home')
+                return redirect('home')
 
             history = History.objects.create(
                 room=settings_obj.room,
                 fullname=profile_obj.full_name,
                 is_verified=True,
-                role=Category.objects.filter(name=profile_obj.role.name).first(),
+                role=Role.objects.filter(name=profile_obj.role.name).first(),
                 user=profile_obj,
                 date=timezone.now()
             )
@@ -221,5 +213,5 @@ def confirm_keytaking(request, confirmation_code): #step 4
 
 @login_required(login_url='login_user')
 def home(request):
-    profile_obj = CustomUser.objects.filter(email=request.user.username).first()
-    return render(request, 'home.html', {'profile': profile_obj})
+    profile_obj = MainUser.objects.filter(email=request.user.username).first()
+    return render(request, 'home-user.html', {'profile': profile_obj})

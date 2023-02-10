@@ -11,8 +11,9 @@ Floors = [
 
 class Room(models.Model):
     name = models.CharField(max_length=15)
+    description = models.CharField(max_length=50, default="")
     floor = models.CharField(max_length=2, choices=Floors, default='1')
-    category = models.ManyToManyField(Category)
+    category = models.ManyToManyField(Role)
     is_occupied = models.BooleanField(default=False)
     is_visible = models.BooleanField(default=True)
     date = models.DateTimeField(blank=True, null=True)
@@ -28,10 +29,10 @@ class Room(models.Model):
 class History(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE, blank=True, null=True)
     fullname = models.CharField(max_length=50)
-    role = models.ForeignKey(Category, on_delete=models.CASCADE)
+    role = models.ForeignKey(Role, on_delete=models.CASCADE)
     is_verified = models.BooleanField(default=False)
     is_return = models.BooleanField(default=False)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True, null=True)
+    user = models.ForeignKey(MainUser, on_delete=models.CASCADE, blank=True, null=True)
     date = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
