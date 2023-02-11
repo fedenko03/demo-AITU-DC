@@ -8,4 +8,5 @@ urlpatterns = [
     path('st4/', views.takeroom4, name='takeroom4'),
     path('final/', views.takeroomFinal, name='takeroomFinal'),
     path('takeroom_isVar_changed/', views.takeroom_isVar_changed, name='takeroom_isVar_changed'),
+    path('get_last5_orders/', views.get_last5_orders, name='get_last5_orders'),
 ]

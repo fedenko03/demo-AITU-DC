@@ -13,7 +13,7 @@ from AITUDC import settings
 from keytaker.views import check_room
 from keytaker.forms import ChooserData
 from .models import *
-from keytaker.models import SettingsKeyTaking, History, Room
+from keytaker.models import *
 
 
 def generate_code():
@@ -175,7 +175,7 @@ def qr_checker(request, settings_obj):
 @login_required(login_url='login_user')
 def confirm_keytaking(request, confirmation_code): #step 4
     try:
-        settings_obj = SettingsKeyTaking.objects.filter(confirmation_code=confirmation_code).first()
+        settings_obj = SettingsKeyTaker.objects.filter(confirmation_code=confirmation_code).first()
 
         if settings_obj:
             error = qr_checker(request, settings_obj)

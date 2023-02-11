@@ -1,17 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Home</title>
-</head>
-<body>
-<div>
-    <a href='{% url 'takeroom2' %}'>Взять ключ</a>
-</div>
-<div>
-    <a href="/">Вернуть ключ</a>
-</div>
+{% extends 'base.html' %}
+{% block title %}Главная{% endblock %}
+{% block content %}
+    {% load static %}
+   <div>
+        <a href='{% url 'takeroom2' %}'>Взять ключ</a>
+    </div>
+    <div>
+        <a href="/">Вернуть ключ</a>
+    </div>
 
+    <h1 id="text-update">nothing</h1>
+    {#<script>#}
+    {#var socket = new WebSocket('ws://localhost:8000/ws/some_url/')#}
+    {#socket.onmessage = function (event){#}
+    {#    var data = JSON.parse(event.data);#}
+    {#    console.log(data);#}
+    {#    document.querySelector('#text-update').innerText = data.message}#}
+    {#</script>#}
 
-</body>
-</html>
+    <div class="notification-container"></div>
+
+{% endblock %}

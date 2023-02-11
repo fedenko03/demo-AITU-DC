@@ -1,14 +1,22 @@
+import json
+
 from django.contrib.auth.decorators import *
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.contrib import messages
 
+from .consumers import WSNewOrder
 from .models import *
 from .forms import ChooseRoom, ChooserData
 import qrcode
 import random
 import string
 from django.http import JsonResponse
+import asyncio
+
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+from .models import Orders
 
 
 def generate_code():
@@ -60,7 +68,7 @@ def check_time_out(request, code_timestamp):
 
 
 def step_checker(request):
-    settings_obj = SettingsKeyTaking.objects.first()
+    settings_obj = SettingsKeyTaker.objects.first()
 
 
 def clear_session(request):
@@ -74,7 +82,10 @@ def is_staff(user):
 @login_required(login_url='login_user')
 @user_passes_test(is_staff)
 def takeroom2(request):
-    settings_obj = SettingsKeyTaking.objects.first()
+    settings_obj = SettingsKeyTaker.objects.first()
+    settings_obj.confirmation_code = generate_code()
+    settings_obj.in_process = True
+    settings_obj.is_confirm = False
     if request.method == 'POST':
         form = ChooseRoom(request.POST)
 
@@ -100,8 +111,21 @@ def takeroom2(request):
 @login_required(login_url='login_user')
 @user_passes_test(is_staff)
 def takeroom3(request):
-    settings_obj = SettingsKeyTaking.objects.first()
+    settings_obj = SettingsKeyTaker.objects.first()
+
+    if not settings_obj.in_process:
+        return redirect('takeroom2')
+
     room = request.session.get('room')
+
+    if settings_obj.step != 3:
+        settings_obj.step = 2
+        settings_obj.is_confirm = False
+        settings_obj.in_process = False
+        settings_obj.confirmation_code = generate_code()
+        settings_obj.save()
+        messages.error(request, 'Соблюдайте очередность шагов.')
+        return redirect('takeroom2')
 
     error = check_room(room)
     if error:
@@ -119,13 +143,6 @@ def takeroom3(request):
         settings_obj.save()
         return redirect('takeroom4')
     else:
-        if settings_obj.step != 3:
-            settings_obj.step = 2
-            settings_obj.is_confirm = True
-            settings_obj.confirmation_code = generate_code()
-            settings_obj.save()
-            messages.error(request, 'Соблюдайте очередность шагов.')
-            return redirect('takeroom2')
 
         settings_obj.confirmation_code = generate_code()
         settings_obj.code_timestamp = timezone.now()
@@ -145,14 +162,17 @@ def takeroom3(request):
             'qr_image': qr_image,
             'room': room,
             'link': link_confirm,
-            'is_confirm': 'false'  # add checker
+            'is_confirm': 'false'
         })
 
 
 @login_required(login_url='login_user')
 @user_passes_test(is_staff)
 def takeroom4(request):
-    settings_obj = SettingsKeyTaking.objects.first()
+    settings_obj = SettingsKeyTaker.objects.first()
+    if not settings_obj.in_process:
+        return redirect('takeroom2')
+
     if request.method == 'POST':
         form = ChooserData(request.POST)
         if form.is_valid():
@@ -175,7 +195,7 @@ def takeroom4(request):
                 messages.error(request, error)
                 return redirect('takeroom4')
 
-            settings_obj = SettingsKeyTaking.objects.first()
+            settings_obj = SettingsKeyTaker.objects.first()
             settings_obj.type = 'Manually'
             settings_obj.step = 5
             settings_obj.is_confirm = True
@@ -197,7 +217,8 @@ def takeroom4(request):
     else:
         if settings_obj.step != 4:
             settings_obj.step = 2
-            settings_obj.is_confirm = True
+            settings_obj.is_confirm = False
+            settings_obj.in_process = False
             settings_obj.confirmation_code = generate_code()
             settings_obj.save()
             messages.error(request, 'Соблюдайте очередность шагов.')
@@ -214,19 +235,25 @@ def takeroom4(request):
 @login_required(login_url='login_user')
 @user_passes_test(is_staff)
 def takeroomFinal(request):
-    settings_obj = SettingsKeyTaking.objects.first()
+    settings_obj = SettingsKeyTaker.objects.first()
+
+    if not settings_obj.in_process:
+        return redirect('takeroom2')
+
     if not settings_obj.is_confirm:
         settings_obj.confirmation_code = generate_code()
         settings_obj.save()
         return redirect('takeroom2')
+
     if settings_obj.step != 5 and settings_obj.type == 'Manually':
         settings_obj.step = 2
-        settings_obj.is_confirm = True
+        settings_obj.in_process = False
         settings_obj.confirmation_code = generate_code()
         settings_obj.save()
         messages.error(request, 'Соблюдайте очередность шагов.')
         return redirect('takeroom2')
     last_history_obj = History.objects.last()
+    settings_obj.in_process = False
     if settings_obj.type == 'QR':
         settings_obj.step = 2
         settings_obj.save()
@@ -244,8 +271,41 @@ def takeroomFinal(request):
 
 
 def takeroom_isVar_changed(request):
-    settings_obj = SettingsKeyTaking.objects.first()
+    settings_obj = SettingsKeyTaker.objects.first()
     return JsonResponse({'variable_is_confirm': settings_obj.is_confirm})
 
 
-# http://172.20.10.2:8020/keytaking/st3/
+def new_order_notify(order_obj):
+    for consumer in WSNewOrder.consumers:
+        asyncio.run(consumer.send(text_data=json.dumps({
+            'room_name': order_obj.room.name,
+            'note': order_obj.note,
+            'time': order_obj.orders_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+            'user_full_name': order_obj.user.full_name
+        })))
+
+
+def get_last5_orders(request):
+    current_time = timezone.now()
+    time_diff = timezone.timedelta(minutes=5)
+
+    last_5_orders = Orders.objects.filter(
+        is_available=True,
+        orders_timestamp__gte=current_time-time_diff
+    ).order_by('-orders_timestamp')[:5]
+
+    orders_list = []
+    for order in last_5_orders:
+        orders_list.append({'room': order.room.name,
+                            'note': order.note,
+                            'user': {
+                                'name': order.user.full_name,
+                                'email': order.user.email
+                            },
+                            "orders_timestamp": order.orders_timestamp,
+                            "is_confirm": order.is_confirm
+                            })
+    order_obj = Orders.objects.last()
+    new_order_notify(order_obj)
+    return JsonResponse(orders_list, safe=False)
+
