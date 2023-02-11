@@ -73,7 +73,7 @@ class Orders(models.Model):
     note = models.CharField(max_length=100, default='', blank=True, null=True)
     user = models.ForeignKey(MainUser, on_delete=models.CASCADE)
     orders_timestamp = models.DateTimeField()
-    is_available = models.BooleanField(default=False)
+    is_available = models.BooleanField(default=True)
     is_confirm = models.BooleanField(default=False)
 
     def __str__(self):

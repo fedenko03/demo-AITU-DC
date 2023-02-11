@@ -10,7 +10,7 @@ from django.contrib import messages
 from django.core.mail import send_mail
 
 from AITUDC import settings
-from keytaker.views import check_room
+from keytaker.views import check_room, new_order_notify
 from keytaker.forms import ChooserData
 from .models import *
 from keytaker.models import *
@@ -132,7 +132,7 @@ def login_user(request):
     return render(request, 'login_user.html')
 
 
-def logout_user(request,):
+def logout_user(request, ):
     logout(request)
     return redirect('login_user')
 
@@ -173,7 +173,7 @@ def qr_checker(request, settings_obj):
 
 
 @login_required(login_url='login_user')
-def confirm_keytaking(request, confirmation_code): #step 4
+def confirm_keytaking(request, confirmation_code):  # step 4
     try:
         settings_obj = SettingsKeyTaker.objects.filter(confirmation_code=confirmation_code).first()
 
@@ -213,5 +213,56 @@ def confirm_keytaking(request, confirmation_code): #step 4
 
 @login_required(login_url='login_user')
 def home(request):
+    step = request.session.get('step')
+    code = request.session.get('code')
+    order_obj = Orders.objects.filter(confirmation_code=code).first()
+
+    if not step:
+        request.session['step'] = 1
+    if not code:
+        request.session['code'] = ''
+    if order_obj:
+        if order_obj.is_confirm or not order_obj.is_available:
+            request.session['step'] = 1
+            request.session['code'] = ''
+        if timezone.now() - order_obj.orders_timestamp >= timezone.timedelta(minutes=5):
+            request.session['step'] = 1
+            request.session['code'] = ''
+            messages.error(request, "Время ожидания истекло. Попробуйте сначала.")
+    else:
+        request.session['step'] = 1
+        request.session['code'] = ''
+
+
+    if request.method == 'POST':
+        if step == 1:
+            room = request.POST.get('room')
+            note = request.POST.get('note')
+
+            error = check_room(room)
+            if error:
+                messages.error(request, error)
+                return redirect('home')
+
+            code_generated = generate_code()
+            request.session['code'] = code_generated
+
+            new_order_obj = Orders.objects.create(
+                room=Room.objects.filter(name=room).first(),
+                confirmation_code=code_generated,
+                note=note,
+                user=MainUser.objects.filter(email=request.user.username).first(),
+                orders_timestamp=timezone.now()
+            )
+            new_order_obj.save()
+            new_order_notify(new_order_obj)
+            request.session['step'] = 2
+
+            return redirect('home')
+
     profile_obj = MainUser.objects.filter(email=request.user.username).first()
-    return render(request, 'home-user.html', {'profile': profile_obj})
+    return render(request, 'home-user.html', {
+        'profile': profile_obj,
+        'step': request.session.get('step'),
+        'code': request.session.get('code')
+    })

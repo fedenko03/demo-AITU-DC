@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Шаг 2{% endblock %}
 {% block content %}
+    {% load static %}
 
     <div id="step2a" class="container-fluid">
         <div class="text-center p-4 p-lg-5">
@@ -321,4 +322,5 @@
         </div>
     </div>
 
+<script src="{% static 'js/hint.js' %}"></script>
 {% endblock %}

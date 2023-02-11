@@ -2,7 +2,7 @@
 {% block title %}Главная{% endblock %}
 {% block content %}
     {% load static %}
-   <div>
+    <div>
         <a href='{% url 'takeroom2' %}'>Взять ключ</a>
     </div>
     <div>
@@ -19,5 +19,6 @@
     {#</script>#}
 
     <div class="notification-container"></div>
+    <script src="{% static 'js/js-notifications.js' %}"></script>
 
 {% endblock %}

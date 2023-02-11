@@ -8,3 +8,7 @@
     flex-direction: column;
     align-items: flex-end;
 }
+
+.fade-out {
+    transition: opacity 500ms;
+}

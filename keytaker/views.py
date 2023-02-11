@@ -280,7 +280,7 @@ def new_order_notify(order_obj):
         asyncio.run(consumer.send(text_data=json.dumps({
             'room_name': order_obj.room.name,
             'note': order_obj.note,
-            'time': order_obj.orders_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+            'time': order_obj.orders_timestamp.strftime("%H:%M:%S"),
             'user_full_name': order_obj.user.full_name
         })))
 
@@ -305,7 +305,16 @@ def get_last5_orders(request):
                             "orders_timestamp": order.orders_timestamp,
                             "is_confirm": order.is_confirm
                             })
-    order_obj = Orders.objects.last()
-    new_order_notify(order_obj)
+
+    # new_order_obj = Orders.objects.create(
+    #     room=Room.objects.first(),
+    #     confirmation_code=generate_code(),
+    #     note=generate_code(),
+    #     user=MainUser.objects.first(),
+    #     orders_timestamp=timezone.now()
+    # )
+    # new_order_obj.save()
+    #
+    # new_order_notify(new_order_obj)
     return JsonResponse(orders_list, safe=False)
 
