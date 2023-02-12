@@ -76,7 +76,6 @@ def is_staff(user):
 
 
 @login_required(login_url='loginMain')
-@user_passes_test(is_staff, login_url='login_user')
 def takeroom2(request):
     settings_obj = SettingsKeyTaker.objects.first()
     settings_obj.confirmation_code = generate_code()
@@ -105,7 +104,6 @@ def takeroom2(request):
 
 
 @login_required(login_url='loginMain')
-@user_passes_test(is_staff, login_url='login_user')
 def takeroom3(request):
     settings_obj = SettingsKeyTaker.objects.first()
 
@@ -163,7 +161,6 @@ def takeroom3(request):
 
 
 @login_required(login_url='loginMain')
-@user_passes_test(is_staff, login_url='login_user')
 def takeroom4(request):
     settings_obj = SettingsKeyTaker.objects.first()
     if not settings_obj.in_process:
@@ -229,7 +226,6 @@ def takeroom4(request):
 
 
 @login_required(login_url='loginMain')
-@user_passes_test(is_staff, login_url='login_user')
 def takeroomFinal(request):
     settings_obj = SettingsKeyTaker.objects.first()
 
@@ -267,13 +263,11 @@ def takeroomFinal(request):
 
 
 @login_required(login_url='loginMain')
-@user_passes_test(is_staff, login_url='login_user')
 def takeroom_isVar_changed(request):
     settings_obj = SettingsKeyTaker.objects.first()
     return JsonResponse({'variable_is_confirm': settings_obj.is_confirm})
 
 
-@login_required(login_url='loginMain')
 def new_order_notify(order_obj):
     for consumer in WSNewOrder.consumers:
         asyncio.run(consumer.send(text_data=json.dumps({
@@ -286,7 +280,6 @@ def new_order_notify(order_obj):
 
 
 @login_required(login_url='loginMain')
-@user_passes_test(is_staff, login_url='login_user')
 def get_last5_orders(request):
     current_time = timezone.now()
     time_diff = timezone.timedelta(minutes=5)

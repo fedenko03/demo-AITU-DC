@@ -18,7 +18,6 @@ def is_staff(user):
 
 
 @login_required(login_url='loginMain')
-@user_passes_test(is_staff)
 def homeMain(request):
     return render(request, 'home-main.html')
 
@@ -50,14 +49,12 @@ def loginMain(request):
 
 
 @login_required(login_url='loginMain')
-@user_passes_test(is_staff)
 def logoutMain(request):
     logout(request)
     return redirect('loginMain')
 
 
 @login_required(login_url='loginMain')
-@user_passes_test(is_staff)
 def confirm_takeroom(request, pk):
     order_obj = get_object_or_404(Orders, id=pk)
     if order_obj.is_confirm or not order_obj.is_available or \
@@ -114,8 +111,6 @@ def confirm_takeroom(request, pk):
         })
 
 
-@login_required(login_url='loginMain')
-@user_passes_test(is_staff)
 def cancel_takeroom(request, pk):
     order_obj = Orders.objects.filter(id=pk).first()
     if order_obj:
@@ -134,8 +129,6 @@ def cancel_takeroom(request, pk):
     })
 
 
-@login_required(login_url='loginMain')
-@user_passes_test(is_staff)
 def cancel_takeroomMain(request, pk):
     order_obj = Orders.objects.filter(id=pk).first()
     if order_obj:
@@ -149,7 +142,6 @@ def cancel_takeroomMain(request, pk):
 
 
 @login_required(login_url='loginMain')
-@user_passes_test(is_staff)
 def historyMain(request):
     history_obj = History.objects.order_by('-date')[:10]
     return render(request, 'history-main.html', {
@@ -158,7 +150,6 @@ def historyMain(request):
 
 
 @login_required(login_url='loginMain')
-@user_passes_test(is_staff)
 def usersMain(request):
     users_obj = MainUser.objects.order_by('full_name')[:10]
     return render(request, 'users-main.html', {
@@ -167,7 +158,6 @@ def usersMain(request):
 
 
 @login_required(login_url='loginMain')
-@user_passes_test(is_staff)
 def roomsMain(request):
     rooms_obj = Room.objects.order_by('name')[:10]
     return render(request, 'rooms-main.html', {
@@ -176,6 +166,5 @@ def roomsMain(request):
 
 
 @login_required(login_url='loginMain')
-@user_passes_test(is_staff)
 def pinLocked(request):
     return render(request, 'pin.html')

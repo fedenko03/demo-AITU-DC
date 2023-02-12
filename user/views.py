@@ -140,7 +140,6 @@ def login_user(request):
 
 
 @login_required(login_url='login_user')
-@user_passes_test(is_not_staff, login_url='loginMain')
 def logout_user(request, ):
     logout(request)
     return redirect('login_user')
@@ -182,7 +181,6 @@ def qr_checker(request, settings_obj):
 
 
 @login_required(login_url='login_user')
-@user_passes_test(is_not_staff, login_url='loginMain')
 def confirm_keytaking(request, confirmation_code):  # step 4
     try:
         settings_obj = SettingsKeyTaker.objects.filter(confirmation_code=confirmation_code).first()
@@ -222,7 +220,6 @@ def confirm_keytaking(request, confirmation_code):  # step 4
 
 
 @login_required(login_url='login_user')
-@user_passes_test(is_not_staff, login_url='loginMain')
 def home(request):
     step = request.session.get('step')
     code = request.session.get('code')
@@ -278,7 +275,6 @@ def home(request):
     })
 
 
-@login_required(login_url='login_user')
 def canceled_order(msg):
     for consumer in WSCanceledOrder.consumers:
         asyncio.run(consumer.send(text_data=json.dumps({
