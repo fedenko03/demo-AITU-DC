@@ -1,24 +1,31 @@
+import json
 import random
 import string
 import uuid
 
 from django.contrib.auth import *
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.contrib import messages
 from django.core.mail import send_mail
 
 from AITUDC import settings
+from keytaker.consumers import WSCanceledOrder
 from keytaker.views import check_room, new_order_notify
 from keytaker.forms import ChooserData
 from .models import *
 from keytaker.models import *
+import asyncio
 
 
 def generate_code():
     # Generate a random confirmation code
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+
+
+def is_not_staff(user):
+    return not user.is_staff
 
 
 def register(request):
@@ -132,19 +139,21 @@ def login_user(request):
     return render(request, 'login_user.html')
 
 
+@login_required(login_url='login_user')
+@user_passes_test(is_not_staff, login_url='loginMain')
 def logout_user(request, ):
     logout(request)
     return redirect('login_user')
 
 
 def role_checker(room, role):
-    has_category = False
+    has_role = False
     room_obj = Room.objects.filter(name=room).first()
-    for category in room_obj.category.all():
-        if category.name == role or category.name == 'All':
-            has_category = True
+    for role1 in room_obj.role.all():
+        if role1.name == role or role1.name == 'All':
+            has_role = True
             break
-    if not has_category:
+    if not has_role:
         return "Ваш статус не позволяет взять ключ от этого кабинета"
 
 
@@ -173,6 +182,7 @@ def qr_checker(request, settings_obj):
 
 
 @login_required(login_url='login_user')
+@user_passes_test(is_not_staff, login_url='loginMain')
 def confirm_keytaking(request, confirmation_code):  # step 4
     try:
         settings_obj = SettingsKeyTaker.objects.filter(confirmation_code=confirmation_code).first()
@@ -204,7 +214,7 @@ def confirm_keytaking(request, confirmation_code):  # step 4
             messages.success(request, 'Заявка на взятие ключа подтверждена успешно.')
             return redirect('home')
         else:
-            messages.error(request, 'Произошла какая-то ошибка. Попробуйте снова')
+            messages.error(request, 'Заявки не существует, возможно её уже активировали')
             return redirect('home')
     except Exception as e:
         print(e)
@@ -212,6 +222,7 @@ def confirm_keytaking(request, confirmation_code):  # step 4
 
 
 @login_required(login_url='login_user')
+@user_passes_test(is_not_staff, login_url='loginMain')
 def home(request):
     step = request.session.get('step')
     code = request.session.get('code')
@@ -232,7 +243,6 @@ def home(request):
     else:
         request.session['step'] = 1
         request.session['code'] = ''
-
 
     if request.method == 'POST':
         if step == 1:
@@ -266,3 +276,12 @@ def home(request):
         'step': request.session.get('step'),
         'code': request.session.get('code')
     })
+
+
+@login_required(login_url='login_user')
+def canceled_order(msg):
+    for consumer in WSCanceledOrder.consumers:
+        asyncio.run(consumer.send(text_data=json.dumps({
+            'msg_id': 1,
+            'msg': msg
+        })))

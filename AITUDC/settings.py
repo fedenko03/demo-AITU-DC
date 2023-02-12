@@ -153,3 +153,4 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'alexfedenko0303200306@gmail.com'
 EMAIL_HOST_PASSWORD = 'vbtfilqdusgxseqn'
+

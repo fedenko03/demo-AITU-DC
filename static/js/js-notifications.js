@@ -39,14 +39,14 @@ function createNotification(data) {
             <h6 class="fs-4 fw-bold text-primary card-title"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-exclamation-circle fs-2 text-primary" style="padding-bottom: 0px;margin-bottom: 3px;">
                     <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"></path>
                     <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"></path>
-                </svg>&nbsp;Новая заявка!</h6>
+                </svg>&nbsp;Новая заявка #${data.order_id}!</h6>
                 
             <p class="text-muted card-text mb-4">Пользователь: <b>${data.user_full_name}</b>
             <br>Комната: <b>${data.room_name}</b>
             ${data.note ? `<br>Комментарий: ${data.note}` : ""}
             </p>
-            <button class="btn btn-primary shadow" type="button">Открыть</button>
-            <button class="btn btn-danger shadow" type="button">Отклонить</button>
+            <a href="${location.protocol}//${location.host}/main/confirm-takeroom/${data.order_id}" class="btn btn-primary shadow" type="button">Открыть</a>
+            <button id="cancelOrder" class="btn btn-danger shadow" type="button">Отклонить</button>
         </div>
     </div>
   `;
@@ -62,6 +62,16 @@ function createNotification(data) {
 
     const rejectBtn = notification.querySelector(".btn-danger");
     rejectBtn.addEventListener("click", function () {
+        var url = location.protocol + "//" + location.host + "/main/cancel-takeroom/" + data.order_id
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                var response = JSON.parse(xhr.responseText);
+                console.log(response)
+            }
+        };
+        xhr.send();
         deleteNotification(notification, notificationContainer)
     });
 
@@ -82,7 +92,6 @@ function deleteNotification(notification, notificationContainer) {
             notificationContainer.removeChild(notification);
         }, 200);
     } catch (e) {
-        console.log("Уведомление уже было удалено.")
+        console.log("Уведомление уже было скрыто/удалено.")
     }
 }
-

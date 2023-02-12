@@ -2,23 +2,28 @@
 {% block title %}Главная{% endblock %}
 {% block content %}
     {% load static %}
-    <div>
-        <a href='{% url 'takeroom2' %}'>Взять ключ</a>
-    </div>
-    <div>
-        <a href="/">Вернуть ключ</a>
+    <div class="container-fluid">
+        <div class="text-center p-4 p-lg-5">
+            {% if messages %}
+                {% for message in messages %}
+                    <span class="badge bg-dark fs-6 mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="1em"
+                                                               height="1em" fill="currentColor" viewBox="0 0 16 16"
+                                                               class="bi bi-exclamation-circle-fill"
+                                                               style="padding-bottom: 0px;margin-bottom: 0px;margin-top: -4px;">
+                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"></path>
+                                </svg>&nbsp;{{ message }}</span>
+                {% endfor %}
+            {% endif %}
+            <p class="fw-bold text-primary mb-2">Шаг 1</p>
+            <h1 class="fw-bold mb-4">Выберите действие</h1>
+            <a href='{% url 'takeroom2' %}' class="btn btn-primary fs-5 me-2 py-2 px-4" type="button">Взять ключ</a>
+            <button class="btn btn-light fs-5 py-2 px-4" type="button">Вернуть ключ</button>
+
+            <hr>
+        </div>
     </div>
 
-    <h1 id="text-update">nothing</h1>
-    {#<script>#}
-    {#var socket = new WebSocket('ws://localhost:8000/ws/some_url/')#}
-    {#socket.onmessage = function (event){#}
-    {#    var data = JSON.parse(event.data);#}
-    {#    console.log(data);#}
-    {#    document.querySelector('#text-update').innerText = data.message}#}
-    {#</script>#}
 
-    <div class="notification-container"></div>
-    <script src="{% static 'js/js-notifications.js' %}"></script>
+
 
 {% endblock %}

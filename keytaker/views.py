@@ -35,13 +35,13 @@ def check_fullnameAndRole(fullname, role, room):
     if not Role.objects.filter(name=role).first():
         return "Your role does not exist"
 
-    has_category = False
+    has_role = False
     room_obj = Room.objects.filter(name=room).first()
-    for category in room_obj.category.all():
-        if category.name == role or category.name == 'All':
-            has_category = True
+    for rol1 in room_obj.role.all():
+        if rol1.name == role or rol1.name == 'All':
+            has_role = True
             break
-    if not has_category:
+    if not has_role:
         return "Ваш статус не позволяет взять ключ от этого кабинета"
 
     # If both conditions are satisfied, return None
@@ -67,10 +67,6 @@ def check_time_out(request, code_timestamp):
     return None
 
 
-def step_checker(request):
-    settings_obj = SettingsKeyTaker.objects.first()
-
-
 def clear_session(request):
     del request.session['room']
 
@@ -79,8 +75,8 @@ def is_staff(user):
     return user.is_staff
 
 
-@login_required(login_url='login_user')
-@user_passes_test(is_staff)
+@login_required(login_url='loginMain')
+@user_passes_test(is_staff, login_url='login_user')
 def takeroom2(request):
     settings_obj = SettingsKeyTaker.objects.first()
     settings_obj.confirmation_code = generate_code()
@@ -108,8 +104,8 @@ def takeroom2(request):
     return render(request, 'takeroom2.html', {'form': form})
 
 
-@login_required(login_url='login_user')
-@user_passes_test(is_staff)
+@login_required(login_url='loginMain')
+@user_passes_test(is_staff, login_url='login_user')
 def takeroom3(request):
     settings_obj = SettingsKeyTaker.objects.first()
 
@@ -166,8 +162,8 @@ def takeroom3(request):
         })
 
 
-@login_required(login_url='login_user')
-@user_passes_test(is_staff)
+@login_required(login_url='loginMain')
+@user_passes_test(is_staff, login_url='login_user')
 def takeroom4(request):
     settings_obj = SettingsKeyTaker.objects.first()
     if not settings_obj.in_process:
@@ -232,8 +228,8 @@ def takeroom4(request):
         })
 
 
-@login_required(login_url='login_user')
-@user_passes_test(is_staff)
+@login_required(login_url='loginMain')
+@user_passes_test(is_staff, login_url='login_user')
 def takeroomFinal(request):
     settings_obj = SettingsKeyTaker.objects.first()
 
@@ -270,14 +266,18 @@ def takeroomFinal(request):
         })
 
 
+@login_required(login_url='loginMain')
+@user_passes_test(is_staff, login_url='login_user')
 def takeroom_isVar_changed(request):
     settings_obj = SettingsKeyTaker.objects.first()
     return JsonResponse({'variable_is_confirm': settings_obj.is_confirm})
 
 
+@login_required(login_url='loginMain')
 def new_order_notify(order_obj):
     for consumer in WSNewOrder.consumers:
         asyncio.run(consumer.send(text_data=json.dumps({
+            'order_id': order_obj.id,
             'room_name': order_obj.room.name,
             'note': order_obj.note,
             'time': order_obj.orders_timestamp.strftime("%H:%M:%S"),
@@ -285,6 +285,8 @@ def new_order_notify(order_obj):
         })))
 
 
+@login_required(login_url='loginMain')
+@user_passes_test(is_staff, login_url='login_user')
 def get_last5_orders(request):
     current_time = timezone.now()
     time_diff = timezone.timedelta(minutes=5)

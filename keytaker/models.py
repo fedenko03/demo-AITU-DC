@@ -11,7 +11,7 @@ Floors = [
 
 class Room(models.Model):
     name = models.CharField(max_length=15)
-    description = models.CharField(max_length=50, default="")
+    description = models.CharField(max_length=50, default="", blank=True, null=True)
     floor = models.CharField(max_length=2, choices=Floors, default='1')
     role = models.ManyToManyField(Role)
     is_occupied = models.BooleanField(default=False)

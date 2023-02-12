@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Заявка #{{ order.id }}{% endblock %}
+{% block content %}
+    {% load static %}
+
+    <div class="container-fluid">
+        {% if messages %}
+            {% for message in messages %}
+                <span class="badge bg-dark fs-6 mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="1em"
+                                                           height="1em" fill="currentColor"
+                                                           viewBox="0 0 16 16"
+                                                           class="bi bi-exclamation-circle-fill"
+                                                           style="padding-bottom: 0px;margin-bottom: 0px;margin-top: -4px;">
+                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"></path>
+                                </svg>&nbsp;{{ message }}</span>
+            {% endfor %}
+        {% endif %}
+        <div class="card shadow mb-5">
+            <div class="card-header py-3">
+                <p style="top: 1rem;right: 1rem;position: absolute;"> {{ order.orders_timestamp }}</p>
+                <p class="text-primary m-0 fw-bold">Взятие ключа (Заявка #{{ order.id }})</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-3"><label class="form-label" for="signature"><strong>Введите код
+                                подтверждения:</strong></label>
+                                <textarea style="resize: none;" class="form-control form-control-sm"
+                                          id="signature" rows="4"
+                                          name="code"></textarea></div>
+                            <div class="mb-3"></div>
+                            <div class="mb-3">
+                                <button class="btn btn-primary btn-sm" type="submit">Подтвердить</button>
+                                <button id="cancelOrderPage" class="btn btn-danger btn-sm" style="margin-left: 10px;">
+                                    Отклонить заявку
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-6">
+                        <form>
+                            <div class="mb-3"><label class="form-label"
+                                                     for="signature"><strong>Информация:</strong></label>
+                                <div class="mb-3"><label class="form-label"
+                                                         for="signature">
+                                    <strong>ФИО: </strong>{{ order.user.name }} ({{ order.user.email }})<br>
+                                    <strong>Комната:</strong> {{ order.room }}
+                                    <br>Комментарий: {{ order.note }}</label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        window.onload = function () {
+            var button = document.getElementById("cancelOrderPage");
+            if (button) {
+                button.addEventListener("click", function () {
+                    url = location.protocol + "//" + location.host + "/main/cancel-takeroomMain/" +
+                    {{ order.id }}
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('GET', url, true);
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                            var response = JSON.parse(xhr.responseText);
+                            console.log(response)
+                        }
+                    };
+                    xhr.send();
+                });
+            }
+        };
+    </script>
+{% endblock %}
