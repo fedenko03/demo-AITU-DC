@@ -11,7 +11,7 @@ from django.contrib import messages
 from django.core.mail import send_mail
 
 from AITUDC import settings
-from keytaker.consumers import WSCanceledOrder
+from keytaker.consumers import WSCanceledORConfirmedOrder
 from keytaker.views import check_room, new_order_notify
 from keytaker.forms import ChooserData
 from .models import *
@@ -22,6 +22,18 @@ import asyncio
 def generate_code():
     # Generate a random confirmation code
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+
+
+def is_available_to_takeroom():
+    last_orders = Orders.objects.filter(
+        is_available=True,
+        is_confirm=False,
+        orders_timestamp__gte=timezone.now() - timezone.timedelta(minutes=5)
+    ).order_by('-orders_timestamp')
+    if len(last_orders) < 5:
+        return True
+    else:
+        return False
 
 
 def is_not_staff(user):
@@ -246,6 +258,9 @@ def home(request):
             room = request.POST.get('room')
             note = request.POST.get('note')
 
+            if not is_available_to_takeroom():
+                messages.error((request, 'На данный момент все места для заявок заняты. Попробуйте через 5 минут.'))
+
             error = check_room(room)
             if error:
                 messages.error(request, error)
@@ -276,8 +291,16 @@ def home(request):
 
 
 def canceled_order(msg):
-    for consumer in WSCanceledOrder.consumers:
+    for consumer in WSCanceledORConfirmedOrder.consumers:
         asyncio.run(consumer.send(text_data=json.dumps({
             'msg_id': 1,
+            'msg': msg
+        })))
+
+
+def confirmed_order(msg):
+    for consumer in WSCanceledORConfirmedOrder.consumers:
+        asyncio.run(consumer.send(text_data=json.dumps({
+            'msg_id': 2,
             'msg': msg
         })))

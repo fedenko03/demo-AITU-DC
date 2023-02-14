@@ -35,16 +35,18 @@ class WSNewOrder(AsyncWebsocketConsumer):
             note = text_data_json['note']
             time = text_data_json['time']
             user_full_name = text_data_json['user_full_name']
+            user_email = text_data_json['user_email']
             await self.send(text_data=json.dumps({
                 'order_id': order_id,
                 'room_name': room_name,
                 'note': note,
                 'time': time,
-                'user_full_name': user_full_name
+                'user_full_name': user_full_name,
+                'user_email': user_email
             }))
 
 
-class WSCanceledOrder(AsyncWebsocketConsumer):
+class WSCanceledORConfirmedOrder(AsyncWebsocketConsumer):
     consumers = []
 
     async def connect(self):

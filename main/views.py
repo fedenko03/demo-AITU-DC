@@ -10,16 +10,51 @@ from django.utils import timezone
 
 from keytaker.views import check_room
 from user.models import MainUser
-from user.views import canceled_order
+from user.views import canceled_order, confirmed_order
 
 
 def is_staff(user):
     return user.is_staff
 
 
+def getOrders():
+    last_orders = Orders.objects.filter(
+        is_available=True,
+        is_confirm=False,
+        orders_timestamp__gte=timezone.now() - timezone.timedelta(minutes=5)
+    ).order_by('orders_timestamp')
+
+    orders_list = []
+    for order in last_orders:
+        orders_list.append({
+                            'id': order.id,
+                            'room': order.room.name,
+                            'note': order.note,
+                            'user': {
+                                'name': order.user.full_name,
+                                'email': order.user.email
+                            },
+                            "orders_timestamp": order.orders_timestamp.strftime("%H:%M:%S"),
+                            "is_confirm": order.is_confirm,
+                            "is_available": order.is_available
+                            })
+    return orders_list
+
+
 @login_required(login_url='loginMain')
 def homeMain(request):
-    return render(request, 'home-main.html')
+    orders_list = getOrders()
+    return render(request, 'home-main.html', {
+        'orders_list': orders_list
+    })
+
+
+@login_required(login_url='loginMain')
+def settingsMain(request):
+    orders_list = getOrders()
+    return render(request, 'settings.html', {
+        'orders_list': orders_list
+    })
 
 
 def loginMain(request):
@@ -92,6 +127,7 @@ def confirm_takeroom(request, pk):
         room_obj.is_occupied = True
         room_obj.save()
         history.save()
+        confirmed_order('Заявка подтверждена успешно')
         messages.success(request, 'Заявка подтверждена успешно')
         return redirect('homeMain')
     else:
@@ -106,7 +142,9 @@ def confirm_takeroom(request, pk):
                        "is_confirm": order_obj.is_confirm
                        }
         print(orders_list)
+        orders1_list = getOrders()
         return render(request, 'confirm-takeroom-main.html', {
+            'orders_list': orders1_list,
             'order': orders_list
         })
 
@@ -144,7 +182,10 @@ def cancel_takeroomMain(request, pk):
 @login_required(login_url='loginMain')
 def historyMain(request):
     history_obj = History.objects.order_by('-date')[:10]
+    orders_list = getOrders()
+    print(orders_list)
     return render(request, 'history-main.html', {
+        'orders_list': orders_list,
         'history_obj': history_obj
     })
 
@@ -152,7 +193,9 @@ def historyMain(request):
 @login_required(login_url='loginMain')
 def usersMain(request):
     users_obj = MainUser.objects.order_by('full_name')[:10]
+    orders_list = getOrders()
     return render(request, 'users-main.html', {
+        'orders_list': orders_list,
         'users_obj': users_obj
     })
 
@@ -160,7 +203,9 @@ def usersMain(request):
 @login_required(login_url='loginMain')
 def roomsMain(request):
     rooms_obj = Room.objects.order_by('name')[:10]
+    orders_list = getOrders()
     return render(request, 'rooms-main.html', {
+        'orders_list': orders_list,
         'rooms_obj': rooms_obj
     })
 
@@ -168,3 +213,5 @@ def roomsMain(request):
 @login_required(login_url='loginMain')
 def pinLocked(request):
     return render(request, 'pin.html')
+
+

@@ -19,6 +19,30 @@ from channels.layers import get_channel_layer
 from .models import Orders
 
 
+def getOrders():
+    last_orders = Orders.objects.filter(
+        is_available=True,
+        is_confirm=False,
+        orders_timestamp__gte=timezone.now() - timezone.timedelta(minutes=5)
+    ).order_by('-orders_timestamp')
+
+    orders_list = []
+    for order in last_orders:
+        orders_list.append({
+                            'id': order.id,
+                            'room': order.room.name,
+                            'note': order.note,
+                            'user': {
+                                'name': order.user.full_name,
+                                'email': order.user.email
+                            },
+                            "orders_timestamp": order.orders_timestamp.strftime("%H:%M:%S"),
+                            "is_confirm": order.is_confirm,
+                            "is_available": order.is_available
+                            })
+    return orders_list
+
+
 def generate_code():
     # Generate a random confirmation code
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=32))
@@ -100,7 +124,11 @@ def takeroom2(request):
         settings_obj.step = 2
         settings_obj.save()
         form = ChooseRoom()
-    return render(request, 'takeroom2.html', {'form': form})
+    orders_list = getOrders()
+    return render(request, 'takeroom2.html', {
+        'orders_list': orders_list,
+        'form': form
+    })
 
 
 @login_required(login_url='loginMain')
@@ -152,7 +180,9 @@ def takeroom3(request):
         img.save("media/qr.png")
         qr_image = True
 
+        orders_list = getOrders()
         return render(request, 'takeroom3.html', {
+            'orders_list': orders_list,
             'qr_image': qr_image,
             'room': room,
             'link': link_confirm,
@@ -219,7 +249,10 @@ def takeroom4(request):
 
         form = ChooserData()
         room = request.session.get('room')
+
+        orders_list = getOrders()
         return render(request, 'takeroom4.html', {
+            'orders_list': orders_list,
             'form': form,
             'room': room
         })
@@ -256,7 +289,10 @@ def takeroomFinal(request):
     else:
         settings_obj.step = 2
         settings_obj.save()
+
+        orders_list = getOrders()
         return render(request, 'takeroomFinal.html', {
+            'orders_list': orders_list,
             'history': last_history_obj,
             'error': None
         })
@@ -275,11 +311,12 @@ def new_order_notify(order_obj):
             'room_name': order_obj.room.name,
             'note': order_obj.note,
             'time': order_obj.orders_timestamp.strftime("%H:%M:%S"),
-            'user_full_name': order_obj.user.full_name
+            'user_full_name': order_obj.user.full_name,
+            'user_email': order_obj.user.email
         })))
 
 
-@login_required(login_url='loginMain')
+@login_required(login_url='loginMain')  # delete
 def get_last5_orders(request):
     current_time = timezone.now()
     time_diff = timezone.timedelta(minutes=5)
@@ -298,18 +335,18 @@ def get_last5_orders(request):
                                 'email': order.user.email
                             },
                             "orders_timestamp": order.orders_timestamp,
-                            "is_confirm": order.is_confirm
+                            "is_confirm": order.is_confirm,
                             })
 
-    # new_order_obj = Orders.objects.create(
-    #     room=Room.objects.first(),
-    #     confirmation_code=generate_code(),
-    #     note=generate_code(),
-    #     user=MainUser.objects.first(),
-    #     orders_timestamp=timezone.now()
-    # )
-    # new_order_obj.save()
-    #
-    # new_order_notify(new_order_obj)
+    new_order_obj = Orders.objects.create(
+        room=Room.objects.filter(name='C1.2.239K').first(),
+        confirmation_code=generate_code(),
+        note="",
+        user=MainUser.objects.filter(email='211524@astanait.edu.kz').first(),
+        orders_timestamp=timezone.now()
+    )
+    new_order_obj.save()
+    new_order_notify(new_order_obj)
+
     return JsonResponse(orders_list, safe=False)
 

@@ -47,7 +47,9 @@
                                                          for="signature">
                                     <strong>ФИО: </strong>{{ order.user.name }} ({{ order.user.email }})<br>
                                     <strong>Комната:</strong> {{ order.room }}
+                                    {% if order.note %}
                                     <br>Комментарий: {{ order.note }}</label>
+                                    {% endif %}
                                 </div>
                             </div>
                         </form>
