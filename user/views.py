@@ -224,7 +224,7 @@ def confirm_keytaking(request, confirmation_code):  # step 4
             messages.success(request, 'Заявка на взятие ключа подтверждена успешно.')
             return redirect('home')
         else:
-            messages.error(request, 'Заявки не существует, возможно её уже активировали')
+            messages.error(request, 'Заявки не существует, возможно её уже активировали '+confirmation_code)
             return redirect('home')
     except Exception as e:
         print(e)

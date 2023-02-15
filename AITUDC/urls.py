@@ -23,6 +23,7 @@ urlpatterns = [
     path('', include('user.urls')),
     path('main/', include('main.urls')),
     path('keytaker/', include('keytaker.urls')),
+    path('keyreturner/', include('keyreturner.urls')),
     path('admin/', admin.site.urls),
 
     # path('login/', LoginView.as_view(), name='login'),

@@ -2,6 +2,18 @@
 {% block title %}История{% endblock %}
 {% block content %}
     {% load static %}
+
+    {% if messages %}
+        {% for message in messages %}
+            <span class="badge bg-dark fs-6 mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="1em"
+                                                       height="1em" fill="currentColor" viewBox="0 0 16 16"
+                                                       class="bi bi-exclamation-circle-fill"
+                                                       style="padding-bottom: 0px;margin-bottom: 0px;margin-top: -4px;">
+                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"></path>
+                                </svg>&nbsp;{{ message }}</span>
+        {% endfor %}
+    {% endif %}
+
     <div class="container-fluid" style="padding-top: 20px;">
         <div class="card shadow">
             <div class="card-header py-3">
@@ -12,23 +24,25 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-md-8 col-xl-6 text-center mx-auto">
-                                <h3 class="text-primary" style="font-family: 'Anek Kannada', sans-serif;">&nbsp;Отсканируйте
-                                    QR-код</h3>
+                                <h3 class="text-primary">Отсканируйте QR-код</h3>
                             </div>
                         </div>
                         <div class="row text-center mb-2">
-                            <div class="col"><img src="assets/img/image%201.png" width="195" height="195"></div>
+                            <div class="col">
+                                <img src="/media/qrtest.png" width="250" height="250"></div>
                         </div>
                     </div>
-                    <button class="btn btn-primary ms-2" type="button">На главную</button>
-                    <p class="text-muted py-1" style="margin-bottom: 10px;">Найти кабинет вручную</p>
+                    <a href="{% url "homeMain" %}" class="btn btn-primary ms-2" type="button">На главную</a>
+                    <div class="py-1" style="margin-bottom: 10px;">
+                        <a href="#" class="text-muted" data-bs-toggle="modal" data-bs-target="#modalRoomsList">Найти
+                            кабинет вручную</a>
+                    </div>
                 </section>
             </div>
         </div>
     </div>
-    </div>
 
-    <div class="modal fade" role="dialog" tabindex="-1">
+    <div class="modal fade" id="modalRoomsList" role="dialog" tabindex="-1">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header" style="padding-top: 5px;padding-bottom: 5px;padding-left: 10px;">
@@ -37,32 +51,66 @@
                 </div>
                 <div class="modal-body"
                      style="margin-bottom: 0px;padding-bottom: 5px;margin-top: 0px;padding-top: 0px;">
-                    <div class="input-group" style="margin-top: 5px;"><input
-                            class="bg-light form-control form-control-sm border-0 small" type="text"
-                            placeholder="Поис кабинета" style="font-size: 13px;margin-left: 196px;">
-                        <button class="btn btn-primary py-0" type="button"
-                                style="margin-right: -2px;padding-right: 5px;padding-left: 5px;"><i
-                                class="fas fa-search" style="font-size: 14px;"></i></button>
-                    </div>
-                    <div class="card" style="margin-left: -10px;margin-right: -10px;margin-top: 5px;">
-                        <div class="card-header" style="padding-bottom: 4px;padding-top: 5px;padding-left: 10px;">
-                            <h6 class="m-0" style="font-size: 14px;">Заявка #111</h6>
-                            <h6 class="m-0" style="font-size: 12px;top: 0.4rem;right: 1rem;position: absolute;">
-                                15:35</h6>
-                        </div>
-                        <div class="card-body d-xxl-flex"
-                             style="padding-bottom: 0px;padding-top: 0px;margin-bottom: 6px;margin-top: 5px;">
-                            <p style="font-size: 13px;padding-bottom: 0px;margin-bottom: 0px;">ФИО:<br>Комната:</p>
-                            <button class="btn btn-outline-success d-xxl-flex mt-auto" type="button"
-                                    data-bs-dismiss="modal"
-                                    style="font-size: 10px;padding-top: 3px;padding-right: 10px;padding-left: 10px;padding-bottom: 3px;bottom: 0.5rem;right: 0.5rem;position: absolute;margin-top: 0px;">
-                                Вернуть ключ
+                    {% if history_obj|length %}
+                        <div class="input-group" style="margin-top: 5px;">
+                            <input id="inputSearch"
+                                   class="bg-light form-control form-control-sm border-0 small" type="text"
+                                   placeholder="Поиск кабинета" style="font-size: 13px;margin-left: 196px;">
+                            <button id="searchButton" class="btn btn-primary py-0" type="button"
+                                    style="margin-right: -2px;padding-right: 5px;padding-left: 5px;">
+                                <i class="fas fa-search" style="font-size: 14px;"></i>
                             </button>
                         </div>
-                    </div>
+                        <div id="historyList">
+                            {% for history in history_obj %}
+                                <div class="card" style="margin-left: -10px;margin-right: -10px;margin-top: 5px;">
+                                    <div class="card-header"
+                                         style="padding-bottom: 4px;padding-top: 5px;padding-left: 10px;">
+                                        <h6 class="m-0" style="font-size: 14px;">Заявка #{{ history.id }}</h6>
+                                        <h6 class="m-0"
+                                            style="font-size: 12px;top: 0.4rem;right: 1rem;position: absolute;">
+                                            {{ history.date }}</h6>
+                                    </div>
+                                    <div class="card-body d-xxl-flex"
+                                         style="padding-bottom: 0px;padding-top: 0px;margin-bottom: 6px;margin-top: 5px;">
+                                        <p style="font-size: 13px;padding-bottom: 0px;margin-bottom: 0px;">
+                                            <strong>ФИО: </strong>{{ history.fullname }} ({{ history.role }})<br>
+                                            <strong>Комната: </strong>{{ history.room }}
+                                        </p>
+                                        <button id="{{ history.id }}" data-bs-toggle="modal"
+                                                data-bs-target="#modalRoomConfirm{{ history.id }}"
+                                                class="btn btn-outline-success d-xxl-flex mt-auto" type="button"
+                                                data-bs-dismiss="modal"
+                                                style="font-size: 10px;padding-top: 3px;padding-right: 10px;padding-left: 10px;padding-bottom: 3px;bottom: 0.5rem;right: 0.5rem;position: absolute;margin-top: 0px;">
+                                            Вернуть ключ
+                                        </button>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-3" style="font-size: 13px;">Нет занятых кабинетов.</div>
+                    {% endif %}
                 </div>
                 <div class="modal-footer"
                      style="margin-bottom: -7px;padding-bottom: 10px;padding-top: 5px;padding-right: 10px;">
+                    <nav class="d-lg-flex"
+                         style="bottom: 0rem;left: 0.5rem;position: absolute;padding-bottom: 0px;margin-bottom: -9px;">
+                        {% if history_count > 5 %}
+                            <ul class="pagination pagination-sm">
+                                <li id="PrevElem" class="page-item disabled d-xxl-flex"><a class="page-link"
+                                                                                           aria-label="Previous"
+                                                                                           href="#"><span
+                                        aria-hidden="true">« Назад</span></a>
+                                </li>
+                                <li class="page-item active"><a id="historyPage" class="page-link" href="#">1</a>
+                                </li>
+                                <li id="NextElem" class="page-item"><a class="page-link" aria-label="Next"
+                                                                       href="#"><span
+                                        aria-hidden="true">Далее »</span></a></li>
+                            </ul>
+                        {% endif %}
+                    </nav>
                     <button class="btn btn-primary" type="button" data-bs-dismiss="modal" style="font-size: 10px;">
                         Закрыть
                     </button>
@@ -70,37 +118,255 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" role="dialog" tabindex="-1">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header" style="padding-top: 5px;padding-bottom: 5px;padding-left: 10px;">
-                    <h5 class="modal-title text-primary" style="font-size: 15px;">Подтвердить действие</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body"
-                     style="margin-bottom: 0px;padding-bottom: 5px;margin-top: 0px;padding-top: 0px;">
-                    <div class="card" style="margin-left: -10px;margin-right: -10px;margin-top: 5px;">
-                        <div class="card-header" style="padding-bottom: 4px;padding-top: 5px;padding-left: 10px;">
-                            <h6 class="m-0" style="font-size: 14px;">Заявка #111</h6>
-                            <h6 class="m-0" style="font-size: 12px;top: 0.4rem;right: 1rem;position: absolute;">
-                                15:35</h6>
+
+    <div id="modalsConfirm">
+        {% for history in history_obj %}
+            <div class="modal fade" id="modalRoomConfirm{{ history.id }}" role="dialog" tabindex="-1">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="padding-top: 5px;padding-bottom: 5px;padding-left: 10px;">
+                            <h5 class="modal-title text-primary" style="font-size: 15px;">Подтвердить действие</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="card-body d-xxl-flex"
-                             style="padding-bottom: 0px;padding-top: 0px;margin-bottom: 6px;margin-top: 5px;">
-                            <p style="font-size: 13px;padding-bottom: 0px;margin-bottom: 0px;">ФИО:<br>Комната:</p>
+                        <div class="modal-body"
+                             style="margin-bottom: 0px;padding-bottom: 5px;margin-top: 0px;padding-top: 0px;">
+                            <div class="card" style="margin-left: -10px;margin-right: -10px;margin-top: 5px;">
+                                <div class="card-header"
+                                     style="padding-bottom: 4px;padding-top: 5px;padding-left: 10px;">
+                                    <h6 class="m-0" style="font-size: 14px;">Заявка #{{ history.id }}</h6>
+                                    <h6 class="m-0"
+                                        style="font-size: 12px;top: 0.4rem;right: 1rem;position: absolute;">{{ history.date }}</h6>
+                                </div>
+                                <div class="card-body d-xxl-flex"
+                                     style="padding-bottom: 0px;padding-top: 0px;margin-bottom: 6px;margin-top: 5px;">
+                                    <p style="font-size: 13px;padding-bottom: 0px;margin-bottom: 0px;">
+                                        <strong>ФИО: </strong>{{ history.fullname }} ({{ history.role }})<br>
+                                        <strong>Комната: </strong>{{ history.room }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer"
+                             style="margin-bottom: -7px;padding-bottom: 10px;padding-top: 5px;padding-right: 10px;">
+                            <a href="{% url 'returnKeyConfirm' history.id %}" class="btn btn-primary"
+                               style="font-size: 10px;">Вернуть ключ</a>
+                            <a data-bs-toggle="modal" data-bs-target="#modalRoomsList" class="btn btn-danger"
+                               type="button" data-bs-dismiss="modal" style="font-size: 10px;">Отменить</a>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer"
-                     style="margin-bottom: -7px;padding-bottom: 10px;padding-top: 5px;padding-right: 10px;">
-                    <button class="btn btn-primary" type="button" data-bs-dismiss="modal" style="font-size: 10px;">
-                        Вернуть ключ
-                    </button>
-                    <button class="btn btn-danger" type="button" data-bs-dismiss="modal" style="font-size: 10px;">
-                        Отменить
-                    </button>
+            </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        historyCount = {{ history_count }};
+        objectsOnPage = 5
+
+        nextElem = document.getElementById('NextElem')
+        prevElem = document.getElementById('PrevElem')
+
+        searchElem = document.getElementById('searchButton')
+
+        if (nextElem) {
+            nextElem.addEventListener("click", function () {
+                if (!nextElem.classList.contains("disabled")) {
+                    let historyPage = document.getElementById('historyPage');
+                    updateHistoryList(parseInt(historyPage.textContent), 1)
+                }
+            });
+        }
+
+        if (prevElem) {
+            prevElem.addEventListener("click", function () {
+                if (!prevElem.classList.contains("disabled")) {
+                    let historyPage = document.getElementById('historyPage');
+                    updateHistoryList(parseInt(historyPage.textContent), 0)
+                }
+            });
+        }
+
+        searchElem.addEventListener("click", function () {
+            if (!searchElem.classList.contains("disabled")) {
+                let room = document.getElementById('inputSearch').value;
+                searchRoom(room)
+            }
+        });
+
+        function clearHistoryList() {
+            const historyContainer = document.getElementById("historyList")
+            let historyLength = historyContainer.childNodes.length;
+            while (historyLength > 0) {
+                historyContainer.removeChild(historyContainer.firstChild)
+                historyLength--
+            }
+        }
+
+        function notFoundDisplayList() {
+            const historyContainer = document.getElementById("historyList")
+            let object = document.createElement("div")
+            object.innerHTML = `<div class="text-center py-3" style="font-size: 13px;">Кабинет не найден.</div>`
+            historyContainer.appendChild(object)
+        }
+
+        function fillHistoryList(response, step) {
+            //console.log(response)
+            const historyContainer = document.getElementById("historyList")
+            let historyLength = response.length
+            for (let i = 0; i < response.length; i++) {
+                resp = response[i]
+                let object = document.createElement("div")
+                object.innerHTML = `
+                <div class="card" style="margin-left: -10px;margin-right: -10px;margin-top: 5px;">
+                                <div class="card-header"
+                                     style="padding-bottom: 4px;padding-top: 5px;padding-left: 10px;">
+                                    <h6 class="m-0" style="font-size: 14px;">Заявка #${resp.id}</h6>
+                                    <h6 class="m-0" style="font-size: 12px;top: 0.4rem;right: 1rem;position: absolute;">
+                                        ${resp.date}</h6>
+                                </div>
+                                <div class="card-body d-xxl-flex"
+                                     style="padding-bottom: 0px;padding-top: 0px;margin-bottom: 6px;margin-top: 5px;">
+                                    <p style="font-size: 13px;padding-bottom: 0px;margin-bottom: 0px;">
+                                        <strong>ФИО: </strong>${resp.fullname} (${resp.role})<br>
+                                        <strong>Комната: </strong>${resp.room}
+                                    </p>
+                                    <button data-bs-toggle="modal" data-bs-target="#modalRoomConfirm${resp.id}"
+                                            class="btn btn-outline-success d-xxl-flex mt-auto" type="button"
+                                            data-bs-dismiss="modal"
+                                            style="font-size: 10px;padding-top: 3px;padding-right: 10px;padding-left: 10px;padding-bottom: 3px;bottom: 0.5rem;right: 0.5rem;position: absolute;margin-top: 0px;">
+                                        Вернуть ключ
+                                    </button>
+                                </div>
+                            </div>
+                `
+                historyContainer.appendChild(object)
+            }
+            if (step === 1) {
+                let historyPage = document.getElementById('historyPage');
+                historyPage.textContent = (parseInt(historyPage.textContent) + 1).toString();
+                if (parseInt(document.getElementById('historyPage').textContent) >= Math.ceil(historyCount / objectsOnPage)) {
+                    historyPage.textContent = (Math.ceil(historyCount / objectsOnPage)).toString()
+                    nextElem.classList.add("disabled")
+                }
+                prevElem.classList.remove("disabled")
+            } else if (step === 0) {
+                let historyPage = document.getElementById('historyPage');
+                historyPage.textContent = (parseInt(historyPage.textContent) - 1).toString();
+                if (parseInt(document.getElementById('historyPage').textContent) <= 1) {
+                    historyPage.textContent = "1"
+                    prevElem.classList.add("disabled")
+                }
+                nextElem.classList.remove("disabled")
+            }
+        }
+
+        function clearHistoryConfirm() {
+            const historyContainer = document.getElementById("modalsConfirm")
+            let historyLength = historyContainer.childNodes.length;
+            while (historyLength > 0) {
+                historyContainer.removeChild(historyContainer.firstChild)
+                historyLength--
+            }
+        }
+
+        function fillHistoryConfirm(response) {
+            const historyConfirmContainer = document.getElementById("modalsConfirm")
+            let historyConfirmLength = response.length
+            for (let i = 0; i < historyConfirmLength; i++) {
+                resp = response[i]
+                let object = document.createElement("div")
+                respURL = location.protocol + "//" + location.host + `/keyreturner/returnKeyConfirm/${resp.id}/`;
+                object.innerHTML = `
+                <div class="modal fade" id="modalRoomConfirm${resp.id}" role="dialog" tabindex="-1">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="padding-top: 5px;padding-bottom: 5px;padding-left: 10px;">
+                            <h5 class="modal-title text-primary" style="font-size: 15px;">Подтвердить действие</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body"
+                             style="margin-bottom: 0px;padding-bottom: 5px;margin-top: 0px;padding-top: 0px;">
+                            <div class="card" style="margin-left: -10px;margin-right: -10px;margin-top: 5px;">
+                                <div class="card-header"
+                                     style="padding-bottom: 4px;padding-top: 5px;padding-left: 10px;">
+                                    <h6 class="m-0" style="font-size: 14px;">Заявка #${resp.id}</h6>
+                                    <h6 class="m-0"
+                                        style="font-size: 12px;top: 0.4rem;right: 1rem;position: absolute;">${resp.date}</h6>
+                                </div>
+                                <div class="card-body d-xxl-flex"
+                                     style="padding-bottom: 0px;padding-top: 0px;margin-bottom: 6px;margin-top: 5px;">
+                                    <p style="font-size: 13px;padding-bottom: 0px;margin-bottom: 0px;">
+                                        <strong>ФИО: </strong>${resp.fullname} (${resp.email})<br>
+                                        <strong>Комната: </strong>${resp.room}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer"
+                             style="margin-bottom: -7px;padding-bottom: 10px;padding-top: 5px;padding-right: 10px;">
+                            <a href="${respURL}" class="btn btn-primary" style="font-size: 10px;">Вернуть ключ</a>
+                            <a data-bs-toggle="modal" data-bs-target="#modalRoomsList" class="btn btn-danger"
+                               type="button" data-bs-dismiss="modal" style="font-size: 10px;">Отменить</a>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
+                `
+                historyConfirmContainer.appendChild(object)
+            }
+        }
+
+        function updateHistoryList(page, step) {
+            var xhr = new XMLHttpRequest();
+            respURL = location.protocol + "//" + location.host + `/keyreturner/getHistoryData/${page}/${step}`;
+            //console.log(respURL)
+            xhr.open('GET', respURL, true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    //console.log(response.history_obj)
+                    clearHistoryList()
+                    clearHistoryConfirm()
+                    //console.log(response.history_obj)
+                    fillHistoryList(response.history_obj, step)
+                    fillHistoryConfirm(response.history_obj)
+                }
+            };
+            xhr.send();
+        }
+
+        function searchRoom(room) {
+            if (room === "") {
+                return updateHistoryList(2, 0)
+            }
+            var xhr = new XMLHttpRequest();
+            respURL = location.protocol + "//" + location.host + `/keyreturner/searchRoom/${room}`;
+            //console.log(respURL)
+            xhr.open('GET', respURL, true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    //console.log(response.history_obj)
+                    clearHistoryList();
+                    clearHistoryConfirm();
+                    if (response.error) {
+                        return notFoundDisplayList();
+                    }
+                    //console.log(response.history_obj)
+                    fillHistoryList(response.history_obj, 3)
+                    fillHistoryConfirm(response.history_obj)
+                    /*
+                    if (!nextElem.classList.contains("disabled")) {
+                        nextElem.classList.add("disabled")
+                    }
+                    if (!prevElem.classList.contains("disabled")) {
+                        prevElem.classList.add("disabled")
+                    }
+                    */
+                }
+            };
+            xhr.send();
+        }
+
+    </script>
 {% endblock %}
