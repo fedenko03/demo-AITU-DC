@@ -3,44 +3,54 @@
 {% block content %}
     {% load static %}
 
+
     {% if messages %}
         {% for message in messages %}
-            <span class="badge bg-dark fs-6 mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="1em"
-                                                       height="1em" fill="currentColor" viewBox="0 0 16 16"
-                                                       class="bi bi-exclamation-circle-fill"
-                                                       style="padding-bottom: 0px;margin-bottom: 0px;margin-top: -4px;">
-                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"></path>
-                                </svg>&nbsp;{{ message }}</span>
+            <div class="text-bg-dark border rounded flex-column justify-content-between align-items-center flex-lg-row"
+                 style="margin-left: 20px;margin-right: 20px;margin-top: 10px;padding-right: 20px;padding-top: 15px;padding-bottom: 10px;padding-left: 20px;margin-bottom: 5px;">
+                <p style="margin-bottom: 5px;">Внимание!</p>
+                <p style="margin-bottom: 10px;">{{ message }}</p>
+            </div>
         {% endfor %}
     {% endif %}
 
-    <div class="container-fluid" style="padding-top: 20px;">
-        <div class="card shadow">
-            <div class="card-header py-3">
+    <div class="container-fluid" style="margin-top: 10px">
+        <div class="card shadow mb-5">
+            <div class="card-header py-3" style="padding-bottom: 10px;">
                 <p class="text-primary m-0 fw-bold">Вернуть ключ</p>
             </div>
-            <div class="card-body" style="padding-bottom: 5px;">
-                <section class="text-center newsletter-subscribe">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-md-8 col-xl-6 text-center mx-auto">
-                                <h3 class="text-primary">Отсканируйте QR-код</h3>
-                            </div>
-                        </div>
-                        <div class="row text-center mb-2">
-                            <div class="col">
-                                <img src="/media/qrtest.png" width="250" height="250"></div>
-                        </div>
+            <div class="card-body">
+                <div class="row gy-4 gx-md-0 gy-md-0 row-cols-1 row-cols-md-2 row-cols-xl-3 d-md-flex d-xl-flex align-items-md-center">
+                    <div class="col offset-xl-2">
+                        <div class="text-sm-center text-md-end text-lg-end text-xl-end text-xxl-end"><img
+                                src="/media/qrtest.png" style="width: 195px;" height="auto" width="100%"></div>
                     </div>
-                    <a href="{% url "homeMain" %}" class="btn btn-primary ms-2" type="button">На главную</a>
-                    <div class="py-1" style="margin-bottom: 10px;">
-                        <a href="#" class="text-muted" data-bs-toggle="modal" data-bs-target="#modalRoomsList">Найти
-                            кабинет вручную</a>
+                    <div class="col">
+                        <div>
+                            <h4 class="text-start text-sm-center text-md-start text-lg-start text-xl-start text-xxl-start text-danger d-xxl-flex justify-content-xxl-start"
+                                style="color: rgb(55,55,55);font-size: 20px;">НЕ РАБОТАЕТ</h4>
+                            <h4 class="text-start text-sm-center text-md-start text-lg-start text-xl-start text-xxl-start d-xxl-flex justify-content-xxl-start"
+                                style="color: rgb(55,55,55);font-size: 20px;">Отсканируйте QR код</h4>
+                            <p class="text-start text-sm-center text-md-start text-lg-start text-xl-start text-xxl-start d-xxl-flex justify-content-xxl-start"
+                               style="font-size: 13px;">Время действия QR кода - 5 минут.<br>Перед подтверждением заявки
+                                через QR код необходимо войти в аккаунт.</p>
+                        </div>
+                        <a href="#" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                           data-bs-target="#modalRoomsList">Показать все заявки</a>
                     </div>
-                </section>
+                </div>
+                <div class="d-xl-flex justify-content-xl-center align-items-xl-end"></div>
+                <hr>
+                <a href="{% url 'homeMain' %}" class="fw-bold mb-2"
+                   style="font-size: 15px;color: rgb(102,102,102);text-align: left; text-decoration:none">
+                    <i class="fas fa-reply-all"></i>&nbsp;Вернуться в главное меню</a>
             </div>
         </div>
     </div>
+
+
+
+
 
     <div class="modal fade" id="modalRoomsList" role="dialog" tabindex="-1">
         <div class="modal-dialog" role="document">

@@ -60,29 +60,26 @@ function createNotification(data) {
 
 
     // add data to the notification
-    notification.innerHTML = `
-    <div class="card bg-light shadow-sm">
-        <div class="card-body px-4 py-5 px-md-5" style="margin-top: -20px;padding-bottom: 55px;margin-bottom: -35px;width: 350px;">
-            <div class="bs-icon-lg d-flex justify-content-center align-items-center mb-3 bs-icon" style="top: 1rem;right: 1rem;position: absolute;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-x fs-1 text-muted close-notification" style="margin-bottom: 3px; cursor: pointer;">
-                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"></path>
-                </svg></div>
-          
-            <p style="display: flex; justify-content: flex-start;font-size: 14px"> ${data.time}</p>            
-            <h6 class="fs-5 fw-bold text-primary card-title"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-exclamation-circle fs-2 text-primary" style="padding-bottom: 0px;margin-bottom: 3px;">
-                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"></path>
-                    <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"></path>
-                </svg>&nbsp;Новая заявка #${data.order_id}!</h6>
-                
-            <p class="text-muted card-text mb-3">Пользователь: <b>${data.user_full_name}</b>
-            <br>Комната: <b>${data.room_name}</b>
-            ${data.note ? `<br>Комментарий: ${data.note}` : ""}
-            </p>
-            <a href="${location.protocol}//${location.host}/main/confirm-takeroom/${data.order_id}" class="btn btn-primary shadow" type="button">Открыть</a>
-            <button id="cancelOrder" class="btn btn-danger shadow" type="button">Отклонить</button>
-        </div>
-    </div>
-  `;
+    notification.innerHTML = `<div class="card shadow" style="width: 350px;">
+                        <div class="card-header" style="padding-top: 6px;padding-bottom: 5px;">
+                            <p class="text-primary m-0 fw-bold" style="margin-bottom: 24px;font-size: 15px;padding-right: 0px;margin-right: 12px;">
+                                <span style="background-color: rgb(255, 255, 255);">Новая заявка #${data.order_id}</span>
+                                <i class="far fa-times-circle text-black-50 close-notification" style="position: absolute;right: 0;margin-right: 5px;font-size: 20px;"></i>
+                            </p>
+                        </div>
+                        <div class="card-body" style="margin-bottom: -9px;padding-top: 10px;">
+                            <div>
+                                <p class="text-sm-start text-md-start text-lg-start text-xl-start text-xxl-start d-xxl-flex justify-content-xxl-start" style="font-size: 13px;margin-bottom: 5px;text-align: left;">Пользователь: ${data.user_full_name}
+                                <br>Комната: ${data.room_name}
+                                </p>
+                                <p class="text-sm-start text-md-start text-lg-start text-xl-start text-xxl-start d-xxl-flex justify-content-xxl-start" style="font-size: 13px;margin-bottom: 5px;text-align: left;position: absolute;right: 15px;top: 45px;">${data.time}</p>
+                                ${data.note ? `<p class="text-sm-start text-md-start text-lg-start text-xl-start text-xxl-start d-xxl-flex justify-content-xxl-start" style="font-size: 13px;margin-bottom: 5px;text-align: left;">Комментарий: ${data.note}</p>` : ""}
+                            </div>
+                            <hr style="margin-top: 8px;margin-bottom: 5px;">
+                            <a href="${location.protocol}//${location.host}/main/confirm-takeroom/${data.order_id}" class="btn btn-primary" type="button" style="font-size: 11px;margin-right: 12px;">Открыть</a>
+                            <button id="cancelOrder" class="btn btn-danger" type="button" style="font-size: 11px;">Отклонить</button>
+                        </div>
+                    </div>`
 
     // add the new notification to the container
     notificationContainer.appendChild(notification);

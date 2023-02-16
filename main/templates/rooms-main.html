@@ -3,65 +3,108 @@
 {% block content %}
     {% load static %}
 
-    <div class="container-fluid">
-                    <div class="text-center p-4 p-lg-5">
-                        <div class="alert alert-info" role="alert"><span><strong>Уведомление</strong><br></span></div>
-                        <h1 class="fw-bold mb-4" style="color: var(--bs-blue);">Интерактивная карта</h1><img src="../assets/img/2%20Floor%20v2.png" width="100%" height="auto">
+  <div id="content">
+        <div class="container-fluid">
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="text-bg-dark border rounded flex-column justify-content-between align-items-center flex-lg-row"
+                         style="margin-left: 20px;margin-right: 20px;margin-top: 10px;padding-right: 20px;padding-top: 15px;padding-bottom: 0px;padding-left: 20px;">
+                        <p style="margin-bottom: 5px;">Внимание!</p>
+                        <p style="margin-bottom: 10px;">{{ message }}</p>
                     </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="text-center p-4 p-lg-5"
+                 style="padding-top: 34px;margin-top: -36px;padding-bottom: 35px;margin-bottom: -28px;">
+                <h1 class="fw-bold mb-4"
+                    style="color: var(--bs-blue);font-size: 35px;padding-bottom: 0px;margin-bottom: 22px;">Интерактивная
+                    карта</h1>
+                <p class="fw-bold mb-2" style="font-size: 15px;text-align: right;color: rgb(78,78,78);">&nbsp;Этаж:&nbsp;<select
+                        class="form-select-sm" style="color: rgb(78,78,78);border-radius: 10px;font-size: 12px;">
+                    <optgroup label="Этажи:">
+                        <option value="1" selected="">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </optgroup>
+                </select></p>
+                <img src="../assets/img/clipboard-image.png" width="100%" height="auto">
+                <p class="fw-light text-black-50 mb-2" style="font-size: 15px;text-align: right;color: rgb(78,78,78);">
+                    Map source: <a href="https://yuujiso.github.io/aitumap/">github</a></p>
+            </div>
+        </div>
+        <div class="container-fluid" style="padding-top: 20px;">
+            <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
+            <div class="card shadow">
+                <div class="card-header py-3" style="margin-top: 0px;">
+                    <p class="text-primary m-0 fw-bold"><span style="background-color: rgb(255, 255, 255);">История взятия/сдачи ключей</span>
+                    </p>
                 </div>
-                <div class="container-fluid" style="padding-top: 20px;">
-                    <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
-                    <div class="card shadow">
-                        <div class="card-header py-3">
-                            <h3 class="text-dark mb-0">Поиск кабинета</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="text-md-end dataTables_filter" id="dataTable_filter">
-                                        <p class="text-primary m-0 fw-bold" style="text-align: left;">Введите номер кабинета</p><input type="search" class="form-control form-control-sm" aria-controls="dataTable" placeholder="Номер кабинета"><label class="form-label"></label>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="text-md-end dataTables_filter" id="dataTable_filter-1"><a class="btn btn-success btn-sm d-none d-sm-inline-block" role="button" href="#" style="margin-right: 10px;"><i class="fas fa-plus-circle fa-sm text-white-50"></i>&nbsp;Добавить кабинет</a><a class="btn btn-danger btn-sm d-none d-sm-inline-block" role="button" href="#"><i class="fas fa-minus-circle fa-sm text-white-50"></i>&nbsp;Удалить кабинет</a><label class="form-label"></label></div>
-                                </div>
-                            </div>
-                            <div class="table-responsive table mt-2" id="dataTable-1" role="grid" aria-describedby="dataTable_info">
-                                <table class="table my-0" id="dataTable">
-                                    <thead>
-                                        <tr>
-                                            <th>Кабинет</th>
-                                            <th>Описание</th>
-                                            <th>Статус</th>
-                                            <th>Роль</th>
-                                            <th>Видимость</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for room in rooms_obj %}
-                                        <tr>
-                                            <td>{{ room.name }}</td>
-                                            <td>{{ room.description }}</td>
-                                            {% if room.is_occupied %}
-                                            <td class="text-danger">Занят</td>
-                                            {% else %}
-                                            <td class="text-success">Свободен</td>
-                                            {% endif %}
-                                            <td> {% for role in room.role.all %} {{ role.name }}, {% endfor %}</td>
-                                            {% if not room.is_visible %}
-                                            <td class="text-danger">Скрыта</td>
-                                            {% else %}
-                                            <td class="text-success">Видна</td>
-                                            {% endif %}
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                    <tfoot>
-                                        <tr></tr>
-                                    </tfoot>
-                                </table>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 col-xl-3">
+                            <div class="input-group"><input class="bg-light form-control border-0 small" type="text"
+                                                            placeholder="Поиск кабинета">
+                                <button class="btn btn-primary py-0" type="button"><i class="fas fa-search"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
+                    <div class="table-responsive table mt-2" id="dataTable-1" role="grid"
+                         aria-describedby="dataTable_info">
+                        <table class="table my-0" id="dataTable">
+                            <thead>
+                            <tr>
+                                <th>Кабинет</th>
+                                <th>Описание</th>
+                                <th>Статус</th>
+                                <th>Роль</th>
+                                <th>Видимость</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for room in rooms_obj %}
+                                <tr>
+                                    <td>{{ room.name }}</td>
+                                    <td>{{ room.description }}</td>
+                                    {% if room.is_occupied %}
+                                        <td class="text-danger">Занят</td>
+                                    {% else %}
+                                        <td class="text-success">Свободен</td>
+                                    {% endif %}
+                                    <td> {% for role in room.role.all %} <span class="badge bg-primary">{{ role.name }} </span> {% endfor %}</td>
+                                    {% if not room.is_visible %}
+                                        <td class="text-danger">Скрыта</td>
+                                    {% else %}
+                                        <td class="text-success">Видна</td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                            <tfoot>
+                            <tr></tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <nav class="d-lg-flex justify-content-lg-end justify-content-xxl-start dataTables_paginate paging_simple_numbers"
+                         style="margin-bottom: -14px;margin-top: -8px;">
+                        <ul class="pagination">
+                            <li class="page-item disabled"><a class="page-link" aria-label="Previous" href="#"><span
+                                    aria-hidden="true">«</span></a></li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" aria-label="Next" href="#"><span
+                                    aria-hidden="true">»</span></a></li>
+                        </ul>
+                    </nav>
+                    <hr style="margin-top: 7px;">
+                    <a href="{% url 'homeMain' %}" class="fw-bold mb-2"
+                       style="font-size: 15px;color: rgb(102,102,102);text-align: left; text-decoration:none">
+                        <i class="fas fa-reply-all"></i>&nbsp;Вернуться в главное меню</a>
                 </div>
+            </div>
+        </div>
+    </div>
+
+
 {% endblock %}
