@@ -11,8 +11,9 @@ from django.contrib import messages
 from django.core.mail import send_mail
 
 from AITUDC import settings
+from api.views import new_order_notify
 from keytaker.consumers import WSCanceledORConfirmedOrder
-from keytaker.views import check_room, new_order_notify
+from keytaker.views import check_room
 from keytaker.forms import ChooserData
 from .models import *
 from keytaker.models import *
@@ -22,6 +23,11 @@ import asyncio
 def generate_code():
     # Generate a random confirmation code
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+
+
+def generate_TakeRoomcode():
+    # Generate a random confirmation code
+    return ''.join(random.choices(string.digits, k=6))
 
 
 def is_available_to_takeroom():
@@ -38,6 +44,18 @@ def is_available_to_takeroom():
 
 def is_not_staff(user):
     return not user.is_staff
+
+
+def role_checker(room, role):
+    has_role = False
+    room_obj = Room.objects.filter(name=room).first()
+    for rol1 in room_obj.role.all():
+        if rol1.name == role or rol1.name == 'All':
+            has_role = True
+            break
+    if not has_role:
+        return "Ваш статус не позволяет взять ключ от этого кабинета"
+    return None
 
 
 def register(request):
@@ -157,17 +175,6 @@ def logout_user(request, ):
     return redirect('login_user')
 
 
-def role_checker(room, role):
-    has_role = False
-    room_obj = Room.objects.filter(name=room).first()
-    for role1 in room_obj.role.all():
-        if role1.name == role or role1.name == 'All':
-            has_role = True
-            break
-    if not has_role:
-        return "Ваш статус не позволяет взять ключ от этого кабинета"
-
-
 def qr_checker(request, settings_obj):
     if settings_obj.is_confirm:
         error = 'Сканированный QR код уже был подтверждён. Вернитесь к 1 шагу.'
@@ -266,7 +273,17 @@ def home(request):
                 messages.error(request, error)
                 return redirect('home')
 
-            code_generated = generate_code()
+            role = MainUser.objects.filter(email=request.user.username).first()
+            error = role_checker(room, role)
+            if error:
+                messages.error(request, error)
+                return redirect('home')
+
+            if len(note) > 50:
+                messages.error(request, 'Ваш комментарий слишком длинный')
+                return redirect('home')
+
+            code_generated = generate_TakeRoomcode()
             request.session['code'] = code_generated
 
             new_order_obj = Orders.objects.create(
@@ -288,19 +305,3 @@ def home(request):
         'step': request.session.get('step'),
         'code': request.session.get('code')
     })
-
-
-def canceled_order(msg):
-    for consumer in WSCanceledORConfirmedOrder.consumers:
-        asyncio.run(consumer.send(text_data=json.dumps({
-            'msg_id': 1,
-            'msg': msg
-        })))
-
-
-def confirmed_order(msg):
-    for consumer in WSCanceledORConfirmedOrder.consumers:
-        asyncio.run(consumer.send(text_data=json.dumps({
-            'msg_id': 2,
-            'msg': msg
-        })))

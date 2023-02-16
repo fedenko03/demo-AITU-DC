@@ -95,7 +95,7 @@ function createNotification(data) {
 
     const rejectBtn = notification.querySelector(".btn-danger");
     rejectBtn.addEventListener("click", function () {
-        var url = location.protocol + "//" + location.host + "/main/cancel-takeroom/" + data.order_id
+        var url = location.protocol + "//" + location.host + "/api/cancel-takeroom/" + data.order_id
         var xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
         xhr.onreadystatechange = function () {

@@ -11,11 +11,6 @@ from .forms import ChooseRoom, ChooserData
 import qrcode
 import random
 import string
-from django.http import JsonResponse
-import asyncio
-
-from asgiref.sync import async_to_sync
-from channels.layers import get_channel_layer
 from .models import Orders
 
 
@@ -298,55 +293,4 @@ def takeroomFinal(request):
         })
 
 
-@login_required(login_url='loginMain')
-def takeroom_isVar_changed(request):
-    settings_obj = SettingsKeyTaker.objects.first()
-    return JsonResponse({'variable_is_confirm': settings_obj.is_confirm})
-
-
-def new_order_notify(order_obj):
-    for consumer in WSNewOrder.consumers:
-        asyncio.run(consumer.send(text_data=json.dumps({
-            'order_id': order_obj.id,
-            'room_name': order_obj.room.name,
-            'note': order_obj.note,
-            'time': order_obj.orders_timestamp.strftime("%H:%M:%S"),
-            'user_full_name': order_obj.user.full_name,
-            'user_email': order_obj.user.email
-        })))
-
-
-@login_required(login_url='loginMain')  # delete
-def get_last5_orders(request):
-    current_time = timezone.now()
-    time_diff = timezone.timedelta(minutes=5)
-
-    last_5_orders = Orders.objects.filter(
-        is_available=True,
-        orders_timestamp__gte=current_time-time_diff
-    ).order_by('-orders_timestamp')[:5]
-
-    orders_list = []
-    for order in last_5_orders:
-        orders_list.append({'room': order.room.name,
-                            'note': order.note,
-                            'user': {
-                                'name': order.user.full_name,
-                                'email': order.user.email
-                            },
-                            "orders_timestamp": order.orders_timestamp,
-                            "is_confirm": order.is_confirm,
-                            })
-
-    new_order_obj = Orders.objects.create(
-        room=Room.objects.filter(name='C1.2.239K').first(),
-        confirmation_code=generate_code(),
-        note="",
-        user=MainUser.objects.filter(email='211524@astanait.edu.kz').first(),
-        orders_timestamp=timezone.now()
-    )
-    new_order_obj.save()
-    new_order_notify(new_order_obj)
-
-    return JsonResponse(orders_list, safe=False)
 

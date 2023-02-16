@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from main.models import PIN
+
+
+@admin.register(PIN)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ("code", "is_locked")

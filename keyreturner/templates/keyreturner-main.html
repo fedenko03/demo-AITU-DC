@@ -296,7 +296,7 @@
                                 <div class="card-body d-xxl-flex"
                                      style="padding-bottom: 0px;padding-top: 0px;margin-bottom: 6px;margin-top: 5px;">
                                     <p style="font-size: 13px;padding-bottom: 0px;margin-bottom: 0px;">
-                                        <strong>ФИО: </strong>${resp.fullname} (${resp.email})<br>
+                                        <strong>ФИО: </strong>${resp.fullname} (${resp.role})<br>
                                         <strong>Комната: </strong>${resp.room}
                                     </p>
                                 </div>
@@ -318,7 +318,7 @@
 
         function updateHistoryList(page, step) {
             var xhr = new XMLHttpRequest();
-            respURL = location.protocol + "//" + location.host + `/keyreturner/getHistoryData/${page}/${step}`;
+            respURL = location.protocol + "//" + location.host + `/api/getHistoryData/${page}/${step}`;
             //console.log(respURL)
             xhr.open('GET', respURL, true);
             xhr.onreadystatechange = function () {
@@ -340,7 +340,7 @@
                 return updateHistoryList(2, 0)
             }
             var xhr = new XMLHttpRequest();
-            respURL = location.protocol + "//" + location.host + `/keyreturner/searchRoom/${room}`;
+            respURL = location.protocol + "//" + location.host + `/api/searchRoom/${room}`;
             //console.log(respURL)
             xhr.open('GET', respURL, true);
             xhr.onreadystatechange = function () {
