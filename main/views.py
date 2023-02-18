@@ -12,6 +12,7 @@ from api.views import confirmed_order, canceled_order
 from keytaker.models import Orders, History, Room
 from django.contrib import messages
 from django.utils import timezone
+
 from django.core import serializers
 
 from keytaker.views import check_room
@@ -19,6 +20,11 @@ from main.models import PIN
 from user.models import MainUser
 import openpyxl
 from openpyxl.styles import PatternFill
+import pytz
+from datetime import datetime
+
+local_tz = pytz.timezone('Asia/Almaty')
+
 
 def export_history_to_excel(request):
     # Get the queryset
@@ -36,7 +42,7 @@ def export_history_to_excel(request):
     ws['F1'] = 'Returned'
     # Loop over the queryset and add the data to the worksheet
     for i, entry in enumerate(history_queryset, start=2):
-        ws.cell(row=i, column=1, value=entry.date.strftime('%d-%m-%Y %H:%M:%S'))
+        ws.cell(row=i, column=1, value=entry.date.astimezone(local_tz).strftime('%d-%m-%Y %H:%M:%S'))
         ws.cell(row=i, column=2, value=entry.fullname)
         ws.cell(row=i, column=3, value=entry.role.name)
         ws.cell(row=i, column=4, value=entry.room.name)
@@ -87,7 +93,7 @@ def getOrders():
                 'name': order.user.full_name,
                 'email': order.user.email
             },
-            "orders_timestamp": order.orders_timestamp.strftime("%H:%M:%S"),
+            "orders_timestamp": order.orders_timestamp.astimezone(local_tz).strftime("%H:%M:%S"),
             "is_confirm": order.is_confirm,
             "is_available": order.is_available
         })
@@ -271,7 +277,7 @@ def history_ajax(request):
             'fullname': entry.fullname,
             'role': entry.role.name,
             'room': entry.room.name,
-            'date': entry.date.strftime('%d-%m-%Y %H:%M:%S'),
+            'date': entry.date.astimezone(local_tz).strftime('%d-%m-%Y %H:%M:%S'),
             'is_verified': entry.is_verified,
             'is_return': entry.is_return,
         })
@@ -288,12 +294,17 @@ def history_ajax(request):
 
 @login_required(login_url='loginMain')
 def usersMain(request):
-    users_obj = MainUser.objects.order_by('full_name')[:10]
+    query = request.GET.get('q')
+    if query:
+        users_obj = MainUser.objects.filter(full_name__icontains=query)
+    else:
+        users_obj = MainUser.objects.all()
     orders_list = getOrders()
-    return render(request, 'users-main.html', {
+    context = {
         'orders_list': orders_list,
         'users_obj': users_obj
-    })
+    }
+    return render(request, 'users-main.html', context)
 
 
 @login_required(login_url='loginMain')

@@ -1,3 +1,4 @@
+import pytz
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -5,6 +6,8 @@ import math
 
 from keytaker.models import History, Room
 from keytaker.views import getOrders
+
+local_tz = pytz.timezone('Asia/Almaty')
 
 
 def keyreturnerMain(request):
@@ -16,7 +19,7 @@ def keyreturnerMain(request):
     for history in history_obj:
         history_list.append({
             'id': history.id,
-            'date': history.date.strftime("%D (%H:%M)"),
+            'date': history.date.astimezone(local_tz).strftime("%D (%H:%M)"),
             'fullname': history.fullname,
             'room': history.room.name,
             'role': history.role.name,

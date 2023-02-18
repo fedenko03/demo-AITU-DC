@@ -4,11 +4,14 @@ import string
 import json
 import asyncio
 
+import pytz
 from django.http import JsonResponse
 from django.utils import timezone
 
 from keytaker.consumers import WSNewOrder, WSCanceledORConfirmedOrder
 from keytaker.models import *
+
+local_tz = pytz.timezone('Asia/Almaty')
 
 
 def generate_code():
@@ -59,7 +62,7 @@ def getHistoryData(request, page, step):
     for history in history_obj:
         history_list.append({
             'id': history.id,
-            'date': history.date.strftime("%D (%H:%M)"),
+            'date': history.date.astimezone(local_tz).strftime("%D (%H:%M)"),
             'fullname': history.fullname,
             'room': history.room.name,
             'role': history.role.name,
@@ -83,7 +86,7 @@ def searchRoom(request, room):
     for history in history_obj:
         history_list.append({
             'id': history.id,
-            'date': history.date.strftime("%D (%H:%M)"),
+            'date': history.date.astimezone(local_tz).strftime("%D (%H:%M)"),
             'fullname': history.fullname,
             'room': history.room.name,
             'role': history.role.name,
@@ -99,7 +102,7 @@ def new_order_notify(order_obj):
             'order_id': order_obj.id,
             'room_name': order_obj.room.name,
             'note': order_obj.note,
-            'time': order_obj.orders_timestamp.strftime("%H:%M:%S"),
+            'time': order_obj.orders_timestamp.astimezone(local_tz).strftime("%H:%M:%S"),
             'user_full_name': order_obj.user.full_name,
             'user_email': order_obj.user.email
         })))

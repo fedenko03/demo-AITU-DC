@@ -30,7 +30,7 @@
                                 <div class="col-md-8 col-xl-6 text-center mx-auto">
                                     <h2 class="display-6 fw-bold text-success" style="font-size: 40px;"><i
                                             class="far fa-check-circle"></i>&nbsp;Успешно!</h2>
-                                    <p class="text-muted" style="font-size: 20px;margin-bottom: 10px;">Заявка на взятие ключа подтверждена.</p>
+                                    <p class="text-muted" style="font-size: 20px;margin-bottom: 10px;">Заявка на взятие ключа подтверждена {% if history.is_verified %}через QR{% endif %}.</p>
                                 </div>
                             </div>
                             <div class="row mb-2">
@@ -38,9 +38,6 @@
                                     <h6 class="mb-0" style="font-size: 15px;text-align: left;"><strong><span
                                             style="color: rgb(82, 119, 226);">Информация:</span></strong>
                                         <br><strong>ФИО:</strong> {{ history.fullname }} ({{ history.role.name }})
-                                        {% if history.is_verified %}
-                                            <span class="text-xs" style="font-size: 15px;">&nbsp; QR</span>
-                                        {% endif %}
                                         <br><strong>Кабинет:</strong> {{ history.room }}
                                         <br><strong>Время:</strong> {{ history.date }}
                                     </h6>

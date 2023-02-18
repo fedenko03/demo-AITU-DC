@@ -1,5 +1,6 @@
 import json
 
+import pytz
 from django.contrib.auth.decorators import *
 from django.shortcuts import render, redirect
 from django.utils import timezone
@@ -12,6 +13,8 @@ import qrcode
 import random
 import string
 from .models import Orders
+
+local_tz = pytz.timezone('Asia/Almaty')
 
 
 def getOrders():
@@ -31,7 +34,7 @@ def getOrders():
                                 'name': order.user.full_name,
                                 'email': order.user.email
                             },
-                            "orders_timestamp": order.orders_timestamp.strftime("%H:%M:%S"),
+                            "orders_timestamp": order.orders_timestamp.astimezone(local_tz).strftime("%H:%M:%S"),
                             "is_confirm": order.is_confirm,
                             "is_available": order.is_available
                             })

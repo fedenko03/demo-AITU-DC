@@ -20,6 +20,7 @@ from keytaker.models import *
 import asyncio
 
 
+
 def generate_code():
     # Generate a random confirmation code
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
