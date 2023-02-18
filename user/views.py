@@ -189,7 +189,7 @@ def qr_checker(request, settings_obj):
         settings_obj.save()
         return error
     if check_room(settings_obj.room.name):
-        error = 'Выбранная комната выбрана неверно или уже занята'
+        error = 'Комната выбрана неверно или уже занята'
         settings_obj.error = error
         settings_obj.is_confirm = True
         settings_obj.save()
@@ -231,7 +231,7 @@ def confirm_keytaking(request, confirmation_code):  # step 4
             messages.success(request, 'Заявка на взятие ключа подтверждена успешно.')
             return redirect('home')
         else:
-            messages.error(request, 'Заявки не существует, возможно её уже активировали '+confirmation_code)
+            messages.error(request, 'Заявки не существует, возможно её уже активировали ')
             return redirect('home')
     except Exception as e:
         print(e)
@@ -304,4 +304,12 @@ def home(request):
         'profile': profile_obj,
         'step': request.session.get('step'),
         'code': request.session.get('code')
+    })
+
+
+def history_user(request):
+    user_obj = MainUser.objects.filter(email=request.user.username).first()
+    history_obj = History.objects.filter(user=user_obj).order_by('-date').all()
+    return render(request, 'history_user.html', {
+        'history_obj': history_obj
     })

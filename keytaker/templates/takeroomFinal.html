@@ -1,75 +1,92 @@
 {% extends 'base.html' %}
 {% block title %}Результат{% endblock %}
 {% block content %}
-    <div class="d-flex flex-column" id="content-wrapper">
-        <div id="content">
-            <div class="container-fluid" style="padding-top: 20px;">
-                <div class="card shadow">
-                    <div class="card-header py-3">
-                        <p class="text-primary m-0 fw-bold">Взятие ключа</p>
-                    </div>
+    {% load static %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="text-bg-dark border rounded flex-column justify-content-between align-items-center flex-lg-row"
+                 style="margin-left: 20px;margin-right: 20px;padding-right: 20px;padding-top: 15px;padding-bottom: 0px;padding-left: 20px;margin-top: 10px;">
+                <p style="margin-bottom: 5px;">Внимание!</p>
+                <p style="margin-bottom: 10px;">{{ message }}</p>
+            </div>
+        {% endfor %}
+    {% endif %}
+    <div class="container-fluid" style="padding-top: 20px;padding-bottom: 0px;">
+        <div class="card shadow" style="padding-bottom: 0px;">
+            <div class="card-header py-3"
+                 style="padding-top: 14px;margin-top: -7px;padding-bottom: 7px;margin-bottom: -16px;">
+                <p class="text-primary m-0 fw-bold"><span
+                        style="background-color: rgb(255, 255, 255);">Итог&nbsp;</span><span
+                        style="color: rgb(82, 119, 226); background-color: rgba(248, 249, 252, 0);">·</span><span
+                        style="font-weight: normal !important; color: rgb(82, 119, 226); background-color: rgba(248, 249, 252, 0);"> Взять ключ</span>
+                </p>
+            </div>
+            <div class="card-body" style="padding-top: 9px;padding-bottom: 0px;">
+                <div class="text-center p-4 p-lg-5"
+                     style="margin-top: -18px;padding-top: 39px;padding-right: 60px;margin-right: -15px;padding-left: 29px;margin-left: -15px;padding-bottom: 20px;margin-bottom: -24px;">
                     {% if not error and not messages %}
-                        <div class="card-body">
-                            <section class="text-center newsletter-subscribe py-4 py-xl-5">
-                                <div class="container">
-                                    <div class="row mb-2">
-                                        <div class="col-md-8 col-xl-6 text-center mx-auto">
-                                            <h2 class="display-6 fw-bold text-success"><i
-                                                    class="far fa-check-circle"></i>&nbsp;Успешно!</h2>
-                                            <p class="text-muted">Заявка на взятие ключа подтверждена.</p>
-                                        </div>
-                                    </div>
-                                    <div class="row text-center mb-2">
-                                        <div class="col text-center me-2">
-                                            <div>
-                                                <h5 class="text-primary mb-0"><strong>Информация:</strong></h5>
-                                                <h6 class="mb-0"><strong>ФИО:</strong> {{ history.fullname }}
-                                                    ({{ history.role.name }})
-                                                    {% if history.is_verified %}
-                                                        <span class="text-xs">&nbsp;(через QR)</span> {% endif %}</h6>
-                                                <h6 class="mb-0"><strong>Кабинет:</strong> {{ history.room }}</h6>
-                                                <h6 class="mb-0"><strong>Время:</strong> {{ history.date }}</h6>
-                                            </div>
-                                        </div>
-                                    </div>
+                        <div>
+                            <div class="row mb-2">
+                                <div class="col-md-8 col-xl-6 text-center mx-auto">
+                                    <h2 class="display-6 fw-bold text-success" style="font-size: 40px;"><i
+                                            class="far fa-check-circle"></i>&nbsp;Успешно!</h2>
+                                    <p class="text-muted" style="font-size: 20px;margin-bottom: 10px;">Заявка на взятие ключа подтверждена.</p>
                                 </div>
-                                <a class="btn btn-primary ms-2" href='{% url 'takeroom2' %}'>На главную</a>
-                            </section>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-8 col-xl-6 col-xxl-3 text-center mx-auto">
+                                    <h6 class="mb-0" style="font-size: 15px;text-align: left;"><strong><span
+                                            style="color: rgb(82, 119, 226);">Информация:</span></strong>
+                                        <br><strong>ФИО:</strong> {{ history.fullname }} ({{ history.role.name }})
+                                        {% if history.is_verified %}
+                                            <span class="text-xs" style="font-size: 15px;">&nbsp; QR</span>
+                                        {% endif %}
+                                        <br><strong>Кабинет:</strong> {{ history.room }}
+                                        <br><strong>Время:</strong> {{ history.date }}
+                                    </h6>
+                                </div>
+                            </div>
+                            <a href="{% url 'takeroom2' %}"
+                               class="btn btn-outline-primary text-center border rounded-pill border-primary me-2 py-2 px-4"
+                               type="button"
+                               style="padding-left: 20px;padding-top: 5px;padding-right: 17px;margin-right: -2px;margin-bottom: 7px;">На
+                                главную</a>
+                            <hr>
                         </div>
                     {% else %}
-                        <div class="card-body">
-                            <section class="text-center newsletter-subscribe py-4 py-xl-5">
-                                <div class="container">
-                                    <div class="row mb-2">
-                                        <div class="col-md-8 col-xl-6 text-center mx-auto">
-                                            <h2 class="display-6 fw-bold text-danger"><i
-                                                    class="far fa-times-circle"></i>&nbsp;Ошибка!</h2>
-                                            <p class="text-muted">Заявка на взятие ключа отклонена.</p>
-                                        </div>
-                                    </div>
-                                    <div class="row text-center mb-2">
-                                        <div class="col text-center me-2">
-                                            <div>
-                                                <h5 class="text-primary mb-0"><strong>Информация:</strong></h5>
-                                                {% if messages %}
-                                                    {% for message in messages %}
-                                                        <h6 class="mb-0"><strong>{{ message }}</strong></h6>
-                                                    {% endfor %}
-                                                {% elif error %}
-                                                        <h6 class="mb-0"><strong>{{ error }}</strong></h6>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    </div>
+                        <div>
+                            <div class="row mb-2">
+                                <div class="col-md-8 col-xl-6 text-center mx-auto">
+                                    <h2 class="display-6 fw-bold text-danger" style="font-size: 40px;"><i
+                                            class="far fa-times-circle"></i>&nbsp;Ошибка!</h2>
+                                    <p class="text-muted" style="font-size: 20px;margin-bottom: 10px;">Заявка на взятие
+                                        ключа отклонена.</p>
                                 </div>
-                                <a class="btn btn-primary ms-2" href='{% url 'homeMain' %}'>На главную</a>
-                            </section>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-8 col-xl-6 col-xxl-3 text-center mx-auto">
+                                    <h6 class="mb-0" style="font-size: 15px;text-align: left;"><strong><span
+                                            style="color: rgb(82, 119, 226);">Информация:</span></strong>
+                                        {% if messages %}
+                                            {% for message in messages %}
+                                                <br><strong>{{ message }}</strong>
+                                            {% endfor %}
+                                        {% elif error %}
+                                            <br><strong>{{ error }}</strong>
+                                        {% endif %}
+                                    </h6>
+                                </div>
+                            </div>
+                            <a href="{% url 'takeroom2' %}"
+                               class="btn btn-outline-primary text-center border rounded-pill border-primary me-2 py-2 px-4"
+                               type="button"
+                               style="padding-left: 20px;padding-top: 5px;padding-right: 17px;margin-right: -2px;margin-bottom: 7px;">На главную</a>
+                            <hr>
                         </div>
                     {% endif %}
                 </div>
             </div>
         </div>
     </div>
-
 
 {% endblock %}

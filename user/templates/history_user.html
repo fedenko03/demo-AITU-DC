@@ -1,0 +1,49 @@
+{% extends 'base_user.html' %}
+
+{% block content %}
+
+        <section class="py-5" style="padding-top: 48px;margin-top: -10px;">
+        <div class="container py-5" style="padding-top: 40px;margin-top: -50px;">
+            <div class="card shadow">
+                <div class="card-header" style="backdrop-filter: blur(0px);-webkit-backdrop-filter: blur(0px);">
+                    <h4 class="text-dark mb-0" style="font-size: 20px;">История взятия ключей</h4>
+                </div>
+                <div class="card-body" style="padding-top: 5px;">
+                    <div class="table-responsive table" id="dataTable-1" role="grid" aria-describedby="dataTable_info" style="font-size: 14px;">
+                        <table class="table my-0" id="dataTable">
+                            <thead>
+                                <tr>
+                                    <th>Кабинет</th>
+                                    <th>Статус</th>
+                                    <th>Дата</th>
+                                    <th>Способ взячи</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for history in history_obj.all %}
+                                <tr>
+                                    <td>{{ history.room.name }}</td>
+                                    {% if history.is_return %}
+                                        <td class="text-success">Вернули</td>
+                                    {% else %}
+                                        <td class="text-danger">Не вернули</td>
+                                    {% endif %}
+                                    <td class="text-success">
+                                        <span style="color: rgb(133, 135, 150);">{{ history.date }}</span>
+                                        <br>
+                                    </td>
+                                    <td>QR</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr></tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

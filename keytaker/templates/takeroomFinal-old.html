@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Результат{% endblock %}
+{% block content %}
+    <div class="d-flex flex-column" id="content-wrapper">
+        <div id="content">
+            <div class="container-fluid" style="padding-top: 20px;">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <p class="text-primary m-0 fw-bold">Взятие ключа</p>
+                    </div>
+                    {% if not error and not messages %}
+                        <div class="card-body">
+                            <section class="text-center newsletter-subscribe py-4 py-xl-5">
+                                <div class="container">
+                                    <div class="row mb-2">
+                                        <div class="col-md-8 col-xl-6 text-center mx-auto">
+                                            <h2 style="font-size: 40px;" class="display-6 fw-bold text-success"><i
+                                                    class="far fa-check-circle"></i>&nbsp;Успешно!</h2>
+                                            <p class="text-muted">Заявка на взятие ключа подтверждена.</p>
+                                        </div>
+                                    </div>
+                                    <div class="row text-center mb-2">
+                                        <div class="col text-center me-2">
+                                            <div>
+                                                <h5 class="text-primary mb-0"><strong>Информация:</strong></h5>
+                                                <h6 class="mb-0"><strong>ФИО:</strong> {{ history.fullname }}
+                                                    ({{ history.role.name }})
+                                                    {% if history.is_verified %}
+                                                        <span class="text-xs">&nbsp;(через QR)</span> {% endif %}</h6>
+                                                <h6 class="mb-0"><strong>Кабинет:</strong> {{ history.room }}</h6>
+                                                <h6 class="mb-0"><strong>Время:</strong> {{ history.date }}</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <a class="btn btn-primary ms-2" href='{% url 'takeroom2' %}'>На главную</a>
+                            </section>
+                        </div>
+                    {% else %}
+                        <div class="card-body">
+                            <section class="text-center newsletter-subscribe py-4 py-xl-5">
+                                <div class="container">
+                                    <div class="row mb-2">
+                                        <div class="col-md-8 col-xl-6 text-center mx-auto">
+                                            <h2 class="display-6 fw-bold text-danger"><i
+                                                    class="far fa-times-circle"></i>&nbsp;Ошибка!</h2>
+                                            <p class="text-muted">Заявка на взятие ключа отклонена.</p>
+                                        </div>
+                                    </div>
+                                    <div class="row text-center mb-2">
+                                        <div class="col text-center me-2">
+                                            <div>
+                                                <h5 class="text-primary mb-0"><strong>Информация:</strong></h5>
+                                                {% if messages %}
+                                                    {% for message in messages %}
+                                                        <h6 class="mb-0"><strong>{{ message }}</strong></h6>
+                                                    {% endfor %}
+                                                {% elif error %}
+                                                        <h6 class="mb-0"><strong>{{ error }}</strong></h6>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <a class="btn btn-primary ms-2" href='{% url 'homeMain' %}'>На главную</a>
+                            </section>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

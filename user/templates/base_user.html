@@ -19,12 +19,12 @@
             src="{% static 'img/logo_aitu_white.png' %}"
             style="width: 35px;text-align: center;padding-left: 0px;margin-left: 1px;"></span><span>AITU DC</span></a>
         <button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1"><span
-                class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+                class="visually-hidden">Navigation</span><span class="navbar-toggler-icon"></span></button>
         <div class="collapse navbar-collapse" id="navcol-1">
             <ul class="navbar-nav mx-auto">
-                <li class="nav-item"><a class="nav-link" href="">Главная</a></li>
-                <li class="nav-item"><a class="nav-link" href="">История</a></li>
-                <li class="nav-item"><a class="nav-link" href="">Настройки</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Главная</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'history_user' %}">История</a></li>
+{#                <li class="nav-item"><a class="nav-link" href="">Настройки</a></li>#}
                 <li class="nav-item"></li>
             </ul>
             {% if not user.is_authenticated %}

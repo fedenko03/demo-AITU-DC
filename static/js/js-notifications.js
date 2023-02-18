@@ -64,7 +64,7 @@ function createNotification(data) {
                         <div class="card-header" style="padding-top: 6px;padding-bottom: 5px;">
                             <p class="text-primary m-0 fw-bold" style="margin-bottom: 24px;font-size: 15px;padding-right: 0px;margin-right: 12px;">
                                 <span style="background-color: rgb(255, 255, 255);">Новая заявка #${data.order_id}</span>
-                                <i class="far fa-times-circle text-black-50 close-notification" style="position: absolute;right: 0;margin-right: 5px;font-size: 20px;"></i>
+                                <a href="#"><i class="far fa-times-circle text-black-50 close-notification" style="position: absolute;right: 0;margin-right: 5px;font-size: 20px;"></i></a>
                             </p>
                         </div>
                         <div class="card-body" style="margin-bottom: -9px;padding-top: 10px;">
@@ -77,7 +77,7 @@ function createNotification(data) {
                             </div>
                             <hr style="margin-top: 8px;margin-bottom: 5px;">
                             <a href="${location.protocol}//${location.host}/main/confirm-takeroom/${data.order_id}" class="btn btn-primary" type="button" style="font-size: 11px;margin-right: 12px;">Открыть</a>
-                            <button id="cancelOrder" class="btn btn-danger" type="button" style="font-size: 11px;">Отклонить</button>
+                            <a id="cancelOrder" class="btn btn-danger" type="button" style="font-size: 11px;">Отклонить</a>
                         </div>
                     </div>`
 

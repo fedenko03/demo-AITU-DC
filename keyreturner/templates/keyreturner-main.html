@@ -261,12 +261,14 @@
                 prevElem.classList.remove("disabled")
             } else if (step === 0) {
                 let historyPage = document.getElementById('historyPage');
-                historyPage.textContent = (parseInt(historyPage.textContent) - 1).toString();
-                if (parseInt(document.getElementById('historyPage').textContent) <= 1) {
-                    historyPage.textContent = "1"
-                    prevElem.classList.add("disabled")
+                if (historyPage) {
+                    historyPage.textContent = (parseInt(historyPage.textContent) - 1).toString();
+                    if (parseInt(document.getElementById('historyPage').textContent) <= 1) {
+                        historyPage.textContent = "1"
+                        prevElem.classList.add("disabled")
+                    }
+                    nextElem.classList.remove("disabled")
                 }
-                nextElem.classList.remove("disabled")
             }
         }
 

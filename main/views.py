@@ -1,18 +1,73 @@
+from datetime import datetime
+
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth.hashers import check_password
+from django.views.decorators.http import require_GET
 
 from api.views import confirmed_order, canceled_order
 from keytaker.models import Orders, History, Room
 from django.contrib import messages
 from django.utils import timezone
+from django.core import serializers
 
 from keytaker.views import check_room
 from main.models import PIN
 from user.models import MainUser
+import openpyxl
+from openpyxl.styles import PatternFill
+
+def export_history_to_excel(request):
+    # Get the queryset
+    history_queryset = History.objects.all().order_by('-date')
+    # Create a new workbook
+    wb = openpyxl.Workbook()
+    # Select the active worksheet
+    ws = wb.active
+    # Add headers to the worksheet
+    ws['A1'] = 'Date'
+    ws['B1'] = 'Fullname'
+    ws['C1'] = 'Role'
+    ws['D1'] = 'Room'
+    ws['E1'] = 'Verified (QR)'
+    ws['F1'] = 'Returned'
+    # Loop over the queryset and add the data to the worksheet
+    for i, entry in enumerate(history_queryset, start=2):
+        ws.cell(row=i, column=1, value=entry.date.strftime('%d-%m-%Y %H:%M:%S'))
+        ws.cell(row=i, column=2, value=entry.fullname)
+        ws.cell(row=i, column=3, value=entry.role.name)
+        ws.cell(row=i, column=4, value=entry.room.name)
+        ws.cell(row=i, column=5, value='Yes' if entry.is_verified else 'No')
+        ws.cell(row=i, column=6, value='Yes' if entry.is_return else 'No')
+        # Set the background color of the row to red if is_return is True, green otherwise
+        if entry.is_return:
+            fill = PatternFill(start_color='C6EFCE', end_color='C6EFCE', fill_type='solid')
+        else:
+            fill = PatternFill(start_color='FFC7CE', end_color='FFC7CE', fill_type='solid')
+        for cell in ws[i]:
+            cell.fill = fill
+    # Adjust the column width to fit the text
+    for col in ws.columns:
+        column = col[0].column_letter
+        length = max(len(str(cell.value)) for cell in col)
+        adjusted_width = (length + 2) * 1.2
+        ws.column_dimensions[column].width = adjusted_width
+    # Set the filename and the content-type of the response
+    now = datetime.now()
+    formatted_date = now.strftime('%d.%m.%Y')
+    filename = 'history ' + formatted_date + '.xlsx'
+    content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    # Create a response object
+    response = HttpResponse(content_type=content_type)
+    # Set the content-disposition header
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    # Write the workbook to the response
+    wb.save(response)
+    # Return the response
+    return response
 
 
 def getOrders():
@@ -180,13 +235,55 @@ def cancel_takeroomMain(request, pk):
 
 @login_required(login_url='loginMain')
 def historyMain(request):
-    history_obj = History.objects.order_by('-date')[:10]
+    history_entries = History.objects.all().order_by('-date')
     orders_list = getOrders()
-    print(orders_list)
     return render(request, 'history-main.html', {
         'orders_list': orders_list,
-        'history_obj': history_obj
+        'history_entries': history_entries,
+        'history_length': len(history_entries)
     })
+
+
+def history_ajax(request):
+    start = int(request.GET.get('start', 0))
+    end = int(request.GET.get('end', 10))
+    search_query = request.GET.get('search_query')
+    history_length = 0
+    if search_query:
+        #print(1)
+        room_obj = Room.objects.filter(name=search_query).first()
+        if room_obj:
+            history = History.objects.filter(room=room_obj).order_by('-date')
+            history_length = len(history)
+            history = history[start:end]
+        else:
+            start = 0
+            end = 0
+            history = []
+    else:
+        #print(2)
+        history = History.objects.all().order_by('-date')
+        history_length = len(history)
+        history = history[start:end]
+    history_data = []
+    for entry in history:
+        history_data.append({
+            'fullname': entry.fullname,
+            'role': entry.role.name,
+            'room': entry.room.name,
+            'date': entry.date.strftime('%d-%m-%Y %H:%M:%S'),
+            'is_verified': entry.is_verified,
+            'is_return': entry.is_return,
+        })
+    #print(history_data)
+    #print(history_length)
+    data = {
+        'history_json': history_data,
+        'history_length': history_length,
+        'start': start,
+        'end': end
+    }
+    return JsonResponse(data)
 
 
 @login_required(login_url='loginMain')

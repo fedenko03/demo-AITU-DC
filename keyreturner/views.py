@@ -4,6 +4,7 @@ from django.contrib import messages
 import math
 
 from keytaker.models import History, Room
+from keytaker.views import getOrders
 
 
 def keyreturnerMain(request):
@@ -21,7 +22,9 @@ def keyreturnerMain(request):
             'role': history.role.name,
             'is_return': history.is_return
         })
+    orders_list = getOrders()
     return render(request, 'keyreturner-main.html', {
+        'orders_list': orders_list,
         'history_obj': history_list[:5],
         'history_count': len(history_obj)
     })
