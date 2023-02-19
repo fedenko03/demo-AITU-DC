@@ -10,7 +10,7 @@
         }
 
         .roomFilling:hover {
-            fill: #ffa222;
+            fill: #2c74c4;
         }
 
         .roomFilling.active {
@@ -19,6 +19,18 @@
 
         .roomFilling.closed {
             fill: #ff4d4d;
+        }
+
+        .roomFilling.closed:hover {
+            fill: #c93232;
+        }
+
+        .roomFilling.unavailable {
+            fill: #989898;
+        }
+
+        .roomFilling.unavailable:hover {
+            fill: #696767;
         }
     </style>
 
@@ -36,7 +48,7 @@
             {% endif %}
 
             <div class="text-center p-4 p-lg-5"
-                 style="padding-top: 34px;margin-top: -36px;padding-bottom: 35px;margin-bottom: -28px;">
+                 style="padding-top: 34px;margin-top: -16px;padding-bottom: 35px;margin-bottom: -28px;">
                 <h1 class="fw-bold mb-4"
                     style="color: var(--bs-blue);font-size: 35px;padding-bottom: 0px;margin-bottom: 22px;">Интерактивная
                     карта</h1>
@@ -52,17 +64,17 @@
                 </p>
 
 
-                <div id="InfoTableGreen" class="card"
-                     style="display: none;position: absolute;text-align:left; min-width: 300px;background: #249f38;border-radius: 20px;border-bottom-left-radius: 0px;
-                     padding-top: 10px;padding-left: 10px;padding-right: 0px;border-top-left-radius: 25px;border-top-right-radius: 25px;
-                     border-bottom-right-radius: 25px;height: auto;border-width: 2px;border-color: #176d25;">
-                    <h4 class="fw-bold" style="font-size: 15px;margin-bottom: 3px;color: rgb(255,255,255);">C1.2.240K
-                        <span class="fw-light" style="font-size: 12px;margin-bottom: 0px;color: rgb(255,255,255);">(Компьютерный кабинет)</span>
-                    </h4>
-                    <p class="fw-light" style="font-size: 13px;color: rgb(255,255,255);">СВОБОДНО</p>
+                <div id="InfoTable" class="card"
+                     style="text-align: left; display: none;position: absolute; width: 270px;border-radius: 20px;border-bottom-left-radius: 0px;padding-top: 10px;padding-right: 0px;border-top-left-radius: 20px;border-top-right-radius: 20px;border-bottom-right-radius: 20px;height: auto;border-width: 2px;padding-bottom: 8px;padding-left: 8px;">
+                    <h4 id="InfoTableRoom" class="fw-bold"
+                        style="font-size: 15px;color: rgb(255,255,255);margin-bottom: 0px;">.</h4>
+                    <p id="InfoTableDescr" class="fw-light"
+                       style="font-size: 12px;margin-bottom: 0px;color: rgb(255,255,255);">.</p>
+                    <p id="InfoTableAddit" class="fw-light"
+                       style="font-size: 13px;color: rgb(255,255,255);margin-bottom: -1px;">.</p>
                     <p class="fw-light"
-                       style="font-size: 11px;margin-bottom: 0px;padding-left: 0px;margin-left: 3px;position: absolute;right: 15px;bottom: 0px;">
-                        <span style="color: #148226;">id:_1.234</span></p>
+                       style="font-size: 10px;color: rgb(255,255,255);margin-bottom: 0px;padding-left: 0px;margin-left: 3px;position: absolute;right: 10px;bottom: 5px;">
+                        <span id="idRoomTable" style="">id:</span></p>
                 </div>
 
 
@@ -79,17 +91,22 @@
             <div class="d-sm-flex justify-content-between align-items-center mb-4"></div>
             <div class="card shadow">
                 <div class="card-header py-3" style="margin-top: 0px;">
-                    <p class="text-primary m-0 fw-bold"><span style="background-color: rgb(255, 255, 255);">История взятия/сдачи ключей</span>
+                    <p id="textLabelTable" class="text-primary m-0 fw-bold"><span
+                            style="background-color: rgb(255, 255, 255);">Все кабинеты 1 этажа</span>
                     </p>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6 col-xl-3">
-                            <div class="input-group"><input class="bg-light form-control border-0 small" type="text"
-                                                            placeholder="Поиск кабинета">
-                                <button class="btn btn-primary py-0" type="button"><i class="fas fa-search"></i>
-                                </button>
-                            </div>
+                            <form method="GET">
+                                <div class="input-group">
+                                    <input class="bg-light form-control border-0 small" name="q" type="text"
+                                           placeholder="Поиск кабинета">
+                                    <button class="btn btn-primary py-0" type="submit">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                     <div class="table-responsive table mt-2" id="dataTable-1" role="grid"
@@ -104,42 +121,35 @@
                                 <th>Видимость</th>
                             </tr>
                             </thead>
-                            <tbody>
-                            {% for room in rooms_obj %}
-                                <tr>
-                                    <td>{{ room.name }}</td>
-                                    <td>{{ room.description }}</td>
-                                    {% if room.is_occupied %}
-                                        <td class="text-danger">Занят</td>
-                                    {% else %}
-                                        <td class="text-success">Свободен</td>
-                                    {% endif %}
-                                    <td> {% for role in room.role.all %}
-                                        <span class="badge bg-primary">{{ role.name }} </span> {% endfor %}</td>
-                                    {% if not room.is_visible %}
-                                        <td class="text-danger">Скрыта</td>
-                                    {% else %}
-                                        <td class="text-success">Видна</td>
-                                    {% endif %}
-                                </tr>
-                            {% endfor %}
+                            <tbody id="tbodyRoom">
+                            {% if rooms_obj %}
+                                {% for room in rooms_obj %}
+                                    <tr>
+                                        <td>{{ room.name }}</td>
+                                        <td>{{ room.description }}</td>
+                                        {% if room.is_occupied %}
+                                            <td class="text-danger">Занят</td>
+                                        {% else %}
+                                            <td class="text-success">Свободен</td>
+                                        {% endif %}
+                                        <td> {% for role in room.role.all %}
+                                            <span class="badge bg-primary">{{ role.name }} </span> {% endfor %}</td>
+                                        {% if not room.is_visible %}
+                                            <td class="text-danger">Скрыта</td>
+                                        {% else %}
+                                            <td class="text-success">Видна</td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr> <td style="color: #ff243c">Не найдено</td></tr>
+                            {% endif %}
                             </tbody>
                             <tfoot>
                             <tr></tr>
                             </tfoot>
                         </table>
                     </div>
-                    <nav class="d-lg-flex justify-content-lg-end justify-content-xxl-start dataTables_paginate paging_simple_numbers"
-                         style="margin-bottom: -14px;margin-top: -8px;">
-                        <ul class="pagination">
-                            <li class="page-item disabled"><a class="page-link" aria-label="Previous" href="#"><span
-                                    aria-hidden="true">«</span></a></li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" aria-label="Next" href="#"><span
-                                    aria-hidden="true">»</span></a></li>
-                        </ul>
-                    </nav>
-                    <hr style="margin-top: 7px;">
                     <a href="{% url 'homeMain' %}" class="fw-bold mb-2"
                        style="font-size: 15px;color: rgb(102,102,102);text-align: left; text-decoration:none">
                         <i class="fas fa-reply-all"></i>&nbsp;Вернуться в главное меню</a>
@@ -149,6 +159,28 @@
     </div>
 
     <script>
+        let elementsRoom = document.querySelectorAll('.roomFilling');
+        $(document).ready(function () {
+
+            {% for room in rooms_obj %}
+                elem = document.getElementById("{{ room.map_id }}")
+                if (elem) {
+                    {% if not room.is_visible %}
+                        elem.classList.add('unavailable');
+                    {% elif room.is_occupied %}
+                        elem.classList.add('closed');
+                    {% endif %}
+                    elem.classList.add('dbExist');
+                }
+            {% endfor %}
+
+            for (let i = 0; i < elementsRoom.length; i++) {
+                if (!elementsRoom[i].classList.contains('dbExist')) {
+                    elementsRoom[i].classList.add('unavailable');
+                }
+            }
+        })
+
 
         const select = document.getElementById('floorSelect');
         const svg1 = document.getElementById('firstFloor');
@@ -156,28 +188,180 @@
         const svg3 = document.getElementById('thirdFloor');
 
         select.addEventListener('change', () => {
+            let floor = '1';
             if (select.value === '1') {
+                floor = '1';
+                document.getElementById('textLabelTable').textContent = 'Все кабинеты 1 этажа';
                 svg1.style.display = 'block';
                 svg2.style.display = 'none';
                 svg3.style.display = 'none';
             } else if (select.value === '2') {
+                document.getElementById('textLabelTable').textContent = 'Все кабинеты 2 этажа';
+                floor = '2';
                 svg1.style.display = 'none';
                 svg2.style.display = 'block';
                 svg3.style.display = 'none';
             } else if (select.value === '3') {
+                document.getElementById('textLabelTable').textContent = 'Все кабинеты 3 этажа';
+                floor = '3';
                 svg1.style.display = 'none';
                 svg2.style.display = 'none';
                 svg3.style.display = 'block';
             }
+            clearTableRooms()
+            $.ajax({
+                url: `${location.protocol}//${location.host}/main/get_rooms_floor/`,
+                data: {
+                    'floor': floor
+                },
+                dataType: 'json',
+                success: function (data) {
+                    //console.log(data)
+                    //console.log(data.rooms_list.length)
+                    for (let i = 0; i < data.rooms_list.length; i++) {
+                        fillTableRooms(data.rooms_list[i])
+                        //console.log(data.rooms_list[i].map_id)
+                        let elem1 = document.getElementById(data.rooms_list[i].map_id)
+                        //console.log("\n\n\nELEM: ")
+                        //console.log(elem1)
+
+                        if (elem1) {
+                            if (!data.rooms_list[i].is_visible) {
+                                //console.log("is not vis " + !data.rooms_list[i].is_visible)
+                                elem1.classList.add('unavailable');
+                            } else if (data.rooms_list[i].is_occupied) {
+                                //console.log("is occ " + data.rooms_list[i].is_occupied)
+                                elem1.classList.add('closed');
+                            }
+                            elem1.classList.add('dbExist');
+                            //console.log("ELEM: ")
+                            //console.log(elem1)
+                        }
+                    }
+                    let elementsRoom1 = document.querySelectorAll('.roomFilling');
+                    for (let i = 0; i < elementsRoom1.length; i++) {
+                        if (!elementsRoom1[i].classList.contains('dbExist')) {
+                            elementsRoom1[i].classList.add('unavailable');
+                        }
+                    }
+                }
+            });
         });
 
-        let elementsRoom = document.querySelectorAll('.roomFilling');
         let lastClickedRoom = elementsRoom[0];
-        let lastCreatedTable = document.getElementById('InfoTable')
 
         for (let i = 0; i < elementsRoom.length; i++) {
             elementsRoom[i].addEventListener('click', function (event) {
-                if (!this.classList.contains('closed')) {
+                if (!this.classList.contains('closed') && !this.classList.contains('unavailable') && this.classList.contains('dbExist')) {
+                    lastClickedRoom.classList.remove('active');
+                    this.classList.add('active');
+                    lastClickedRoom = this;
+
+
+                    $.ajax({
+                        url: `${location.protocol}//${location.host}/main/get_room_map/`,
+                        data: {
+                            'room_map_id': elementsRoom[i].id
+                        },
+                        dataType: 'json',
+                        success: function (data) {
+                            //console.log(data)
+                            document.getElementById('InfoTableRoom').textContent = data.room_map_info.name;
+                            document.getElementById('InfoTableDescr').textContent = data.room_map_info.description;
+                            if (!data.room_map_info.is_occupied) {
+                                document.getElementById('InfoTableAddit').textContent = 'СВОБОДНО';
+                            } else {
+                                document.getElementById('InfoTableAddit').textContent = 'ЗАНЯТО пользователем ' + data.room_map_info.user_fullname;
+                            }
+                            document.getElementById('idRoomTable').textContent = elementsRoom[i].id;
+                        }
+                    });
+
+
+                    const x = event.clientX;
+                    const y = event.clientY;
+
+
+                    const sign = document.getElementById('InfoTable')
+                    sign.style.position = 'absolute'
+                    var container = document.getElementById('content')
+                    var containerRect = container.getBoundingClientRect(); // get the container's position and size
+                    sign.style.top = (event.clientY - containerRect.top - 130) + 'px'; // set the top position relative to the container
+                    sign.style.left = (event.clientX - containerRect.left) + 'px'; // set the left position relative to the container
+                    let idRoomTable = document.getElementById('idRoomTable')
+                    idRoomTable.textContent = 'id:' + elementsRoom[i].id;
+                    sign.style.borderBottomLeftRadius = "0px";
+                    sign.style.backgroundColor = '#249f38';
+                    sign.style.borderColor = '#176d25';
+                    idRoomTable.style.color = '#0a6519';
+                    sign.style.borderBottomRightRadius = "20px";
+                    sign.style.display = 'block';
+
+                    var viewportWidth = window.innerWidth;
+                    var signLeft = parseFloat(getComputedStyle(sign).left);
+                    var signWidth = parseFloat(getComputedStyle(sign).width);
+                    var rightmostPoint = signLeft + signWidth + 230;
+                    if (rightmostPoint > viewportWidth) {
+                        sign.style.left = (event.clientX - containerRect.left - 330) + 'px';
+                        sign.style.borderBottomLeftRadius = "20px";
+                        sign.style.borderBottomRightRadius = "0px";
+                    }
+
+                } else if (this.classList.contains('closed')) {
+                    lastClickedRoom.classList.remove('active');
+                    this.classList.add('active');
+                    lastClickedRoom = this;
+
+
+                    $.ajax({
+                        url: `${location.protocol}//${location.host}/main/get_room_map/`,
+                        data: {
+                            'room_map_id': elementsRoom[i].id
+                        },
+                        dataType: 'json',
+                        success: function (data) {
+                            //console.log(data)
+                            document.getElementById('InfoTableRoom').textContent = data.room_map_info.name;
+                            document.getElementById('InfoTableDescr').textContent = data.room_map_info.description;
+                            if (!data.room_map_info.is_occupied) {
+                                document.getElementById('InfoTableAddit').textContent = 'СВОБОДНО';
+                            } else {
+                                document.getElementById('InfoTableAddit').textContent = 'ЗАНЯТО пользователем ' + data.room_map_info.user_fullname;
+                            }
+                            document.getElementById('idRoomTable').textContent = elementsRoom[i].id;
+                        }
+                    });
+
+
+                    const x = event.clientX;
+                    const y = event.clientY;
+
+
+                    const sign = document.getElementById('InfoTable')
+                    sign.style.position = 'absolute'
+                    var container = document.getElementById('content')
+                    var containerRect = container.getBoundingClientRect(); // get the container's position and size
+                    sign.style.top = (event.clientY - containerRect.top - 130) + 'px'; // set the top position relative to the container
+                    sign.style.left = (event.clientX - containerRect.left) + 'px'; // set the left position relative to the container
+                    let idRoomTable = document.getElementById('idRoomTable')
+                    idRoomTable.textContent = 'id:' + elementsRoom[i].id;
+                    sign.style.borderBottomLeftRadius = "0px";
+                    sign.style.backgroundColor = '#e03e3e';
+                    sign.style.borderColor = 'rgb(222,13,0)';
+                    idRoomTable.style.color = 'rgb(195, 46, 37)';
+                    sign.style.borderBottomRightRadius = "20px";
+                    sign.style.display = 'block';
+
+                    var viewportWidth = window.innerWidth;
+                    var signLeft = parseFloat(getComputedStyle(sign).left);
+                    var signWidth = parseFloat(getComputedStyle(sign).width);
+                    var rightmostPoint = signLeft + signWidth + 230;
+                    if (rightmostPoint > viewportWidth) {
+                        sign.style.left = (event.clientX - containerRect.left - 330) + 'px';
+                        sign.style.borderBottomLeftRadius = "20px";
+                        sign.style.borderBottomRightRadius = "0px";
+                    }
+                } else if (this.classList.contains('unavailable')) {
                     lastClickedRoom.classList.remove('active');
                     this.classList.add('active');
                     lastClickedRoom = this;
@@ -186,17 +370,92 @@
                     const y = event.clientY;
 
 
-                    const sign = document.getElementById('InfoTableGreen')
-                    sign.style.position = 'absolute'
-                    {#sign.style.left = x + "px";#}
-                    {#sign.style.top = (y - 80) +"px";#}
-                    var containerRect = document.getElementById('content').getBoundingClientRect(); // get the container's position and size
-                    sign.style.top = (event.clientY - containerRect.top-110) + 'px'; // set the top position relative to the container
-                    sign.style.left = (event.clientX - containerRect.left) + 'px'; // set the left position relative to the container
+                    $.ajax({
+                        url: `${location.protocol}//${location.host}/main/get_room_map/`,
+                        data: {
+                            'room_map_id': elementsRoom[i].id
+                        },
+                        dataType: 'json',
+                        success: function (data) {
+                            //console.log(data)
+                            if (!data.room_map_info) {
+                                document.getElementById('InfoTableRoom').textContent = elementsRoom[i].id;
+                                document.getElementById('InfoTableDescr').textContent = "Комнаты нет в Базе данных";
+                                document.getElementById('InfoTableAddit').textContent = 'НЕДОСТУПНА';
+                                document.getElementById('idRoomTable').textContent = elementsRoom[i].id;
+                            } else {
+                                document.getElementById('InfoTableRoom').textContent = data.room_map_info.name;
+                                document.getElementById('InfoTableDescr').textContent = data.room_map_info.description;
+                                if (!data.room_map_info.is_visible) {
+                                    document.getElementById('InfoTableAddit').textContent = 'ОТКЛЮЧЕНА в настройках';
+                                }
+                                document.getElementById('idRoomTable').textContent = elementsRoom[i].id;
+                            }
+                        }
+                    });
 
+
+                    const sign = document.getElementById('InfoTable')
+                    sign.style.position = 'absolute'
+                    var container = document.getElementById('content')
+                    var containerRect = container.getBoundingClientRect(); // get the container's position and size
+                    sign.style.top = (event.clientY - containerRect.top - 130) + 'px'; // set the top position relative to the container
+                    sign.style.left = (event.clientX - containerRect.left) + 'px'; // set the left position relative to the container
+                    let idRoomTable = document.getElementById('idRoomTable')
+                    idRoomTable.textContent = 'id:' + elementsRoom[i].id;
+                    sign.style.borderBottomLeftRadius = "0px";
+                    sign.style.backgroundColor = '#9c9c9c';
+                    sign.style.borderColor = '#585858';
+                    idRoomTable.style.color = '#6d6d6d';
+                    sign.style.borderBottomRightRadius = "20px";
                     sign.style.display = 'block';
+
+                    var viewportWidth = window.innerWidth;
+                    var signLeft = parseFloat(getComputedStyle(sign).left);
+                    var signWidth = parseFloat(getComputedStyle(sign).width);
+                    var rightmostPoint = signLeft + signWidth + 230;
+                    if (rightmostPoint > viewportWidth) {
+                        sign.style.left = (event.clientX - containerRect.left - 330) + 'px';
+                        sign.style.borderBottomLeftRadius = "20px";
+                        sign.style.borderBottomRightRadius = "0px";
+                    }
                 }
+                setTimeout(function () {
+                    document.getElementById('InfoTable').style.display = 'none';
+                }, 10000)
             });
+        }
+
+        function clearTableRooms() {
+            let elementsRoom1 = document.querySelectorAll('.roomFilling');
+            for (let i = 0; i < elementsRoom1.length; i++) {
+                elementsRoom1[i].classList.remove('unavailable', 'closed', 'dbExist');
+                console.log(elementsRoom1[i])
+            }
+
+            let containerTableRooms = document.getElementById('tbodyRoom');
+            let roomsLength = containerTableRooms.childNodes.length;
+            while (roomsLength > 0) {
+                containerTableRooms.removeChild(containerTableRooms.firstChild)
+                roomsLength--
+            }
+        }
+
+
+        function fillTableRooms(data) {
+            let containerTableRooms = document.getElementById('tbodyRoom');
+            let object = document.createElement('tr');
+            object.innerHTML = `
+            <td>${data.name}</td>
+<td>${data.description}</td>
+${data.is_occupied ? `<td class="text-danger">Занят</td>` : `<td class="text-success">Свободен</td>`}
+<td>
+  ${data.role_name_list ? data.role_name_list.map(role => `<span class="badge bg-primary">${role}</span>`).join(' ') : ''}
+</td>
+${!data.is_visible ? `<td class="text-danger">Скрыта</td>` : `<td class="text-success">Видна</td>`}
+
+            `
+            containerTableRooms.appendChild(object);
         }
     </script>
 

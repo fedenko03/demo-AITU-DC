@@ -17,6 +17,7 @@ class Room(models.Model):
     is_occupied = models.BooleanField(default=False)
     is_visible = models.BooleanField(default=True)
     date = models.DateTimeField(blank=True, null=True)
+    map_id = models.CharField(max_length=15,  blank=True, null=True)
 
     def __str__(self):
         return self.name

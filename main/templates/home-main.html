@@ -3,6 +3,19 @@
 {% block content %}
     {% load static %}
 
+    <style>
+        #interactmap {
+            margin-top: 35px;
+            background-image: url({% static 'img/aitu2.jpg' %});
+            background-size: cover;
+        }
+
+        #interactmap::before {
+            background-color: rgba(27, 102, 255, 0.86); /* Change the opacity value (last parameter) to adjust the transparency */
+            z-index: -1;
+        }
+    </style>
+
     {% if messages %}
         {% for message in messages %}
             <div class="text-bg-dark border rounded flex-column justify-content-between align-items-center flex-lg-row"
@@ -33,24 +46,30 @@
                                 <p class="fw-bold text-dark mb-2" style="font-size: 25px;">Выберите действие</p>
                                 <p class="mb-4">Цифровая платформа университета для контроля взятия и сдачи ключей от
                                     кабинетов.</p>
-                                <a href="{% url 'takeroom2' %}" class="btn btn-primary border rounded-pill me-2 py-2 px-4" type="button"> Взять ключ</a>
-                                <a href="{% url "keyreturnerMain" %}" class="btn btn-outline-primary border rounded-pill py-2 px-4" type="button">Вернуть ключ</a>
+                                <a href="{% url 'takeroom2' %}"
+                                   class="btn btn-primary border rounded-pill me-2 py-2 px-4" type="button"> Взять
+                                    ключ</a>
+                                <a href="{% url "keyreturnerMain" %}"
+                                   class="btn btn-outline-primary border rounded-pill py-2 px-4" type="button">Вернуть
+                                    ключ</a>
                             </div>
                         </div>
                     </div>
                     <hr>
                 </div>
             </div>
+
         </div>
     </div>
     <div class="container">
-        <div class="text-bg-primary border rounded border-primary d-flex flex-column justify-content-between align-items-center flex-lg-row bg-primary-gradient p-4 p-lg-5"
-             style="margin-top: 35px;">
+        <div id="interactmap"
+             class="text-bg-primary border rounded border-primary d-flex flex-column justify-content-between align-items-center flex-lg-row bg-primary-gradient p-4 p-lg-5">
             <div class="text-center text-lg-start py-3 py-lg-1">
                 <h2 class="fw-bold mb-2">Интерактивная карта университета</h2>
                 <p class="mb-0">Мониторинг свободных и занятых кабинетов в университете</p>
             </div>
-            <a href="{% url 'roomsMain' %}" class="btn btn-outline-light btn-lg border rounded-pill shadow ms-2" type="button">Открыть</a>
+            <a href="{% url 'roomsMain' %}" class="btn btn-outline-light btn-lg border rounded-pill shadow ms-2"
+               type="button">Открыть</a>
         </div>
     </div>
 

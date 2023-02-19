@@ -3,6 +3,7 @@ from datetime import datetime
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
+from django.contrib.postgres.aggregates import ArrayAgg
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth.hashers import check_password
@@ -256,7 +257,7 @@ def history_ajax(request):
     search_query = request.GET.get('search_query')
     history_length = 0
     if search_query:
-        #print(1)
+        # print(1)
         room_obj = Room.objects.filter(name=search_query).first()
         if room_obj:
             history = History.objects.filter(room=room_obj).order_by('-date')
@@ -267,7 +268,7 @@ def history_ajax(request):
             end = 0
             history = []
     else:
-        #print(2)
+        # print(2)
         history = History.objects.all().order_by('-date')
         history_length = len(history)
         history = history[start:end]
@@ -281,8 +282,8 @@ def history_ajax(request):
             'is_verified': entry.is_verified,
             'is_return': entry.is_return,
         })
-    #print(history_data)
-    #print(history_length)
+    # print(history_data)
+    # print(history_length)
     data = {
         'history_json': history_data,
         'history_length': history_length,
@@ -309,12 +310,62 @@ def usersMain(request):
 
 @login_required(login_url='loginMain')
 def roomsMain(request):
-    rooms_obj = Room.objects.order_by('name')[:10]
+    query = request.GET.get('q')
     orders_list = getOrders()
+    if query:
+        rooms_list = Room.objects.filter(name=query)
+    else:
+        rooms_list = Room.objects.filter(floor='1').all().order_by('name')
     return render(request, 'rooms-main.html', {
         'orders_list': orders_list,
-        'rooms_obj': rooms_obj
+        'rooms_obj': rooms_list
     })
+
+
+def get_rooms_floor(request):
+    floor = request.GET.get('floor')
+    rooms_list = Room.objects.filter(floor=floor).annotate(role_name_list=ArrayAgg('role__name')).values('name', 'description', 'is_occupied', 'is_visible', 'map_id', 'role_name_list').order_by('name')
+    if not rooms_list:
+        return JsonResponse({
+            'rooms_list': None
+        })
+    return JsonResponse({
+        'rooms_list': list(rooms_list)
+    })
+
+
+def get_room_map(request):
+    room_map_id = request.GET.get('room_map_id')
+    room_obj = Room.objects.filter(map_id=room_map_id).first()
+
+    if not room_obj:
+        return JsonResponse({
+            'room_map_info': None
+        })
+
+    user_fullname = ''
+    if room_obj.is_occupied:
+        history_obj = History.objects.filter(
+            room=room_obj,
+            is_return=False
+        ).first()
+        if not history_obj:
+            return JsonResponse({
+                'room_map_info': None
+            })
+        print(history_obj)
+        user_fullname = history_obj.fullname
+
+    room_map_info = {
+        'map_id': room_obj.map_id,
+        'name': room_obj.name,
+        'description': room_obj.description,
+        'is_occupied': room_obj.is_occupied,
+        'is_visible': room_obj.is_visible,
+        'user_fullname': user_fullname
+    }
+    #print(room_map_info)
+    return JsonResponse({'room_map_info': room_map_info})
 
 
 @login_required(login_url='loginMain')

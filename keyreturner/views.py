@@ -71,3 +71,6 @@ def returnKeyConfirm(request, id):
     room_obj.save()
     messages.success(request, 'Возвращение ключа подтверждено')
     return redirect('keyreturnerMain')
+
+
+
