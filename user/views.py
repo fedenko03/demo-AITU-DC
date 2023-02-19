@@ -3,6 +3,7 @@ import random
 import string
 import uuid
 
+import pytz
 from django.contrib.auth import *
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect
@@ -12,13 +13,15 @@ from django.core.mail import send_mail
 
 from AITUDC import settings
 from api.views import new_order_notify
-from keytaker.consumers import WSCanceledORConfirmedOrder
+from keyreturner.models import SettingsKeyReturner
+from keytaker.consumers import WSCanceledORConfirmedOrder, WSGetUser
 from keytaker.views import check_room
 from keytaker.forms import ChooserData
 from .models import *
 from keytaker.models import *
 import asyncio
 
+local_tz = pytz.timezone('Asia/Almaty')
 
 
 def generate_code():
@@ -308,9 +311,55 @@ def home(request):
     })
 
 
+@login_required(login_url='login_user')
 def history_user(request):
     user_obj = MainUser.objects.filter(email=request.user.username).first()
     history_obj = History.objects.filter(user=user_obj).order_by('-date').all()
     return render(request, 'history_user.html', {
         'history_obj': history_obj
     })
+
+
+@login_required(login_url='login_user')
+def key_return_get_user(request, token):
+    settings_obj = SettingsKeyReturner.objects.filter(token=token).first()
+    if not settings_obj:
+        messages.error(request, 'Заявка не найдена')
+        return redirect('home')
+    user_obj = MainUser.objects.filter(email=request.user.username).first()
+    if not user_obj:
+        messages.error(request, 'Пользователь не найден')
+        return redirect('home')
+    if timezone.now() - settings_obj.token_timestamp >= timezone.timedelta(minutes=5):
+        messages.error = (request, 'Срок действия QR кода истёк.')
+        return redirect('home')
+    settings_obj.user = user_obj
+    settings_obj.step = 2
+    settings_obj.in_process = True
+    settings_obj.save()
+    ws_get_user(request, user_obj)
+    messages.success(request, 'Успешно! Выберите нужную заявку на экране администратора')
+    return redirect('home')
+
+
+def ws_get_user(request, user_obj):
+    settings_obj = SettingsKeyReturner.objects.filter(user = user_obj).first()
+    if not settings_obj:
+        messages.error(request, 'Заявка недействительна. Попробуйте сначала')
+    history_obj = History.objects.filter(
+        is_return=False,
+        user=user_obj
+    ).all()
+
+    history_list = []
+    for history in history_obj:
+        history_list.append({
+            'id': history.id,
+            'date': history.date.astimezone(local_tz).strftime("%D (%H:%M)"),
+            'fullname': history.fullname,
+            'room': history.room.name,
+            'role': history.role.name,
+            'is_return': history.is_return
+        })
+    for consumer in WSGetUser.consumers:
+        asyncio.run(consumer.send(text_data=json.dumps(history_list)))

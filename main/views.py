@@ -298,7 +298,7 @@ def usersMain(request):
     if query:
         users_obj = MainUser.objects.filter(full_name__icontains=query)
     else:
-        users_obj = MainUser.objects.all()
+        users_obj = MainUser.objects.all().order_by('full_name')
     orders_list = getOrders()
     context = {
         'orders_list': orders_list,

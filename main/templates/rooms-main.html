@@ -3,7 +3,7 @@
 {% block content %}
     {% load static %}
 
-  <div id="content">
+    <div id="content">
         <div class="container-fluid">
 
             {% if messages %}
@@ -29,9 +29,13 @@
                         <option value="3">3</option>
                     </optgroup>
                 </select></p>
-                <img src="../assets/img/clipboard-image.png" width="100%" height="auto">
+
+                {% include 'MapFirstFloor.html' %}
+                {% include 'MapSecondFloor.html' %}
+                {% include 'MapThirdFloor.html' %}
+
                 <p class="fw-light text-black-50 mb-2" style="font-size: 15px;text-align: right;color: rgb(78,78,78);">
-                    Map source: <a href="https://yuujiso.github.io/aitumap/">github</a></p>
+                    Map source: <a href="https://yuujiso.github.io/aitumap/" target="_blank">github</a></p>
             </div>
         </div>
         <div class="container-fluid" style="padding-top: 20px;">
@@ -73,7 +77,8 @@
                                     {% else %}
                                         <td class="text-success">Свободен</td>
                                     {% endif %}
-                                    <td> {% for role in room.role.all %} <span class="badge bg-primary">{{ role.name }} </span> {% endfor %}</td>
+                                    <td> {% for role in room.role.all %}
+                                        <span class="badge bg-primary">{{ role.name }} </span> {% endfor %}</td>
                                     {% if not room.is_visible %}
                                         <td class="text-danger">Скрыта</td>
                                     {% else %}

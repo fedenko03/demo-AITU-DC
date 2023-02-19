@@ -67,3 +67,34 @@ class WSCanceledORConfirmedOrder(AsyncWebsocketConsumer):
                 'msg_id': msg_id,
                 'msg': msg
             }))
+
+
+class WSGetUser(AsyncWebsocketConsumer):
+    consumers = []
+
+    async def connect(self):
+        await self.accept()
+        self.consumers.append(self)
+        print("WebSocket connected")
+
+    async def disconnect(self, close_code):
+        self.consumers.remove(self)
+        print("WebSocket disconnected")
+
+    async def receive(self, text_data=None, bytes_data=None):
+        if text_data:
+            text_data_json = json.loads(text_data)
+            id = text_data_json['id']
+            date = text_data_json['date']
+            fullname = text_data_json['fullname']
+            room = text_data_json['room']
+            role = text_data_json['role']
+            is_return = text_data_json['is_return']
+            await self.send(text_data=json.dumps({
+                'id': id,
+                'date': date,
+                'fullname': fullname,
+                'room': room,
+                'role': role,
+                'is_return': is_return
+            }))
