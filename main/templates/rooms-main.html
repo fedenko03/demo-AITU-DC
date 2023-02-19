@@ -3,7 +3,26 @@
 {% block content %}
     {% load static %}
 
-    <div id="content">
+    <style>
+
+        .roomFilling {
+            fill: #4da2ff;
+        }
+
+        .roomFilling:hover {
+            fill: #ffa222;
+        }
+
+        .roomFilling.active {
+            fill: #1cb93f;
+        }
+
+        .roomFilling.closed {
+            fill: #ff4d4d;
+        }
+    </style>
+
+    <div id="content" style="position: relative">
         <div class="container-fluid">
 
             {% if messages %}
@@ -21,19 +40,37 @@
                 <h1 class="fw-bold mb-4"
                     style="color: var(--bs-blue);font-size: 35px;padding-bottom: 0px;margin-bottom: 22px;">Интерактивная
                     карта</h1>
-                <p class="fw-bold mb-2" style="font-size: 15px;text-align: right;color: rgb(78,78,78);">&nbsp;Этаж:&nbsp;<select
-                        class="form-select-sm" style="color: rgb(78,78,78);border-radius: 10px;font-size: 12px;">
-                    <optgroup label="Этажи:">
-                        <option value="1" selected="">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                    </optgroup>
-                </select></p>
+                <p class="fw-bold mb-2" style="font-size: 15px;text-align: right;color: rgb(78,78,78);">&nbsp;Этаж:&nbsp;
+                    <select id="floorSelect"
+                            class="form-select-sm" style="color: rgb(78,78,78);border-radius: 10px;font-size: 12px;">
+                        <optgroup label="Этажи:">
+                            <option value="1" selected="">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </optgroup>
+                    </select>
+                </p>
 
-                {% include 'MapFirstFloor.html' %}
-                {% include 'MapSecondFloor.html' %}
-                {% include 'MapThirdFloor.html' %}
 
+                <div id="InfoTableGreen" class="card"
+                     style="display: none;position: absolute;text-align:left; min-width: 300px;background: #249f38;border-radius: 20px;border-bottom-left-radius: 0px;
+                     padding-top: 10px;padding-left: 10px;padding-right: 0px;border-top-left-radius: 25px;border-top-right-radius: 25px;
+                     border-bottom-right-radius: 25px;height: auto;border-width: 2px;border-color: #176d25;">
+                    <h4 class="fw-bold" style="font-size: 15px;margin-bottom: 3px;color: rgb(255,255,255);">C1.2.240K
+                        <span class="fw-light" style="font-size: 12px;margin-bottom: 0px;color: rgb(255,255,255);">(Компьютерный кабинет)</span>
+                    </h4>
+                    <p class="fw-light" style="font-size: 13px;color: rgb(255,255,255);">СВОБОДНО</p>
+                    <p class="fw-light"
+                       style="font-size: 11px;margin-bottom: 0px;padding-left: 0px;margin-left: 3px;position: absolute;right: 15px;bottom: 0px;">
+                        <span style="color: #148226;">id:_1.234</span></p>
+                </div>
+
+
+                <div id="Tablecontainer">
+                    {% include 'MapFirstFloor.html' %}
+                    {% include 'MapSecondFloor.html' %}
+                    {% include 'MapThirdFloor.html' %}
+                </div>
                 <p class="fw-light text-black-50 mb-2" style="font-size: 15px;text-align: right;color: rgb(78,78,78);">
                     Map source: <a href="https://yuujiso.github.io/aitumap/" target="_blank">github</a></p>
             </div>
@@ -111,5 +148,56 @@
         </div>
     </div>
 
+    <script>
+
+        const select = document.getElementById('floorSelect');
+        const svg1 = document.getElementById('firstFloor');
+        const svg2 = document.getElementById('secondFloor');
+        const svg3 = document.getElementById('thirdFloor');
+
+        select.addEventListener('change', () => {
+            if (select.value === '1') {
+                svg1.style.display = 'block';
+                svg2.style.display = 'none';
+                svg3.style.display = 'none';
+            } else if (select.value === '2') {
+                svg1.style.display = 'none';
+                svg2.style.display = 'block';
+                svg3.style.display = 'none';
+            } else if (select.value === '3') {
+                svg1.style.display = 'none';
+                svg2.style.display = 'none';
+                svg3.style.display = 'block';
+            }
+        });
+
+        let elementsRoom = document.querySelectorAll('.roomFilling');
+        let lastClickedRoom = elementsRoom[0];
+        let lastCreatedTable = document.getElementById('InfoTable')
+
+        for (let i = 0; i < elementsRoom.length; i++) {
+            elementsRoom[i].addEventListener('click', function (event) {
+                if (!this.classList.contains('closed')) {
+                    lastClickedRoom.classList.remove('active');
+                    this.classList.add('active');
+                    lastClickedRoom = this;
+
+                    const x = event.clientX;
+                    const y = event.clientY;
+
+
+                    const sign = document.getElementById('InfoTableGreen')
+                    sign.style.position = 'absolute'
+                    {#sign.style.left = x + "px";#}
+                    {#sign.style.top = (y - 80) +"px";#}
+                    var containerRect = document.getElementById('content').getBoundingClientRect(); // get the container's position and size
+                    sign.style.top = (event.clientY - containerRect.top-110) + 'px'; // set the top position relative to the container
+                    sign.style.left = (event.clientX - containerRect.left) + 'px'; // set the left position relative to the container
+
+                    sign.style.display = 'block';
+                }
+            });
+        }
+    </script>
 
 {% endblock %}
