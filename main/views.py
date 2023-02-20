@@ -174,13 +174,13 @@ def confirm_takeroom(request, pk):
         order_obj.is_available = False
         order_obj.save()
         messages.error(request, error)
-        canceled_order(error)
+        canceled_order(order_obj.user.email, error)
         return redirect('homeMain')
     if order_obj.is_confirm or not order_obj.is_available or timezone.now() - order_obj.orders_timestamp >= timezone.timedelta(
             minutes=5):
         order_obj.is_available = False
         order_obj.save()
-        canceled_order('Данная заявка больше неактуальна')
+        canceled_order(order_obj.user.email, 'Данная заявка больше неактуальна')
         messages.error(request, 'Данная заявка больше неактуальна')
         return redirect('homeMain')
 
@@ -206,7 +206,7 @@ def confirm_takeroom(request, pk):
         room_obj.save()
         history.save()
         order_obj.save()
-        confirmed_order('Заявка подтверждена успешно')
+        confirmed_order(order_obj.user.email, 'Заявка подтверждена успешно')
         messages.success(request, 'Заявка подтверждена успешно')
         return redirect('homeMain')
     else:
@@ -234,7 +234,7 @@ def cancel_takeroomMain(request, pk):
         order_obj.is_available = False
         order_obj.save()
         msg = 'Заявка успешно отклонена.'
-        canceled_order('Заявка была отклонена. Попробуйте снова')
+        canceled_order(order_obj.user.email, 'Заявка была отклонена. Попробуйте снова')
         messages.error(request, msg)
         return redirect('homeMain')
     return redirect('confirm-takeroom', pk)

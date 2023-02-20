@@ -27,11 +27,13 @@
 
 </head>
 
-<body style="font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;">
+<body id="menybody" class="sidebar-toggled"
+      style="font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;">
 
 <div id="wrapper">
 
-    <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
+    <nav id="navbarleft"
+         class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 toggled">
         <div id="nav" class="container-fluid d-flex flex-column p-0"><a
                 class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="">
             <div class="sidebar-brand-icon"><img src="{% static 'img/logo_aitu.png' %}" width="52" height="52"></div>
@@ -185,7 +187,7 @@
                                 </label>
                                 <textarea style="resize: none;" class="form-control form-control-sm"
                                           id="PinLockCode" rows="1"
-                                          name="code" required></textarea>
+                                          name="code" type="" required></textarea>
                             </p>
                         </div>
                     </div>
@@ -202,6 +204,37 @@
     </div>
 </div>
 </body>
+
+<script>
+    document.getElementById('PinLockCode').addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+        }
+    });
+
+
+    const menybody = document.getElementById('menybody')
+    const menu = document.getElementById('navbarleft');
+    const isOpen = localStorage.getItem('menuIsOpen') === 'true';
+
+    if (isOpen) {
+        menybody.classList.add('sidebar-toggled');
+        menu.classList.add('toggled');
+    } else {
+        menybody.classList.remove('sidebar-toggled');
+        menu.classList.remove('toggled');
+    }
+
+    document.getElementById('sidebarToggle').addEventListener('click', () => {
+        if (menybody.classList.contains('sidebar-toggled')) {
+            localStorage.setItem('menuIsOpen', 'false');
+        } else {
+            localStorage.setItem('menuIsOpen', 'true');
+        }
+    });
+
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script src="{% static 'js/js-notifications.js' %}"></script>

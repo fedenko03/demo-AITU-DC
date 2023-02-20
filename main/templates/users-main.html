@@ -41,6 +41,7 @@
                             <table class="table my-0" id="dataTable">
                                 <thead>
                                 <tr>
+                                    <th>#</th>
                                     <th>ФИО</th>
                                     <th>Роль</th>
                                     <th>Почта</th>
@@ -51,6 +52,7 @@
                                 <tbody id="table-body">
                                 {% for user in users_obj.all %}
                                     <tr>
+                                    <td>{{ forloop.counter }}</td>
                                         <td>{{ user.full_name }}
                                             <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"
                                                  fill="currentColor"

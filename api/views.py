@@ -108,17 +108,19 @@ def new_order_notify(order_obj):
         })))
 
 
-def canceled_order(msg):
+def canceled_order(email, msg):
     for consumer in WSCanceledORConfirmedOrder.consumers:
         asyncio.run(consumer.send(text_data=json.dumps({
+            'email': email,
             'msg_id': 1,
             'msg': msg
         })))
 
 
-def confirmed_order(msg):
+def confirmed_order(email, msg):
     for consumer in WSCanceledORConfirmedOrder.consumers:
         asyncio.run(consumer.send(text_data=json.dumps({
+            'email': email,
             'msg_id': 2,
             'msg': msg
         })))
@@ -168,7 +170,7 @@ def cancel_takeroom(request, pk):
     if order_obj:
         if not order_obj.is_confirm or order_obj.is_available:
             msg = 'Successfully'
-            canceled_order('Заявка была отклонена. Попробуйте снова')
+            canceled_order(order_obj.user.email, 'Заявка была отклонена. Попробуйте снова')
             order_obj.is_available = False
             order_obj.save()
         else:
@@ -176,6 +178,7 @@ def cancel_takeroom(request, pk):
     else:
         msg = 'Not found'
     return JsonResponse({
+        'email': order_obj.user.email,
         'msg_id': 1,
         'msg': msg
     })

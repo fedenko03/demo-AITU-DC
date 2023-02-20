@@ -1,4 +1,5 @@
 {% extends 'base_user.html' %}
+{% block title %}История{% endblock %}
 
 {% block content %}
 
@@ -6,13 +7,14 @@
         <div class="container py-5" style="padding-top: 40px;margin-top: -50px;">
             <div class="card shadow">
                 <div class="card-header" style="backdrop-filter: blur(0px);-webkit-backdrop-filter: blur(0px);">
-                    <h4 class="text-dark mb-0" style="font-size: 20px;">История взятия ключей</h4>
+                    <h4 class="text-dark mb-0" style="font-size: 15px;">История взятия ключей (последние 15 заявок)</h4>
                 </div>
                 <div class="card-body" style="padding-top: 5px;">
                     <div class="table-responsive table" id="dataTable-1" role="grid" aria-describedby="dataTable_info" style="font-size: 14px;">
                         <table class="table my-0" id="dataTable">
                             <thead>
                                 <tr>
+                                    <th>#</th>
                                     <th>Кабинет</th>
                                     <th>Статус</th>
                                     <th>Дата</th>
@@ -22,6 +24,7 @@
                             <tbody>
                             {% for history in history_obj.all %}
                                 <tr>
+                                <td>{{ forloop.counter }}</td>
                                     <td>{{ history.room.name }}</td>
                                     {% if history.is_return %}
                                         <td class="text-success">Вернули</td>

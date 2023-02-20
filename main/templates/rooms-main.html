@@ -381,7 +381,7 @@
                             if (!data.room_map_info) {
                                 document.getElementById('InfoTableRoom').textContent = elementsRoom[i].id;
                                 document.getElementById('InfoTableDescr').textContent = "Комнаты нет в Базе данных";
-                                document.getElementById('InfoTableAddit').textContent = 'НЕДОСТУПНА';
+                                document.getElementById('InfoTableAddit').textContent = 'НЕДОСТУПНО';
                                 document.getElementById('idRoomTable').textContent = elementsRoom[i].id;
                             } else {
                                 document.getElementById('InfoTableRoom').textContent = data.room_map_info.name;
@@ -420,9 +420,11 @@
                         sign.style.borderBottomRightRadius = "0px";
                     }
                 }
+                /*
                 setTimeout(function () {
                     document.getElementById('InfoTable').style.display = 'none';
                 }, 10000)
+                 */
             });
         }
 

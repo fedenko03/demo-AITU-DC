@@ -2,6 +2,7 @@ import json
 import random
 import string
 import uuid
+from datetime import timedelta
 
 import pytz
 from django.contrib.auth import *
@@ -40,7 +41,7 @@ def is_available_to_takeroom():
         is_confirm=False,
         orders_timestamp__gte=timezone.now() - timezone.timedelta(minutes=5)
     ).order_by('-orders_timestamp')
-    if len(last_orders) < 5:
+    if len(last_orders) < 2:
         return True
     else:
         return False
@@ -246,23 +247,35 @@ def confirm_keytaking(request, confirmation_code):  # step 4
 def home(request):
     step = request.session.get('step')
     code = request.session.get('code')
+    room = request.session.get('room')
+    timestamp_code = request.session.get('timestamp_code')
     order_obj = Orders.objects.filter(confirmation_code=code).first()
 
     if not step:
         request.session['step'] = 1
     if not code:
         request.session['code'] = ''
+    if not timestamp_code:
+        request.session['timestamp_code'] = ''
+    if not room:
+        request.session['room'] = ''
     if order_obj:
         if order_obj.is_confirm or not order_obj.is_available:
             request.session['step'] = 1
             request.session['code'] = ''
+            request.session['timestamp_code'] = ''
+            request.session['room'] = ''
         if timezone.now() - order_obj.orders_timestamp >= timezone.timedelta(minutes=5):
             request.session['step'] = 1
             request.session['code'] = ''
+            request.session['timestamp_code'] = ''
+            request.session['room'] = ''
             messages.error(request, "Время ожидания истекло. Попробуйте сначала.")
     else:
         request.session['step'] = 1
         request.session['code'] = ''
+        request.session['timestamp_code'] = ''
+        request.session['room'] = ''
 
     if request.method == 'POST':
         if step == 1:
@@ -270,7 +283,8 @@ def home(request):
             note = request.POST.get('note')
 
             if not is_available_to_takeroom():
-                messages.error((request, 'На данный момент все места для заявок заняты. Попробуйте через 5 минут.'))
+                messages.error(request, 'На данный момент все места для заявок заняты. Попробуйте через 5 минут.')
+                return redirect('home')
 
             error = check_room(room)
             if error:
@@ -290,6 +304,13 @@ def home(request):
             code_generated = generate_TakeRoomcode()
             request.session['code'] = code_generated
 
+            request.session['room'] = room
+
+            later = timezone.now() + timedelta(minutes=5)  # Add 5 minutes to the current time
+            later_formatted = later.astimezone(local_tz).strftime('%H:%M:%S')
+            request.session['timestamp_code'] = later_formatted
+            print(later_formatted)
+
             new_order_obj = Orders.objects.create(
                 room=Room.objects.filter(name=room).first(),
                 confirmation_code=code_generated,
@@ -304,17 +325,24 @@ def home(request):
             return redirect('home')
 
     profile_obj = MainUser.objects.filter(email=request.user.username).first()
+    room_list = Room.objects.filter(
+        is_visible=True,
+        is_occupied=False
+    ).all().order_by('name')
     return render(request, 'home-user.html', {
+        'room_list': room_list,
         'profile': profile_obj,
         'step': request.session.get('step'),
-        'code': request.session.get('code')
+        'code': request.session.get('code'),
+        'room': request.session.get('room'),
+        'timestamp_code': request.session.get('timestamp_code')
     })
 
 
 @login_required(login_url='login_user')
 def history_user(request):
     user_obj = MainUser.objects.filter(email=request.user.username).first()
-    history_obj = History.objects.filter(user=user_obj).order_by('-date').all()
+    history_obj = History.objects.filter(user=user_obj).order_by('-date')[:15]
     return render(request, 'history_user.html', {
         'history_obj': history_obj
     })
@@ -343,7 +371,7 @@ def key_return_get_user(request, token):
 
 
 def ws_get_user(request, user_obj):
-    settings_obj = SettingsKeyReturner.objects.filter(user = user_obj).first()
+    settings_obj = SettingsKeyReturner.objects.filter(user=user_obj).first()
     if not settings_obj:
         messages.error(request, 'Заявка недействительна. Попробуйте сначала')
     history_obj = History.objects.filter(

@@ -1,4 +1,5 @@
 {% extends 'base_user.html' %}
+{% block title %}Главная{% endblock %}
 
 {% block content %}
 
@@ -8,14 +9,15 @@
                 <div class="row mb-5" id="notification">
                     {% if messages %}
                         {% for message in messages %}
-                                <div class="container">
-                                    <div style="margin-top: -70px; margin-bottom: 10px" class="text-white bg-primary border rounded border-primary d-flex flex-column justify-content-between align-items-center flex-lg-row p-2 p-lg-4">
-                                        <div class="text-center text-lg-start py-3 py-lg-1">
-                                            <h2 class="fw-bold mb-2">Внимание!</h2>
-                                            <p class="mb-0">{{ message }}</p>
-                                        </div>
+                            <div class="container">
+                                <div style="margin-top: -70px; margin-bottom: 10px"
+                                     class="text-white bg-primary border rounded border-primary d-flex flex-column justify-content-between align-items-center flex-lg-row p-2 p-lg-4">
+                                    <div class="text-center text-lg-start py-3 py-lg-1">
+                                        <h2 class="fw-bold mb-2">Внимание!</h2>
+                                        <p class="mb-0">{{ message }}</p>
                                     </div>
                                 </div>
+                            </div>
                         {% endfor %}
                     {% endif %}
                     <div class="col-md-8 col-xl-6 text-center mx-auto">
@@ -29,8 +31,17 @@
                             <form class="p-3 p-xl-4" method="post">
                                 {% csrf_token %}
                                 <div class="mb-3">
-                                    <input required class="form-control" type="text" id="room" name="room"
-                                           placeholder="Кабинет"></div>
+                                    <input style="display: none" required class="form-control" type="text" id="room"
+                                           name="room"
+                                           placeholder="Кабинет">
+                                    <p>Выберите кабинет:
+                                        <select id="selectroom" class="js-select2"
+                                                style="border-radius: 10px;border-color: #9f9f9f;font-size: 20px">
+                                            {% for room in room_list %}
+                                                <option value="{{ room.name }}">{{ room.name }}</option>
+                                            {% endfor %}
+                                        </select></p>
+                                </div>
                                 <div class="mb-3">
 
                                 </div>
@@ -103,8 +114,8 @@
                 </div>
                 <div class="border rounded border-white d-flex flex-column justify-content-between align-items-center flex-lg-row bg-primary-gradient p-4 p-lg-5">
                     <div class="text-center text-lg-start py-3 py-lg-1">
-                        <h2 class="fw-bold mb-2">Подтверждение</h2>
-                        <p class="mb-0">Подойдите к охране и покажите Ваш код</p>
+                        <h2 class="fw-bold mb-2">Подтверждение ({{ room }})</h2>
+                        <p class="mb-0">Подойдите к охране и покажите Ваш код. Заявка активна до {{ timestamp_code }}.</p>
                     </div>
                     <form class="d-flex justify-content-center flex-wrap flex-lg-nowrap" method="post">
                         {% csrf_token %}
@@ -122,10 +133,14 @@
 
 
     <script>
+    //console.log("{{ profile.email }}")
         var socket = new WebSocket("ws://" + window.location.host + "/ws/canceledOrConfirmed_order/");
         socket.onmessage = function (e) {
             var data = JSON.parse(e.data);
-            createNotification(data)
+            console.log(data)
+            if (data.email === "{{ profile.email }}") {
+                createNotification(data)
+            }
         };
 
         function createNotification(data) {
@@ -142,7 +157,7 @@
                 <div class="container">
                 <div class="row mb-5">
                     <div class="col-md-8 col-xl-6 text-center mx-auto">
-                        <p class="fw-bold text-success mb-2">AITU Digital Controling</p>
+                        <p class="fw-bold text-success mb-2">AITU Digital Controling · {{ profile.full_name }}</p>
                         <h2 class="fw-bold">Взять ключ от кабинета</h2>
                     </div>
                 </div>
@@ -170,7 +185,7 @@
                 <div class="container">
                 <div class="row mb-5">
                     <div class="col-md-8 col-xl-6 text-center mx-auto">
-                        <p class="fw-bold text-success mb-2">AITU Digital Controling</p>
+                        <p class="fw-bold text-success mb-2">AITU Digital Controling · {{ profile.full_name }}</p>
                         <h2 class="fw-bold">Взять ключ от кабинета</h2>
                     </div>
                 </div>

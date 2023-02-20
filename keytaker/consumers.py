@@ -61,9 +61,11 @@ class WSCanceledORConfirmedOrder(AsyncWebsocketConsumer):
     async def receive(self, text_data=None, bytes_data=None):
         if text_data:
             text_data_json = json.loads(text_data)
+            email = text_data_json['email']
             msg_id = text_data_json['msg_id']
             msg = text_data_json['msg']
             await self.send(text_data=json.dumps({
+                'email': email,
                 'msg_id': msg_id,
                 'msg': msg
             }))
