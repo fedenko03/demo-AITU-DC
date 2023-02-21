@@ -189,19 +189,23 @@
 
         select.addEventListener('change', () => {
             let floor = '1';
+            const sign = document.getElementById('InfoTable')
             if (select.value === '1') {
+                sign.style.display = 'none';
                 floor = '1';
                 document.getElementById('textLabelTable').textContent = 'Все кабинеты 1 этажа';
                 svg1.style.display = 'block';
                 svg2.style.display = 'none';
                 svg3.style.display = 'none';
             } else if (select.value === '2') {
+                sign.style.display = 'none';
                 document.getElementById('textLabelTable').textContent = 'Все кабинеты 2 этажа';
                 floor = '2';
                 svg1.style.display = 'none';
                 svg2.style.display = 'block';
                 svg3.style.display = 'none';
             } else if (select.value === '3') {
+                sign.style.display = 'none';
                 document.getElementById('textLabelTable').textContent = 'Все кабинеты 3 этажа';
                 floor = '3';
                 svg1.style.display = 'none';

@@ -199,6 +199,7 @@ def confirm_takeroom(request, pk):
             fullname=order_obj.user.full_name,
             is_verified=True,
             role=order_obj.user.role,
+            user=order_obj.user,
             date=timezone.now()
         )
         room_obj = Room.objects.filter(name=order_obj.room.name).first()
