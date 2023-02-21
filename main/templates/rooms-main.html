@@ -73,6 +73,8 @@
                         <span id="idRoomTable" style="">id:</span></p>
                     <p id="InfoTableDescr" class="fw-light"
                        style="font-size: 12px;margin-bottom: 0px;color: rgb(255,255,255);">.</p>
+                    <p id="InfoRoles" class="fw"
+                       style="font-size: 14px;margin-bottom: 0px;color: rgb(0 0 0 / 29%);">.</p>
                     <p id="InfoTableAddit" class="fw-light"
                        style="font-size: 13px;color: rgb(255,255,255);margin-bottom: -1px;">.</p>
                 </div>
@@ -142,7 +144,9 @@
                                     </tr>
                                 {% endfor %}
                             {% else %}
-                                <tr> <td style="color: #ff243c">Не найдено</td></tr>
+                                <tr>
+                                    <td style="color: #ff243c">Не найдено</td>
+                                </tr>
                             {% endif %}
                             </tbody>
                             <tfoot>
@@ -269,6 +273,7 @@
                         },
                         dataType: 'json',
                         success: function (data) {
+                            document.getElementById('InfoRoles').textContent = data.room_map_info.role.join(", ");
                             //console.log(data)
                             document.getElementById('InfoTableRoom').textContent = data.room_map_info.name;
                             document.getElementById('InfoTableDescr').textContent = data.room_map_info.description;
@@ -324,6 +329,7 @@
                         },
                         dataType: 'json',
                         success: function (data) {
+                            document.getElementById('InfoRoles').textContent = data.room_map_info.role.join(", ");
                             //console.log(data)
                             document.getElementById('InfoTableRoom').textContent = data.room_map_info.name;
                             document.getElementById('InfoTableDescr').textContent = data.room_map_info.description;
@@ -383,11 +389,13 @@
                         success: function (data) {
                             //console.log(data)
                             if (!data.room_map_info) {
+                                document.getElementById('InfoRoles').textContent = '';
                                 document.getElementById('InfoTableRoom').textContent = elementsRoom[i].id;
                                 document.getElementById('InfoTableDescr').textContent = "Комнаты нет в Базе данных";
                                 document.getElementById('InfoTableAddit').textContent = 'НЕДОСТУПНО';
                                 document.getElementById('idRoomTable').textContent = elementsRoom[i].id;
                             } else {
+                                document.getElementById('InfoRoles').textContent = data.room_map_info.role.join(", ");
                                 document.getElementById('InfoTableRoom').textContent = data.room_map_info.name;
                                 document.getElementById('InfoTableDescr').textContent = data.room_map_info.description;
                                 if (!data.room_map_info.is_visible) {

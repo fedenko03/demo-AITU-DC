@@ -63,7 +63,7 @@
                     <p class="fw-bold mb-2" style="font-size: 15px;text-align: right;color: rgb(78,78,78);">Поиск
                         комнаты:&nbsp;
                         <select id="selectroom" class="js-select2" name="room" placeholder="Выберите кабинет"
-                                style="border-radius: 10px;">
+                                style="border-radius: 10px; width: 150px; text-align: left">
                             {% for room in rooms_obj %}
                                 {% if room.is_visible and not room.is_occupied %}
                                     <option value="{{ room.map_id }}">{{ room.name }}</option>
@@ -107,6 +107,8 @@
                                 <span id="idRoomTable" style="">id:</span></p>
                             <p id="InfoTableDescr" class="fw-light"
                                style="font-size: 12px;margin-bottom: 0px;color: rgb(255,255,255);">.</p>
+                            <p id="InfoRoles" class="fw"
+                               style="font-size: 14px;margin-bottom: 0px;color: rgb(0 0 0 / 29%);">.</p>
                             <p id="InfoTableAddit" class="fw-light"
                                style="font-size: 13px;color: rgb(255,255,255);margin-bottom: -1px;">.</p>
                         </div>
@@ -283,6 +285,7 @@
                         },
                         dataType: 'json',
                         success: function (data) {
+                            document.getElementById('InfoRoles').textContent = data.room_map_info.role.join(", ");
                             //console.log(data)
                             document.getElementById('InfoTableRoom').textContent = data.room_map_info.name;
                             document.getElementById('InfoTableDescr').textContent = data.room_map_info.description;
@@ -348,6 +351,8 @@
                         dataType: 'json',
                         success: function (data) {
                             //console.log(data)
+                            document.getElementById('InfoRoles').textContent = data.room_map_info.role.join(", ");
+
                             document.getElementById('InfoTableRoom').textContent = data.room_map_info.name;
                             document.getElementById('InfoTableDescr').textContent = data.room_map_info.description;
                             if (!data.room_map_info.is_occupied) {
@@ -356,6 +361,8 @@
                                 sign.style.backgroundColor = '#249f38';
                                 sign.style.borderColor = '#176d25';
                                 idRoomTable.style.color = '#065914';
+                                document.getElementById('InfoRoles').style.color = 'rgb(23 58 15)';
+
                                 document.getElementById('chosedroom_confirm').innerHTML = data.room_map_info.name;
                                 document.getElementById('chosedroom_confirm').classList.remove('hidden_step');
                                 document.getElementById('id_room').value = data.room_map_info.name;
@@ -412,11 +419,13 @@
                         success: function (data) {
                             //console.log(data)
                             if (!data.room_map_info) {
+                                document.getElementById('InfoRoles').textContent = '';
                                 document.getElementById('InfoTableRoom').textContent = elementsRoom[i].id;
                                 document.getElementById('InfoTableDescr').textContent = "Комнаты нет в Базе данных";
                                 document.getElementById('InfoTableAddit').textContent = 'НЕДОСТУПНО';
                                 document.getElementById('idRoomTable').textContent = elementsRoom[i].id;
                             } else {
+                                document.getElementById('InfoRoles').textContent = data.room_map_info.role.join(", ");
                                 document.getElementById('InfoTableRoom').textContent = data.room_map_info.name;
                                 document.getElementById('InfoTableDescr').textContent = data.room_map_info.description;
                                 if (!data.room_map_info.is_visible) {

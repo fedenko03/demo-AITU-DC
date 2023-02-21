@@ -357,9 +357,11 @@ def get_room_map(request):
         print(history_obj)
         user_fullname = history_obj.fullname
 
+    roles = [role.name for role in room_obj.role.all()]
     room_map_info = {
         'map_id': room_obj.map_id,
         'name': room_obj.name,
+        'role': roles,
         'description': room_obj.description,
         'is_occupied': room_obj.is_occupied,
         'is_visible': room_obj.is_visible,
