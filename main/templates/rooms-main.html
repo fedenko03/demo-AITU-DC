@@ -68,13 +68,13 @@
                      style="text-align: left; display: none;position: absolute; width: 270px;border-radius: 20px;border-bottom-left-radius: 0px;padding-top: 10px;padding-right: 0px;border-top-left-radius: 20px;border-top-right-radius: 20px;border-bottom-right-radius: 20px;height: auto;border-width: 2px;padding-bottom: 8px;padding-left: 8px;">
                     <h4 id="InfoTableRoom" class="fw-bold"
                         style="font-size: 15px;color: rgb(255,255,255);margin-bottom: 0px;">.</h4>
+                    <p class="fw-light"
+                       style="font-size: 10px;color: rgb(255,255,255);margin-bottom: 0px;padding-left: 0px;margin-left: 3px;position: absolute;right: 10px;top: 5px;">
+                        <span id="idRoomTable" style="">id:</span></p>
                     <p id="InfoTableDescr" class="fw-light"
                        style="font-size: 12px;margin-bottom: 0px;color: rgb(255,255,255);">.</p>
                     <p id="InfoTableAddit" class="fw-light"
                        style="font-size: 13px;color: rgb(255,255,255);margin-bottom: -1px;">.</p>
-                    <p class="fw-light"
-                       style="font-size: 10px;color: rgb(255,255,255);margin-bottom: 0px;padding-left: 0px;margin-left: 3px;position: absolute;right: 10px;bottom: 5px;">
-                        <span id="idRoomTable" style="">id:</span></p>
                 </div>
 
 
@@ -297,7 +297,7 @@
                     sign.style.borderBottomLeftRadius = "0px";
                     sign.style.backgroundColor = '#249f38';
                     sign.style.borderColor = '#176d25';
-                    idRoomTable.style.color = '#0a6519';
+                    idRoomTable.style.color = '#065914';
                     sign.style.borderBottomRightRadius = "20px";
                     sign.style.display = 'block';
 
@@ -306,7 +306,7 @@
                     var signWidth = parseFloat(getComputedStyle(sign).width);
                     var rightmostPoint = signLeft + signWidth + 230;
                     if (rightmostPoint > viewportWidth) {
-                        sign.style.left = (event.clientX - containerRect.left - 330) + 'px';
+                        sign.style.left = (event.clientX - containerRect.left - 278) + 'px';
                         sign.style.borderBottomLeftRadius = "20px";
                         sign.style.borderBottomRightRadius = "0px";
                     }
@@ -352,7 +352,7 @@
                     sign.style.borderBottomLeftRadius = "0px";
                     sign.style.backgroundColor = '#e03e3e';
                     sign.style.borderColor = 'rgb(222,13,0)';
-                    idRoomTable.style.color = 'rgb(195, 46, 37)';
+                    idRoomTable.style.color = 'rgb(147,27,20)';
                     sign.style.borderBottomRightRadius = "20px";
                     sign.style.display = 'block';
 
@@ -361,7 +361,7 @@
                     var signWidth = parseFloat(getComputedStyle(sign).width);
                     var rightmostPoint = signLeft + signWidth + 230;
                     if (rightmostPoint > viewportWidth) {
-                        sign.style.left = (event.clientX - containerRect.left - 330) + 'px';
+                        sign.style.left = (event.clientX - containerRect.left - 278) + 'px';
                         sign.style.borderBottomLeftRadius = "20px";
                         sign.style.borderBottomRightRadius = "0px";
                     }
@@ -410,7 +410,7 @@
                     sign.style.borderBottomLeftRadius = "0px";
                     sign.style.backgroundColor = '#9c9c9c';
                     sign.style.borderColor = '#585858';
-                    idRoomTable.style.color = '#6d6d6d';
+                    idRoomTable.style.color = '#525050';
                     sign.style.borderBottomRightRadius = "20px";
                     sign.style.display = 'block';
 
@@ -419,7 +419,7 @@
                     var signWidth = parseFloat(getComputedStyle(sign).width);
                     var rightmostPoint = signLeft + signWidth + 230;
                     if (rightmostPoint > viewportWidth) {
-                        sign.style.left = (event.clientX - containerRect.left - 330) + 'px';
+                        sign.style.left = (event.clientX - containerRect.left - 278) + 'px';
                         sign.style.borderBottomLeftRadius = "20px";
                         sign.style.borderBottomRightRadius = "0px";
                     }
@@ -436,7 +436,7 @@
             let elementsRoom1 = document.querySelectorAll('.roomFilling');
             for (let i = 0; i < elementsRoom1.length; i++) {
                 elementsRoom1[i].classList.remove('unavailable', 'closed', 'dbExist');
-                console.log(elementsRoom1[i])
+                //console.log(elementsRoom1[i])
             }
 
             let containerTableRooms = document.getElementById('tbodyRoom');

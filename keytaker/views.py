@@ -123,9 +123,12 @@ def takeroom2(request):
         settings_obj.save()
         form = ChooseRoom()
     orders_list = getOrders()
+
+    rooms_list = Room.objects.order_by('name', 'floor')
     return render(request, 'takeroom2.html', {
         'orders_list': orders_list,
-        'form': form
+        'form': form,
+        'rooms_obj': rooms_list
     })
 
 
