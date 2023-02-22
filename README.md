@@ -21,7 +21,7 @@ The application uses a MongoDB/PostgreSQL database to store key data and history
 - View the entire history of key collection with detailed information.
 - Downloading the entire history to an Excel file.
 
-######Interactive map:
+###### Interactive map:
 - View information about each room (status, visibility, description, etc.)
 - The ability to edit and add new rooms without having to change the code.
 
