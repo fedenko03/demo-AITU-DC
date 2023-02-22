@@ -308,7 +308,7 @@ $('#btn_step2a').prop('disabled', true);
                     let idRoomTable = document.getElementById('idRoomTable')
                     idRoomTable.textContent = 'id:' + elementsRoom[i].id;
                     sign.style.borderBottomLeftRadius = "0px";
-                    sign.style.backgroundColor = '#9c9c9c';
+                    sign.style.backgroundColor = '#7a7979';
                     sign.style.borderColor = '#585858';
                     idRoomTable.style.color = '#525050';
                     sign.style.borderBottomRightRadius = "20px";

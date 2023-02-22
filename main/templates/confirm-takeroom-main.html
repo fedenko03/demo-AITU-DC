@@ -47,7 +47,7 @@
                                     <strong>ФИО: </strong>{{ order.user.name }} ({{ order.user.email }})<br>
                                     <strong>Комната:</strong> {{ order.room }}
                                     {% if order.note %}
-                                    <br>Комментарий: {{ order.note }}</label>
+                                        <br>Комментарий: {{ order.note }}</label>
                                     {% endif %}
                                 </div>
                             </div>
@@ -60,23 +60,28 @@
 
 
     <script>
-        window.onload = function () {
-            var button = document.getElementById("cancelOrderPage");
-            if (button) {
-                button.addEventListener("click", function () {
-                    url = location.protocol + "//" + location.host + "/main/cancel-takeroomMain/" +
-                    {{ order.id }}
-                    var xhr = new XMLHttpRequest();
-                    xhr.open('GET', url, true);
-                    xhr.onreadystatechange = function () {
-                        if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-                            var response = JSON.parse(xhr.responseText);
-                            console.log(response)
-                        }
-                    };
-                    xhr.send();
-                });
-            }
-        };
+    document.getElementById('signature').addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+        }
+    });
+
+        var button = document.getElementById("cancelOrderPage");
+        if (button) {
+            button.addEventListener("click", function () {
+                url = location.protocol + "//" + location.host + "/main/cancel-takeroomMain/" +
+                {{ order.id }}
+                console.log(url)
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', url, true);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        console.log(response)
+                    }
+                };
+                xhr.send();
+            });
+        }
     </script>
 {% endblock %}

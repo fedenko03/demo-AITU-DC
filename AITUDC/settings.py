@@ -51,7 +51,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'main.middleware.PinCodeMiddleware'
+    'main.middleware.PinCodeMiddleware',
+    'main.middleware.NotFoundMiddleware'
 ]
 
 ROOT_URLCONF = 'AITUDC.urls'

@@ -34,15 +34,15 @@
                                     <form class="text-center" method="post" style="margin-bottom: -15px;">
                                         {% csrf_token %}
                                         <div class="mb-3">
-                                            <input class="border rounded-pill form-control" type="password"
+                                            <input style="border-radius: 10px" class="border form-control" type="password"
                                                    name="new_password" placeholder="Новый пароль">
                                         </div>
                                         <div class="mb-3">
-                                            <input class="border rounded-pill form-control" type="password"
+                                            <input style="border-radius: 10px" class="border form-control" type="password"
                                                    name="old_password" placeholder="Старый пароль">
                                         </div>
                                         <div class="mb-3">
-                                            <button class="btn btn-primary border rounded-pill d-block w-100"
+                                            <button style="border-radius: 10px" class="btn btn-primary border d-block w-100"
                                                     type="submit" name="change_password">Сменить пароль
                                             </button>
                                         </div>

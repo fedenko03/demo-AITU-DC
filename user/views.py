@@ -63,6 +63,10 @@ def role_checker(room, role):
     return None
 
 
+def not_foundUser(request):
+    return render(request, 'notfound404User.html')
+
+
 def register(request):
     if request.user.is_authenticated:
         return redirect('home')

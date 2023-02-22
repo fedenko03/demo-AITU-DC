@@ -101,6 +101,10 @@ def getOrders():
     return orders_list
 
 
+def not_foundMain(request):
+    return render(request, 'notfound404Main.html')
+
+
 @login_required(login_url='loginMain')
 def homeMain(request):
     orders_list = getOrders()

@@ -97,7 +97,7 @@ for (let i = 0; i < elementsRoom.length; i++) {
                     if (!data.room_map_info.is_occupied) {
                         for (let i = 0; i < data.room_map_info.role.length; i++) {
                             let object = document.createElement('span');
-                            object.innerHTML = `<span class="badge bg-success"
+                            object.innerHTML = `<span class="badge bg-primary"
                                           style="font-weight: normal !important; font-size: 9px;padding-bottom: 2px;margin-bottom: 0px;margin-right: 2px;">${data.room_map_info.role[i]}</span>`
                             document.getElementById('InfoTableRoom').appendChild(object);
                         }
@@ -129,9 +129,8 @@ for (let i = 0; i < elementsRoom.length; i++) {
             let idRoomTable = document.getElementById('idRoomTable')
             idRoomTable.textContent = 'id:' + elementsRoom[i].id;
             sign.style.borderBottomLeftRadius = "0px";
-            sign.style.backgroundColor = '#249f38';
-            sign.style.borderColor = '#176d25';
-            idRoomTable.style.color = '#065914';
+            sign.style.backgroundColor = 'rgb(35 152 245)';
+            sign.style.borderColor = 'rgb(34 96 213)';
             sign.style.borderBottomRightRadius = "20px";
             sign.style.display = 'block';
 
@@ -198,7 +197,6 @@ for (let i = 0; i < elementsRoom.length; i++) {
             sign.style.borderBottomLeftRadius = "0px";
             sign.style.backgroundColor = '#e03e3e';
             sign.style.borderColor = 'rgb(222,13,0)';
-            idRoomTable.style.color = 'rgb(147,27,20)';
             sign.style.borderBottomRightRadius = "20px";
             sign.style.display = 'block';
 
@@ -260,9 +258,8 @@ for (let i = 0; i < elementsRoom.length; i++) {
             let idRoomTable = document.getElementById('idRoomTable')
             idRoomTable.textContent = 'id:' + elementsRoom[i].id;
             sign.style.borderBottomLeftRadius = "0px";
-            sign.style.backgroundColor = '#9c9c9c';
+            sign.style.backgroundColor = '#7a7979';
             sign.style.borderColor = '#585858';
-            idRoomTable.style.color = '#525050';
             sign.style.borderBottomRightRadius = "20px";
             sign.style.display = 'block';
 

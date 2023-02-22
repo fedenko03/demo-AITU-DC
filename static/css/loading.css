@@ -36,3 +36,10 @@ body.loading::before {
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 9998;
 }
+
+::-webkit-scrollbar {
+    width: 5px;
+}
+::-webkit-scrollbar-thumb {
+    background: #4e73df;
+}
