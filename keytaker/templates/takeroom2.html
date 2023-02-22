@@ -82,35 +82,28 @@
                         </select></p>
 
                     <div id="box1" style="text-align:center;width:100%;height: 100%;">
-                        <div id="menu">
-                            <p id="textmenu"
-                               style="font-family: Verdana, Arial, Helvetica, sans-serif;vertical-align: middle; display: inline;">
-                                C1.1.241K</p>
-                        </div>
-                        <div id="menuchosed">
-                            <p id="textmenuchosed"
-                               style="font-family: Verdana, Arial, Helvetica, sans-serif;vertical-align: middle; display: inline;">
-                                C1.1.241K</p>
-                        </div>
-                        <div id="menuclosed">
-                            <p id="textmenuclosed"
-                               style="font-family: Verdana, Arial, Helvetica, sans-serif;vertical-align: middle; display: inline;">
-                                Ключ забрал Иванов И.И.</p>
-                        </div>
 
                         <div id="InfoTable" class="card"
-                             style="text-align: left; display: none;position: absolute; width: 270px;border-radius: 20px;border-bottom-left-radius: 0px;padding-top: 10px;padding-right: 0px;border-top-left-radius: 20px;border-top-right-radius: 20px;border-bottom-right-radius: 20px;height: auto;border-width: 2px;padding-bottom: 8px;padding-left: 8px;">
+                             style="display: none; text-align: left; width: 300px;border-radius: 20px;border-bottom-left-radius: 0px;padding-top: 10px;padding-right: 0px;border-top-left-radius: 20px;border-top-right-radius: 20px;border-bottom-right-radius: 20px;height: auto;padding-bottom: 8px;padding-left: 8px;border-width: 2px;">
                             <h4 id="InfoTableRoom" class="fw-bold"
-                                style="font-size: 15px;color: rgb(255,255,255);margin-bottom: 0px;">.</h4>
-                            <p class="fw-light"
-                               style="font-size: 10px;color: rgb(255,255,255);margin-bottom: 0px;padding-left: 0px;margin-left: 3px;position: absolute;right: 10px;top: 5px;">
-                                <span id="idRoomTable" style="">id:</span></p>
+                                style="font-size: 15px;color: rgb(255,255,255);margin-bottom: 0px;">
+                                C1.2.240K
+                                <span id="InfoRole">
+                                    <span class="badge bg-secondary"
+                                          style="font-weight: normal !important; font-size: 9px;padding-bottom: 2px;margin-bottom: 0px;margin-right: 2px;">Personal</span>
+                                    <span class="badge bg-secondary"
+                                          style="font-weight: normal !important; font-size: 9px;padding-bottom: 2px;margin-bottom: 0px;margin-right: 2px;">Personal</span>
+                                </span>
+                            </h4>
                             <p id="InfoTableDescr" class="fw-light"
-                               style="font-size: 12px;margin-bottom: 0px;color: rgb(255,255,255);">.</p>
-                            <p id="InfoRoles" class="fw"
-                               style="font-size: 14px;margin-bottom: 0px;color: rgb(0 0 0 / 29%);">.</p>
+                               style="font-size: 10px;margin-bottom: 0px;color: rgb(255,255,255);">
+                                Компьютерный кабинет</p>
+                            <p id="idRoomTable" class="fw-light"
+                               style="font-size: 10px;margin-bottom: 0px;color: rgba(0,0,0,0.67);position: absolute;top: 5px;right: 10px;">
+                                _2.240K</p>
                             <p id="InfoTableAddit" class="fw-light"
-                               style="font-size: 13px;color: rgb(255,255,255);margin-bottom: -1px;">.</p>
+                               style="font-size: 11px;color: rgb(255,255,255);margin-bottom: -1px;">
+                                ЗАНЯТО пользователем Alexey Fedenko</p>
                         </div>
 
                         <div id="Tablecontainer">
@@ -272,6 +265,7 @@
             });
         });
 
+
         for (let i = 0; i < elementsRoom.length; i++) {
             elementsRoom[i].addEventListener('click', function (event) {
                 if (!this.classList.contains('closed') && !this.classList.contains('unavailable') && this.classList.contains('dbExist')) {
@@ -285,11 +279,18 @@
                         },
                         dataType: 'json',
                         success: function (data) {
-                            document.getElementById('InfoRoles').textContent = data.room_map_info.role.join(", ");
+
+
                             //console.log(data)
-                            document.getElementById('InfoTableRoom').textContent = data.room_map_info.name;
+                            document.getElementById('InfoTableRoom').textContent = data.room_map_info.name + ' ';
                             document.getElementById('InfoTableDescr').textContent = data.room_map_info.description;
                             if (!data.room_map_info.is_occupied) {
+                                for (let i = 0; i < data.room_map_info.role.length; i++) {
+                                    let object = document.createElement('span');
+                                    object.innerHTML = `<span class="badge bg-success"
+                                          style="font-weight: normal !important; font-size: 9px;padding-bottom: 2px;margin-bottom: 0px;margin-right: 2px;">${data.room_map_info.role[i]}</span>`
+                                    document.getElementById('InfoTableRoom').appendChild(object);
+                                }
                                 lastClickedRoom.classList.remove('active');
                                 elementsRoom[i].classList.add('active');
                                 lastClickedRoom = elementsRoom[i];
@@ -300,12 +301,19 @@
                                 document.getElementById('chosedroom_confirm').innerHTML = data.room_map_info.name;
                                 document.getElementById('chosedroom_confirm').classList.remove('hidden_step');
                                 document.getElementById('id_room').value = data.room_map_info.name;
+
                                 $('#btn_step2a').prop('disabled', false);
                                 $('#selectroom').val(data.room_map_info.map_id);
                                 $('#selectroom').select2();
                             } else {
+                                for (let i = 0; i < data.room_map_info.role.length; i++) {
+                                    let object = document.createElement('span');
+                                    object.innerHTML = `<span class="badge bg-danger"
+                                          style="font-weight: normal !important; font-size: 9px;padding-bottom: 2px;margin-bottom: 0px;margin-right: 2px;">${data.room_map_info.role[i]}</span>`
+                                    document.getElementById('InfoTableRoom').appendChild(object);
+                                }
                                 document.getElementById('InfoTableAddit').textContent = 'ЗАНЯТО пользователем ' + data.room_map_info.user_fullname;
-                                sign.style.backgroundColor = '#e03e3e';
+                                sign.style.backgroundColor = '#b42929';
                                 sign.style.borderColor = 'rgb(222,13,0)';
                                 idRoomTable.style.color = 'rgb(147,27,20)';
                             }
@@ -351,12 +359,16 @@
                         dataType: 'json',
                         success: function (data) {
                             //console.log(data)
-                            document.getElementById('InfoRoles').textContent = data.room_map_info.role.join(", ");
+                            document.getElementById('InfoTableRoom').textContent = data.room_map_info.name + ' ';
 
-                            document.getElementById('InfoTableRoom').textContent = data.room_map_info.name;
                             document.getElementById('InfoTableDescr').textContent = data.room_map_info.description;
                             if (!data.room_map_info.is_occupied) {
-
+                                for (let i = 0; i < data.room_map_info.role.length; i++) {
+                                    let object = document.createElement('span');
+                                    object.innerHTML = `<span class="badge bg-success"
+                                          style="font-weight: normal !important; font-size: 9px;padding-bottom: 2px;margin-bottom: 0px;margin-right: 2px;">${data.room_map_info.role[i]}</span>`
+                                    document.getElementById('InfoTableRoom').appendChild(object);
+                                }
                                 document.getElementById('InfoTableAddit').textContent = 'СВОБОДНО';
                                 sign.style.backgroundColor = '#249f38';
                                 sign.style.borderColor = '#176d25';
@@ -370,6 +382,12 @@
                                 $('#selectroom').val(data.room_map_info.map_id);
                                 $('#selectroom').select2();
                             } else {
+                                for (let i = 0; i < data.room_map_info.role.length; i++) {
+                                    let object = document.createElement('span');
+                                    object.innerHTML = `<span class="badge bg-danger"
+                                          style="font-weight: normal !important; font-size: 9px;padding-bottom: 2px;margin-bottom: 0px;margin-right: 2px;">${data.room_map_info.role[i]}</span>`
+                                    document.getElementById('InfoTableRoom').appendChild(object);
+                                }
                                 document.getElementById('InfoTableAddit').textContent = 'ЗАНЯТО пользователем ' + data.room_map_info.user_fullname;
                                 sign.style.backgroundColor = '#e03e3e';
                                 sign.style.borderColor = 'rgb(222,13,0)';
@@ -419,14 +437,19 @@
                         success: function (data) {
                             //console.log(data)
                             if (!data.room_map_info) {
-                                document.getElementById('InfoRoles').textContent = '';
                                 document.getElementById('InfoTableRoom').textContent = elementsRoom[i].id;
+
                                 document.getElementById('InfoTableDescr').textContent = "Комнаты нет в Базе данных";
                                 document.getElementById('InfoTableAddit').textContent = 'НЕДОСТУПНО';
                                 document.getElementById('idRoomTable').textContent = elementsRoom[i].id;
                             } else {
-                                document.getElementById('InfoRoles').textContent = data.room_map_info.role.join(", ");
-                                document.getElementById('InfoTableRoom').textContent = data.room_map_info.name;
+                                document.getElementById('InfoTableRoom').textContent = data.room_map_info.name + ' ';
+                                for (let i = 0; i < data.room_map_info.role.length; i++) {
+                                    let object = document.createElement('span');
+                                    object.innerHTML = `<span class="badge bg-secondary"
+                                          style="font-weight: normal !important; font-size: 9px;padding-bottom: 2px;margin-bottom: 0px;margin-right: 2px;">${data.room_map_info.role[i]}</span>`
+                                    document.getElementById('InfoTableRoom').appendChild(object);
+                                }
                                 document.getElementById('InfoTableDescr').textContent = data.room_map_info.description;
                                 if (!data.room_map_info.is_visible) {
                                     document.getElementById('InfoTableAddit').textContent = 'ОТКЛЮЧЕНА в настройках';
