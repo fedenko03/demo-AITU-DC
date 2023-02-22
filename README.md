@@ -5,10 +5,32 @@ The application uses a MongoDB/PostgreSQL database to store key data and history
 
 ## Features
 
-- Staff can sign keys in and out, and view their history
-- Admins can add and manage staff, rooms, and keys
-- Staff can search for keys by room or keyword
-- Admins can generate reports on key usage
+#### Users:
+- Account creation, activation via corporate (@astanait.edu.kz) email.
+- Remote sending of requests for taking the key.
+- View your key collection history.
+- Scanning the QR code at the security for taking/returning the keys.
+#
+#### For the administrator:
+###### Taking keys:
+- Select an available room using an interactive map or a drop-down list.
+- Generating a QR code to confirm taking the key or entering data manually.
+###### Return of keys:
+- Generating a QR code to receive all active user requests or manually searching for an application.
+###### History:
+- View the entire history of key collection with detailed information.
+- Downloading the entire history to an Excel file.
+
+######Interactive map:
+- View information about each room (status, visibility, description, etc.)
+- The ability to edit and add new rooms without having to change the code.
+
+###### Other:
+- View data about all registered users.
+- Locking the admin panel with a one-time PIN.
+- Change the administrator password through the appropriate form.
+- Tracking of active applications for taking the key in notifications in the upper navbar.
+- Separation of access *(users cannot go to the admin pages and vice versa)*
 
 ## Requirements
 
