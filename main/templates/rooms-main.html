@@ -136,7 +136,7 @@
                                 {% for room in rooms_obj %}
                                     <tr>
                                         <td>{{ room.name }}</td>
-                                        <td>{{ room.description }}</td>
+                                        <td>{% if room.description %} {{ room.description }} {% else %} - {% endif %} </td>
                                         {% if room.is_occupied %}
                                             <td class="text-danger">Занят</td>
                                         {% else %}

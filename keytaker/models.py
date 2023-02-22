@@ -10,14 +10,14 @@ Floors = [
 
 
 class Room(models.Model):
-    name = models.CharField(max_length=15)
+    name = models.CharField(max_length=45)
     description = models.CharField(max_length=50, default="", blank=True, null=True)
     floor = models.CharField(max_length=2, choices=Floors, default='1')
     role = models.ManyToManyField(Role)
     is_occupied = models.BooleanField(default=False)
     is_visible = models.BooleanField(default=True)
     date = models.DateTimeField(blank=True, null=True)
-    map_id = models.CharField(max_length=15,  blank=True, null=True)
+    map_id = models.CharField(max_length=45,  blank=True, null=True)
 
     def __str__(self):
         return self.name

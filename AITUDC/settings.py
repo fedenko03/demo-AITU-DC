@@ -80,13 +80,15 @@ ASGI_APPLICATION = 'AITUDC.asgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 # DATABASES = {
-#         'default': {
-#             'ENGINE': 'djongo',
-#             'NAME': 'aituDC',
-#             'CLIENT': {
-#                 'host': 'mongodb+srv://admin:1111@aitudc.zqbnhzs.mongodb.net/?retryWrites=true&w=majority'
-#             }
+#     'default': {
+#         'ENGINE': 'djongo',
+#         'NAME': 'aituDC',
+#         'ENFORCE_SCHEMA': False,
+#         'CLIENT': {
+#             # 'host': 'mongodb+srv://admin:1111@aitudc.zqbnhzs.mongodb.net/?retryWrites=true&w=majority'
+#             'host': 'mongodb://localhost:27017'
 #         }
+#     }
 # }
 
 DATABASES = {
@@ -149,11 +151,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'alexfedenko0303200306@gmail.com'
 EMAIL_HOST_PASSWORD = 'vbtfilqdusgxseqn'
-

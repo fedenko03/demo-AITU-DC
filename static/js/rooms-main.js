@@ -302,7 +302,7 @@ function fillTableRooms(data) {
     let object = document.createElement('tr');
     object.innerHTML = `
             <td>${data.name}</td>
-<td>${data.description}</td>
+            <td>${data.description ? data.description : '-'}</td>
 ${data.is_occupied ? `<td class="text-danger">Занят</td>` : `<td class="text-success">Свободен</td>`}
 <td>
   ${data.role_name_list ? data.role_name_list.map(role => `<span class="badge bg-primary">${role}</span>`).join(' ') : ''}

@@ -17,9 +17,17 @@ class PersonAdmin(admin.ModelAdmin):
 class PersonAdmin(admin.ModelAdmin):
     list_display = ("name", "floor", "is_occupied", "is_visible", "date")
     filter_horizontal = ("role",)
+    search_fields = ("name__startswith",)
+    actions = ['make_occupied']
+
+    def make_occupied(self, request, queryset):
+        for room in queryset:
+            room.is_occupied = not room.is_occupied
+            room.save()
+
+    make_occupied.short_description = "Toggle occupancy for selected rooms"
 
 
 @admin.register(Orders)
 class PersonAdmin(admin.ModelAdmin):
     list_display = ("room", "confirmation_code", "user", "is_available", "is_confirm")
-
