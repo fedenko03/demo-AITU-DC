@@ -10,7 +10,7 @@ The application uses a MongoDB/PostgreSQL database to store key data and history
 - Remote sending of requests for taking the key.
 - View your key collection history.
 - Scanning the QR code at the security for taking/returning the keys.
-#
+
 #### For the administrator:
 ###### Taking keys:
 - Select an available room using an interactive map or a drop-down list.
