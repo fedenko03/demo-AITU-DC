@@ -44,8 +44,7 @@ class PinCodeMiddleware:
             if not request.user.is_authenticated:
                 if request.path != reverse('login_user') and \
                         request.path != reverse('register') and \
-                        request.path != reverse('confirm_registration') and \
-                        request.path != reverse('confirm_keytaking'):
+                        request.path != reverse('confirm_registration'):
                     return redirect('login_user')
             if request.user.is_authenticated and request.user.is_staff:
                 return redirect('homeMain')
