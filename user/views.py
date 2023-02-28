@@ -52,9 +52,12 @@ def is_not_staff(user):
 
 
 def role_checker(room, role):
+    print(room)
+    print(role)
     has_role = False
     room_obj = Room.objects.filter(name=room).first()
     for rol1 in room_obj.role.all():
+        print(rol1)
         if rol1.name == role or rol1.name == 'All':
             has_role = True
             break
@@ -295,8 +298,8 @@ def home(request):
                 messages.error(request, error)
                 return redirect('home')
 
-            role = MainUser.objects.filter(email=request.user.username).first()
-            error = role_checker(room, role)
+            user_obj = MainUser.objects.filter(email=request.user.username).first()
+            error = role_checker(room, user_obj.role.name)
             if error:
                 messages.error(request, error)
                 return redirect('home')

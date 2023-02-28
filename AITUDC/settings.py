@@ -157,3 +157,8 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'alexfedenko0303200306@gmail.com'
 EMAIL_HOST_PASSWORD = 'vbtfilqdusgxseqn'
+
+
+import os
+if 'WEBSITE_HOSTNAME' in os.environ: # Running on Azure
+    from .azure import *
