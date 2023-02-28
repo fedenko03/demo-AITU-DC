@@ -91,16 +91,16 @@ ASGI_APPLICATION = 'AITUDC.asgi.application'
 #     }
 # }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'aituDC',
-#         'USER': 'postgres',
-#         'PASSWORD': '1234567',
-#         'HOST': 'localhost',
-#         'PORT': '',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'aituDC',
+        'USER': 'postgres',
+        'PASSWORD': '1234567',
+        'HOST': 'localhost',
+        'PORT': '',
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
