@@ -24,7 +24,7 @@ SECRET_KEY = 'django-insecure-g%-q+0fz@39_uu0u=ta8#(%erxr%=+690b_ev&x!%2o@8lr$2q
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['testaitu.azurewebsites.net']
 
 # Application definition
 
@@ -159,6 +159,3 @@ EMAIL_HOST_USER = 'alexfedenko0303200306@gmail.com'
 EMAIL_HOST_PASSWORD = 'vbtfilqdusgxseqn'
 
 
-import os
-if 'WEBSITE_HOSTNAME' in os.environ: # Running on Azure
-    from .azure import *
