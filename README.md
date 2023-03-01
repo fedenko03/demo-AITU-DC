@@ -69,13 +69,16 @@ If you would like to contribute to Digital Control, please follow these steps:
 2. Настроить DATABASES в ```settings.py```. 
 3. Закомментировать ```urls.py```
 4. ```python manage.py migrate```
-5. Откомментировать ```urls.py```
-6. ```python manage.py makemigrations```
-7. ```python manage.py migrate```
-8. Настройка ```main/middleware.py```: Закомментировать middleware в ```settings.py```
-9. Создать суперюзера ```python manage.py createsuperuser```
-10. Запустить проект ```python manage.py runserver```
-11. Открыть панель администратора и произвести все настройки: 
+5. Закомментить в settings всё кроме user ``python manage.py makemigrations user``
+6. Откомментить в settings. ``python manage.py makemigrations``
+7. ``python manage.py migrate``
+8. Откомментировать ```urls.py```
+9. ```python manage.py makemigrations```
+10. ```python manage.py migrate```
+11. Настройка ```main/middleware.py```: Закомментировать middleware в ```settings.py```
+12. Создать суперюзера ```python manage.py createsuperuser```
+13. Запустить проект ```python manage.py runserver```
+14. Открыть панель администратора и произвести все настройки: 
 ```KeyTakerSettings```, ```KeyReturnerSettings```, ```PIN```, ```Role```.
 
 ## License

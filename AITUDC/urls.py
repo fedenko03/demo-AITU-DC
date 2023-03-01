@@ -20,11 +20,11 @@ from django.urls import path, include
 from django.contrib.auth.views import LoginView
 
 urlpatterns = [
-    path('', include('user.urls')),
-    path('main/', include('main.urls')),
-    path('api/', include('api.urls')),
-    path('keytaker/', include('keytaker.urls')),
-    path('keyreturner/', include('keyreturner.urls')),
+    # path('', include('user.urls')),
+    # path('main/', include('main.urls')),
+    # path('api/', include('api.urls')),
+    # path('keytaker/', include('keytaker.urls')),
+    # path('keyreturner/', include('keyreturner.urls')),
     path('admin/', admin.site.urls),
 
     # path('login/', LoginView.as_view(), name='login'),
