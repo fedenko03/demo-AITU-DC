@@ -18,6 +18,5 @@ MIDDLEWARE = [
     'main.middleware.NotFoundMiddleware'
 ]
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEBUG = False

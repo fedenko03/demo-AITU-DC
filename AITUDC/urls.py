@@ -30,4 +30,5 @@ urlpatterns = [
     # path('login/', LoginView.as_view(), name='login'),
 ]
 
+
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
