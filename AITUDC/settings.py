@@ -170,6 +170,6 @@ EMAIL_HOST_USER = 'alexfedenko0303200306@gmail.com'
 EMAIL_HOST_PASSWORD = 'vbtfilqdusgxseqn'
 
 
-# import os
-# if 'WEBSITE_HOSTNAME' in os.environ: # Running on Azure
-#     from .azure import *
+import os
+if 'WEBSITE_HOSTNAME' in os.environ: # Running on Azure
+    from .azure import *
