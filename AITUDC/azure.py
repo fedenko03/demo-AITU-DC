@@ -19,7 +19,11 @@ MIDDLEWARE = [
     'main.middleware.PinCodeMiddleware',
     'main.middleware.NotFoundMiddleware'
 ]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_URL = '/static/'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 SECRET_KEY = os.getenv('SECRET_KEY')
 
