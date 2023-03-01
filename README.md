@@ -64,6 +64,20 @@ If you would like to contribute to Digital Control, please follow these steps:
 5. Ensure all tests pass.
 6. Submit a pull request with your changes.
 
+## Migrations settings
+1. Создать БД. 
+2. Настроить DATABASES в ```settings.py```. 
+3. Закомментировать ```urls.py```
+4. ```python manage.py migrate```
+5. Откомментировать ```urls.py```
+6. ```python manage.py makemigrations```
+7. ```python manage.py migrate```
+8. Настройка ```main/middleware.py```: Закомментировать middleware в ```settings.py```
+9. Создать суперюзера ```python manage.py createsuperuser```
+10. Запустить проект ```python manage.py runserver```
+11. Открыть панель администратора и произвести все настройки: 
+```KeyTakerSettings```, ```KeyReturnerSettings```, ```PIN```, ```Role```.
+
 ## License
 
 Digital Control is released under the [MIT License](https://github.com/fedenko03/DC/blob/add-license/LICENSE).

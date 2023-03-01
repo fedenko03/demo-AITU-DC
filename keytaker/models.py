@@ -13,7 +13,7 @@ class Room(models.Model):
     name = models.CharField(max_length=45)
     description = models.CharField(max_length=50, default="", blank=True, null=True)
     floor = models.CharField(max_length=2, choices=Floors, default='1')
-    role = models.ManyToManyField(Role)
+    role = models.ManyToManyField(Role, blank=True, null=True)
     is_occupied = models.BooleanField(default=False)
     is_visible = models.BooleanField(default=True)
     date = models.DateTimeField(blank=True, null=True)
@@ -30,7 +30,7 @@ class Room(models.Model):
 class History(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE, blank=True, null=True)
     fullname = models.CharField(max_length=50)
-    role = models.ForeignKey(Role, on_delete=models.CASCADE)
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, blank=True, null=True)
     is_verified = models.BooleanField(default=False)
     is_return = models.BooleanField(default=False)
     user = models.ForeignKey(MainUser, on_delete=models.CASCADE, blank=True, null=True)
