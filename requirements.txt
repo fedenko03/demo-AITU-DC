@@ -35,6 +35,7 @@ kombu==5.2.4
 lml==0.1.0
 msgpack==1.0.4
 openpyxl==3.1.1
+psycopg2-binary
 Pillow==9.3.0
 prompt-toolkit==3.0.36
 psycopg2==2.9.5
@@ -61,4 +62,5 @@ typing_extensions==4.4.0
 tzdata==2022.7
 vine==5.0.0
 wcwidth==0.2.6
+whitenoise
 zope.interface==5.5.2
