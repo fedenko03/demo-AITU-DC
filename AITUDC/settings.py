@@ -177,6 +177,7 @@ CHANNEL_LAYERS = {
     }
 }
 
+
 import os
-if 'WEBSITE_HOSTNAME' in os.environ: # Running on Azure
+if 'WEBSITE_HOSTNAME' in os.environ:  # Running on Azure
     from .azure import *
