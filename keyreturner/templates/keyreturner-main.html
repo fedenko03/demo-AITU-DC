@@ -230,12 +230,14 @@
             });
         }
 
+        if(searchElem) {
         searchElem.addEventListener("click", function () {
             if (!searchElem.classList.contains("disabled")) {
                 let room = document.getElementById('inputSearch').value;
                 searchRoom(room)
             }
         });
+        }
 
         function clearHistoryList() {
             const historyContainer = document.getElementById("historyList")
