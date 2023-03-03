@@ -7,6 +7,7 @@ socket.onmessage = function (e) {
 };
 
 
+
 // notification style
 
 
@@ -25,7 +26,7 @@ function createNotification(data) {
     notification.classList.add("notification");
     notification.id = `notification-${id}`;
     id++;
-    
+
 
     ///// navbar notifications:
     const navbarNotificationContainer = document.querySelector(".notification-navbar")
