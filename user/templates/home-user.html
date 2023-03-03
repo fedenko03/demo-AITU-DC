@@ -134,7 +134,7 @@
 
     <script>
     //console.log("{{ profile.email }}")
-        var socket = new WebSocket("wss://" + window.location.host + "/ws/canceledOrConfirmed_order/");
+        var socket = new WebSocket("ws://" + window.location.host + "/ws/canceledOrConfirmed_order/");
         socket.onmessage = function (e) {
             var data = JSON.parse(e.data);
             console.log(data)
