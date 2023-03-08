@@ -31,17 +31,17 @@ def getOrders():
     orders_list = []
     for order in last_orders:
         orders_list.append({
-                            'id': order.id,
-                            'room': order.room.name,
-                            'note': order.note,
-                            'user': {
-                                'name': order.user.full_name,
-                                'email': order.user.email
-                            },
-                            "orders_timestamp": order.orders_timestamp.astimezone(local_tz).strftime("%H:%M:%S"),
-                            "is_confirm": order.is_confirm,
-                            "is_available": order.is_available
-                            })
+            'id': order.id,
+            'room': order.room.name,
+            'note': order.note,
+            'user': {
+                'name': order.user.full_name,
+                'email': order.user.email
+            },
+            "orders_timestamp": order.orders_timestamp.astimezone(local_tz).strftime("%H:%M:%S"),
+            "is_confirm": order.is_confirm,
+            "is_available": order.is_available
+        })
     return orders_list
 
 
@@ -185,7 +185,8 @@ def takeroom3(request):
         blob_bytes = io.BytesIO()
         img.save(blob_bytes, format='PNG')
         blob_bytes.seek(0)
-        blob_service_client = BlockBlobService(account_name='demoaitustorage', account_key='8VleNnuJtHCquOzk8yMbYk3KKu8SbpInPhXiCcFGzKzZ53TMjUVoMtaSjfySdAwFaftp4vvM9ENZ+AStR+RpHw==')
+        blob_service_client = BlockBlobService(account_name='demoaitustorage',
+                                               account_key='8VleNnuJtHCquOzk8yMbYk3KKu8SbpInPhXiCcFGzKzZ53TMjUVoMtaSjfySdAwFaftp4vvM9ENZ+AStR+RpHw==')
         blob_service_client.create_blob_from_bytes(container_name='media', blob_name='qr.png', blob=blob_bytes.read())
 
         qr_image = True
@@ -308,5 +309,4 @@ def takeroomFinal(request):
             'error': None
         })
 
-
-
+# daphne -b 0.0.0.0 -p 8020 AITUDC.asgi:application
