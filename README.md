@@ -42,12 +42,17 @@ To run Digital Control on your local machine, you will need to have the followin
 
 ## Installation
 
-1. Clone the *Digital Control* repository to your local machine.
-2. Create a virtual environment for the project and activate it.
-3. Install the project dependencies using `pip install -r requirements.txt`.
-4. Set up the PostgreSQL or MongoDB database and add the credentials to the `settings.py` file.
-5. Run the Django migrations to create the necessary database tables: `python manage.py migrate`.
-6. Start the development server: `python manage.py runserver`.
+1. Clone the *Digital Control* repository to your local machine
+2. Create a virtual environment for the project and activate it `source venv/Scripts/activate`
+3. Install the project dependencies using `pip install -r requirements.txt`
+4. Set up the PostgreSQL or MongoDB database and add the credentials to the `settings.py` file
+5. Also configure the SMTP server in the `settings.py`
+6. Run the Django migrations to create the necessary database tables: `python manage.py migrate`
+7. Start the development server: `python manage.py runserver`
+
+If `DEBAG = False`:
+7. Collect all static files using `python manage.py collectstatic`
+8. Run the server using Daphne `daphne -b 0.0.0.0 -p 8020 AITUDC.asgi:application`
 
 ## Usage
 
@@ -80,6 +85,16 @@ If you would like to contribute to Digital Control, please follow these steps:
 13. Запустить проект ```python manage.py runserver```
 14. Открыть панель администратора и произвести все настройки: 
 ```KeyTakerSettings```, ```KeyReturnerSettings```, ```PIN```, ```Role```.
+
+
+## Deploing on the server (Azure)
+1. Create new Microsoft Storage User
+2. Edit the MEDIA_URL in the `settings.py`
+3. Edit firewall for any IP
+4. Create new Azure App
+5. Also edit firewall settings
+6. Configure Deployment Center
+7. Waiting for deployment
 
 ## License
 
