@@ -173,6 +173,18 @@ EMAIL_HOST_USER = 'alexfedenko0303200306@gmail.com'
 EMAIL_HOST_PASSWORD = 'hxcebfrappwkmdhg'
 
 
-import os
-if 'WEBSITE_HOSTNAME' in os.environ:  # Running on Azure
-    from .azure import *
+
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
+    },
+}
+
+
+# import os
+# if 'WEBSITE_HOSTNAME' in os.environ:  # Running on Azure
+#     from .azure import *
