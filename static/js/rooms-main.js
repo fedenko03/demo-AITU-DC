@@ -78,10 +78,18 @@ let lastClickedRoom = elementsRoom[0];
 
 for (let i = 0; i < elementsRoom.length; i++) {
     elementsRoom[i].addEventListener('click', function (event) {
+
+        document.getElementById('InfoTableRoom').textContent = 'Loading...'
+        document.getElementById('InfoTableDescr').textContent = 'Loading...'
+        document.getElementById('InfoTableAddit').textContent = ''
+        document.getElementById('idRoomTable').textContent = ''
+
         if (!this.classList.contains('closed') && !this.classList.contains('unavailable') && this.classList.contains('dbExist')) {
             lastClickedRoom.classList.remove('active');
             this.classList.add('active');
             lastClickedRoom = this;
+            document.getElementById('InfoTableRoom').textContent = 'Loading...'
+            document.getElementById('InfoTableDescr').textContent = 'Loading...'
 
 
             $.ajax({
@@ -148,6 +156,9 @@ for (let i = 0; i < elementsRoom.length; i++) {
             lastClickedRoom.classList.remove('active');
             this.classList.add('active');
             lastClickedRoom = this;
+
+            document.getElementById('InfoTableRoom').textContent = 'Loading...'
+            document.getElementById('InfoTableDescr').textContent = 'Loading...'
 
 
             $.ajax({
@@ -216,6 +227,10 @@ for (let i = 0; i < elementsRoom.length; i++) {
 
             const x = event.clientX;
             const y = event.clientY;
+
+
+            document.getElementById('InfoTableRoom').textContent = 'Loading...'
+            document.getElementById('InfoTableDescr').textContent = 'Loading...'
 
 
             $.ajax({
