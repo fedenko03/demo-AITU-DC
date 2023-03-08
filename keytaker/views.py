@@ -14,6 +14,10 @@ import random
 import string
 from .models import Orders
 
+from django.conf import settings
+import io
+from azure.storage.blob import BlockBlobService
+
 local_tz = pytz.timezone('Asia/Almaty')
 
 
@@ -178,7 +182,12 @@ def takeroom3(request):
 
         link_confirm = "http://" + request.get_host() + "/confirm_keytaking/token=" + settings_obj.confirmation_code
         img = qrcode.make(link_confirm)
-        img.save("media/qr.png")
+        blob_bytes = io.BytesIO()
+        img.save(blob_bytes, format='PNG')
+        blob_bytes.seek(0)
+        blob_service_client = BlockBlobService(account_name='demoaitustorage', account_key='8VleNnuJtHCquOzk8yMbYk3KKu8SbpInPhXiCcFGzKzZ53TMjUVoMtaSjfySdAwFaftp4vvM9ENZ+AStR+RpHw==')
+        blob_service_client.create_blob_from_bytes(container_name='media', blob_name='qr.png', blob=blob_bytes.read())
+
         qr_image = True
 
         orders_list = getOrders()
@@ -187,7 +196,8 @@ def takeroom3(request):
             'qr_image': qr_image,
             'room': room,
             'link': link_confirm,
-            'is_confirm': 'false'
+            'is_confirm': 'false',
+            'media_url': settings.MEDIA_URL
         })
 
 

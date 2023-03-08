@@ -9,6 +9,9 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.utils import timezone
 import math
+from django.conf import settings
+import io
+from azure.storage.blob import BlockBlobService
 
 from keyreturner.models import SettingsKeyReturner
 from keytaker.models import History, Room
@@ -19,6 +22,15 @@ local_tz = pytz.timezone('Asia/Almaty')
 def generate_token():
     # Generate a random confirmation code
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=32))
+
+
+# def post(self, request):
+#     file = request.FILES['file']
+#     filename = file.name
+#     file_upload_name = str(uuid.uuid4()) + file.name
+#     blob_service_client = BlockBlobService(account_name = 'accountname', account_key='accountkey')
+#     blob_service_client.create_blob_from_bytes( container_name = 'container-name', blob_name = file_upload_name, blob = file.read())
+#     return JsonResponse( { "status": "success", "uploaded_file_name": file_upload_name}, status=201)
 
 
 def keyreturnerMain(request):
@@ -48,14 +60,21 @@ def keyreturnerMain(request):
     settings_obj.save()
     link_confirm = "http://" + request.get_host() + "/key_return_get_user/token=" + settings_obj.token
     img = qrcode.make(link_confirm)
-    img.save("media/returnerQR.png")
+
+    blob_bytes = io.BytesIO()
+    img.save(blob_bytes, format='PNG')
+    blob_bytes.seek(0)
+    blob_service_client = BlockBlobService(account_name='demoaitustorage', account_key='8VleNnuJtHCquOzk8yMbYk3KKu8SbpInPhXiCcFGzKzZ53TMjUVoMtaSjfySdAwFaftp4vvM9ENZ+AStR+RpHw==')
+    blob_service_client.create_blob_from_bytes(container_name='media', blob_name='returnerQR.png', blob=blob_bytes.read())
+
     qr_image = True
 
     return render(request, 'keyreturner-main.html', {
         'orders_list': orders_list,
         'history_obj': history_list[:5],
         'history_count': len(history_obj),
-        'qr_image': qr_image
+        'qr_image': qr_image,
+        'media_url': settings.MEDIA_URL
     })
 
 
