@@ -309,4 +309,5 @@ def takeroomFinal(request):
             'error': None
         })
 
+# source venv/Scripts/activate
 # daphne -b 0.0.0.0 -p 8020 AITUDC.asgi:application

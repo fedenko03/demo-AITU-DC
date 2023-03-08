@@ -14,26 +14,30 @@
                 <div class="col-md-6 col-xl-4">
                     <div>
                         <form class="p-3 p-xl-4" method="post">
-                            {%  csrf_token %}
-                 {% if messages %}
-                    {% for message in messages %}
-                        <span class="badge bg-dark fs-6 mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="1em"
-                                                               height="1em" fill="currentColor" viewBox="0 0 16 16"
-                                                               class="bi bi-exclamation-circle-fill"
-                                                               style="padding-bottom: 0px;margin-bottom: 0px;margin-top: -4px;">
-                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"></path>
-                                </svg>&nbsp;{{ message }}</span>
-                    {% endfor %}
-                {% endif %}
+                            {% csrf_token %}
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <p class="fw-bold text-danger mb-2">
+                                        <svg class="bi bi-exclamation-circle-fill" xmlns="http://www.w3.org/2000/svg"
+                                             width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16"
+                                             style="padding-bottom: 0px;margin-bottom: 0px;margin-top: -4px;">
+                                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"></path>
+                                        </svg>
+                                          {{ message}}
+                                    </p>
+                                {% endfor %}
+                            {% endif %}
                             <div class="mb-3">
                                 <input class="form-control" type="email" id="name-1" name="email" placeholder="Email">
                             </div>
                             <div class="mb-3">
-                                <input class="form-control" type="password" id="email-1" name="password" placeholder="Password">
+                                <input class="form-control" type="password" id="email-1" name="password"
+                                       placeholder="Password">
                             </div>
                             <div class="mb-3"></div>
                             <div>
-                                <button class="btn btn-primary shadow d-block w-100" type="submit" id="nextstep">Login</button>
+                                <button class="btn btn-primary shadow d-block w-100" type="submit" id="nextstep">Login
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -48,7 +52,7 @@
                     <h2 class="fw-bold mb-2">Нет аккаунта?</h2>
                     <p class="mb-0">Создайте используя корпоративную почту</p>
                 </div>
-                    <div class="my-2"><a class="btn btn-primary shadow ms-2"  href="{% url 'register' %}">Создать</a></div>
+                <div class="my-2"><a class="btn btn-primary shadow ms-2" href="{% url 'register' %}">Создать</a></div>
             </div>
         </div>
     </section>
