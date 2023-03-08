@@ -50,7 +50,7 @@ To run Digital Control on your local machine, you will need to have the followin
 6. Run the Django migrations to create the necessary database tables: `python manage.py migrate`
 7. Start the development server: `python manage.py runserver`
 
-If `DEBAG = False`:
+### If DEBAG = False:
 7. Collect all static files using `python manage.py collectstatic`
 8. Run the server using Daphne `daphne -b 0.0.0.0 -p 8020 AITUDC.asgi:application`
 
