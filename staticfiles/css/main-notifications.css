@@ -1,0 +1,14 @@
+
+
+.notification-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.fade-out {
+    transition: opacity 500ms;
+}

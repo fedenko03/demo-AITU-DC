@@ -18,7 +18,7 @@ MIDDLEWARE = [
     'main.middleware.NotFoundMiddleware'
 ]
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+#STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 DEBUG = False
 
 # CHANNEL_LAYERS = {
