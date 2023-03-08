@@ -22,14 +22,14 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEBUG = False
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("aitu-websocket.redis.cache.windows.net", 6380)],
-            "password": "mDsSBp6CO41WoPtDeIzU3drvaDbO4gcyRAzCaJfmfDc=",
-            "ssl_cert_reqs": None,
-            "ssl_ca_certs": None,
-        },
-    },
-}
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": [("aitu-websocket.redis.cache.windows.net", 6380)],
+#             "password": "mDsSBp6CO41WoPtDeIzU3drvaDbO4gcyRAzCaJfmfDc=",
+#             "ssl_cert_reqs": None,
+#             "ssl_ca_certs": None,
+#         },
+#     },
+# }

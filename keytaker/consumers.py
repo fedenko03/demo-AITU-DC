@@ -8,11 +8,18 @@ from random import randint
 class WSConsumer(WebsocketConsumer):
     def connect(self):
         self.accept()
+        self.is_closed = False
         print("Connected")
 
-        for i in range(100):
+        i = 0
+        while not self.is_closed and i < 100:
             self.send(json.dumps({'message': randint(1, 1000)}))
             sleep(1)
+            i += 1
+            
+    def disconnect(self, close_code):
+        self.is_closed = True
+        self.close()
 
 
 class WSNewOrder(AsyncWebsocketConsumer):
