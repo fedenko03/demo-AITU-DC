@@ -119,7 +119,7 @@ def register(request):
 
         except Exception as e:
             print(e)
-            messages.error(request, e)
+            messages.error(request, 'Error. Reload the page')
             return redirect('confirm_registration')
 
     return render(request, 'register.html', {
@@ -219,7 +219,7 @@ def confirm_keytaking(request, confirmation_code):  # step 4
         if settings_obj:
             error = qr_checker(request, settings_obj)
             if error:
-                messages.error(request, error)
+                messages.error(request, 'Error. Reload the page')
                 return redirect('home')
             settings_obj.is_confirm = True
             profile_obj = MainUser.objects.filter(email=request.user.username).first()
@@ -295,13 +295,13 @@ def home(request):
 
             error = check_room(room)
             if error:
-                messages.error(request, error)
+                messages.error(request, 'Error. Reload the page')
                 return redirect('home')
 
             user_obj = MainUser.objects.filter(email=request.user.username).first()
             error = role_checker(room, user_obj.role.name)
             if error:
-                messages.error(request, error)
+                messages.error(request, 'Error. Reload the page')
                 return redirect('home')
 
             if len(note) > 50:
