@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 from pathlib import Path
+from django_ratelimit.decorators import ratelimit
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -35,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_ratelimit',
     'storages',
     'channels',
     'api',
@@ -46,6 +48,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'django_ratelimit.middleware.RatelimitMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -56,6 +59,13 @@ MIDDLEWARE = [
     'main.middleware.PinCodeMiddleware',
     'main.middleware.NotFoundMiddleware'
 ]
+
+RATELIMIT_KEY_PREFIX = 'user'
+RATELIMIT_USE_CACHE = 'default'
+RATELIMIT_ANONYMOUS_KEY = 'anonymous'
+RATELIMIT_VIEW = 'ratelimit.mixins.RatelimitMixin'
+RATELIMIT_RATE = '1/min'
+RATELIMIT_BLOCK = False
 
 ROOT_URLCONF = 'AITUDC.urls'
 
