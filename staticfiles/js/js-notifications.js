@@ -1,6 +1,7 @@
 // websocket
+var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+var socket = new WebSocket(ws_scheme + "://" + window.location.host + "/ws/new_order/");
 
-var socket = new WebSocket("ws://" + window.location.host + "/ws/new_order/");
 socket.onmessage = function (e) {
     var data = JSON.parse(e.data);
     createNotification(data)
