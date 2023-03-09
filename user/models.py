@@ -19,7 +19,7 @@ class MainUser(models.Model):
     email = models.EmailField(unique=True)
     confirmation_code = models.CharField(max_length=32, blank=True, null=True)
     code_timestamp = models.DateTimeField(blank=True, null=True)
-    role = models.OneToOneField(Role, on_delete=models.CASCADE, blank=True, null=True)
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, blank=True, null=True)
     auth_token = models.CharField(max_length=100)
     is_active = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
