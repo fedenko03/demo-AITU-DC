@@ -10,12 +10,7 @@ class WSConsumer(WebsocketConsumer):
         self.accept()
         self.is_closed = False
         print("Connected")
-
-        i = 0
-        while not self.is_closed and i < 100:
-            self.send(json.dumps({'message': randint(1, 1000)}))
-            sleep(1)
-            i += 1
+        self.send(json.dumps({'message': randint(1, 1000)}))
             
     def disconnect(self, close_code):
         self.is_closed = True

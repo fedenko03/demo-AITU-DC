@@ -25,14 +25,15 @@
                     <div class="col offset-xl-2">
                         <div class="text-sm-center text-md-end text-lg-end text-xl-end text-xxl-end">
                             {% if qr_image %}
-                                <img src="{{ media_url }}returnerQR.png" style="width: 195px;" height="auto" width="100%">
+                                <img src="{{ media_url }}returnerQR.png" style="width: 195px;" height="auto"
+                                     width="100%">
                             {% endif %}
                         </div>
                     </div>
                     <div class="col">
                         <div>
-{#                            <h4 class="text-start text-sm-center text-md-start text-lg-start text-xl-start text-xxl-start text-danger d-xxl-flex justify-content-xxl-start"#}
-{#                                style="color: rgb(55,55,55);font-size: 20px;">НЕ РАБОТАЕТ</h4>#}
+                            {#                            <h4 class="text-start text-sm-center text-md-start text-lg-start text-xl-start text-xxl-start text-danger d-xxl-flex justify-content-xxl-start"#}
+                            {#                                style="color: rgb(55,55,55);font-size: 20px;">НЕ РАБОТАЕТ</h4>#}
                             <h4 class="text-start text-sm-center text-md-start text-lg-start text-xl-start text-xxl-start d-xxl-flex justify-content-xxl-start"
                                 style="color: rgb(55,55,55);font-size: 20px;">Отсканируйте QR код</h4>
                             <p class="text-start text-sm-center text-md-start text-lg-start text-xl-start text-xxl-start d-xxl-flex justify-content-xxl-start"
@@ -177,7 +178,8 @@
 
 
     <script>
-        var socket = new WebSocket("ws://" + window.location.host + "/ws/get_user_keyreturner/");
+        var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+        var socket = new WebSocket(ws_scheme + "://" + window.location.host + "/ws/get_user_keyreturner/");
         socket.onmessage = function (e) {
             var data = JSON.parse(e.data);
             var myModal = new bootstrap.Modal(document.getElementById('modalRoomsList'), {
@@ -190,7 +192,7 @@
             const historyContainer = document.getElementById("historyList")
             let object = document.createElement("div")
             fullname = '';
-            if(data && data.length > 0 && data[0].fullname) {
+            if (data && data.length > 0 && data[0].fullname) {
                 fullname = data[0].fullname;
             }
             object.innerHTML = `<div class="text-center py-3" style="font-size: 13px; margin-bottom: -20px;">Все заявки пользователя ${fullname}:</div>`
@@ -230,13 +232,13 @@
             });
         }
 
-        if(searchElem) {
-        searchElem.addEventListener("click", function () {
-            if (!searchElem.classList.contains("disabled")) {
-                let room = document.getElementById('inputSearch').value;
-                searchRoom(room)
-            }
-        });
+        if (searchElem) {
+            searchElem.addEventListener("click", function () {
+                if (!searchElem.classList.contains("disabled")) {
+                    let room = document.getElementById('inputSearch').value;
+                    searchRoom(room)
+                }
+            });
         }
 
         function clearHistoryList() {
