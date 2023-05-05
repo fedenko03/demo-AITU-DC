@@ -61,11 +61,11 @@ def keyreturnerMain(request):
     link_confirm = "http://" + request.get_host() + "/key_return_get_user/token=" + settings_obj.token
     img = qrcode.make(link_confirm)
 
-    blob_bytes = io.BytesIO()
-    img.save(blob_bytes, format='PNG')
-    blob_bytes.seek(0)
-    blob_service_client = BlockBlobService(account_name='demoaitustorage', account_key='8VleNnuJtHCquOzk8yMbYk3KKu8SbpInPhXiCcFGzKzZ53TMjUVoMtaSjfySdAwFaftp4vvM9ENZ+AStR+RpHw==')
-    blob_service_client.create_blob_from_bytes(container_name='media', blob_name='returnerQR.png', blob=blob_bytes.read())
+    # blob_bytes = io.BytesIO()
+    # img.save(blob_bytes, format='PNG')
+    # blob_bytes.seek(0)
+    # blob_service_client = BlockBlobService(account_name='demoaitustorage', account_key='8VleNnuJtHCquOzk8yMbYk3KKu8SbpInPhXiCcFGzKzZ53TMjUVoMtaSjfySdAwFaftp4vvM9ENZ+AStR+RpHw==')
+    # blob_service_client.create_blob_from_bytes(container_name='media', blob_name='returnerQR.png', blob=blob_bytes.read())
 
     qr_image = True
 

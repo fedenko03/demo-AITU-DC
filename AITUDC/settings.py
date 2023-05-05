@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'django-insecure-g%-q+0fz@39_uu0u=ta8#(%erxr%=+690b_ev&x!%2o@8lr$2q'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -168,16 +168,16 @@ STATICFILES_DIRS = [
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 
-DEFAULT_FILE_STORAGE = 'backend.custom_azure.AzureMediaStorage'
-MEDIA_LOCATION = "media"
-AZURE_ACCOUNT_NAME = "demoaitustorage"
-AZURE_CUSTOM_DOMAIN = f'demoaitustorage.blob.core.windows.net'
+# DEFAULT_FILE_STORAGE = 'backend.custom_azure.AzureMediaStorage'
+# MEDIA_LOCATION = "media"
+# AZURE_ACCOUNT_NAME = "demoaitustorage"
+# AZURE_CUSTOM_DOMAIN = f'demoaitustorage.blob.core.windows.net'
+#
+# MEDIA_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{MEDIA_LOCATION}/'
 
-MEDIA_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{MEDIA_LOCATION}/'
 
-
-# MEDIA_URL = '/media/'
-# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

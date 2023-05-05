@@ -2,6 +2,7 @@ import json
 
 import pytz
 from django.contrib.auth.decorators import *
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.contrib import messages
@@ -16,7 +17,7 @@ from .models import Orders
 
 from django.conf import settings
 import io
-from azure.storage.blob import BlockBlobService
+# from azure.storage.blob import BlockBlobService
 
 local_tz = pytz.timezone('Asia/Almaty')
 
@@ -103,6 +104,10 @@ def is_staff(user):
 
 @login_required(login_url='loginMain')
 def takeroom2(request):
+    # create_empty_cells()
+    # clear_room_schedule()
+    # fill_room_schedule()
+
     settings_obj = SettingsKeyTaker.objects.first()
     settings_obj.confirmation_code = generate_code()
     settings_obj.in_process = True
@@ -185,9 +190,9 @@ def takeroom3(request):
         blob_bytes = io.BytesIO()
         img.save(blob_bytes, format='PNG')
         blob_bytes.seek(0)
-        blob_service_client = BlockBlobService(account_name='demoaitustorage',
-                                               account_key='8VleNnuJtHCquOzk8yMbYk3KKu8SbpInPhXiCcFGzKzZ53TMjUVoMtaSjfySdAwFaftp4vvM9ENZ+AStR+RpHw==')
-        blob_service_client.create_blob_from_bytes(container_name='media', blob_name='qr.png', blob=blob_bytes.read())
+        # blob_service_client = BlockBlobService(account_name='demoaitustorage',
+        #                                        account_key='8VleNnuJtHCquOzk8yMbYk3KKu8SbpInPhXiCcFGzKzZ53TMjUVoMtaSjfySdAwFaftp4vvM9ENZ+AStR+RpHw==')
+        # blob_service_client.create_blob_from_bytes(container_name='media', blob_name='qr.png', blob=blob_bytes.read())
 
         qr_image = True
 
@@ -308,6 +313,53 @@ def takeroomFinal(request):
             'history': last_history_obj,
             'error': None
         })
+
+
+def create_empty_cells():
+    rooms = Room.objects.filter(is_study_room=True)
+    for room in rooms:
+        start_time = datetime.time(8, 0)
+        end_time = datetime.time(22, 0)
+        while start_time < end_time:
+            cell = StudyRoomSchedule.objects.create(
+                room=room,
+                start_time=start_time,
+                end_time=(datetime.datetime.combine(datetime.date.today(), start_time) + datetime.timedelta(minutes=50)).time(),
+                status='free'
+            )
+            cell.save()
+            start_time = (datetime.datetime.combine(datetime.date.today(), start_time) + datetime.timedelta(minutes=60)).time()
+
+
+def fill_room_schedule():
+    rooms = Room.objects.filter(is_study_room=True)
+    for room in rooms:
+        start_time = datetime.time(8, 0)
+        end_time = datetime.time(22, 0)
+        while start_time < end_time:
+            try:
+                # Trying to get schedule for this room and time
+                schedule = Schedule.objects.get(day=datetime.date.today().weekday()+1, room=room, start_time=start_time)
+                status = 'busy'
+                professor = schedule.professor
+            except Schedule.DoesNotExist:
+                # If schedule not exists then create empty cell
+                status = 'free'
+                professor = None
+            cell = StudyRoomSchedule.objects.create(
+                room=room,
+                start_time=start_time,
+                end_time=(datetime.datetime.combine(datetime.date.today(), start_time) + datetime.timedelta(minutes=50)).time(),
+                status=status,
+                professor=professor
+            )
+            cell.save()
+            start_time = (datetime.datetime.combine(datetime.date.today(), start_time) + datetime.timedelta(minutes=60)).time()
+
+
+def clear_room_schedule():
+    StudyRoomSchedule.objects.all().delete()
+
 
 # source venv/Scripts/activate
 # daphne -b 0.0.0.0 -p 8020 AITUDC.asgi:application

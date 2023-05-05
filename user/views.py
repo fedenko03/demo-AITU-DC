@@ -398,3 +398,91 @@ def ws_get_user(request, user_obj):
         })
     for consumer in WSGetUser.consumers:
         asyncio.run(consumer.send(text_data=json.dumps(history_list)))
+
+
+@login_required(login_url='login_user')
+def reserve_studyroom(request, key):
+    try:
+        reservation = Reservation.objects.get(key=key)
+    except Reservation.DoesNotExist:
+        messages.error(request, "Reservation not found")
+        return redirect('home')
+
+    # Check if the user has sufficient permissions to make a reservation in the room
+    user_obj = MainUser.objects.filter(email=request.user.username).first()
+
+    room = reservation.room
+
+    if role_checker(room, user_obj.role.name):
+        messages.error(request, "You don't have sufficient permissions to make a reservation in this room")
+        return redirect('home')
+
+    # Check if the room has a schedule and the time slot is free
+    studyroom_schedule = StudyRoomSchedule.objects.filter(
+        room=room,
+        start_time=reservation.start_time
+    ).first()
+    if not studyroom_schedule:
+        messages.error(request, 'The room ' + room.name + ' does not have a schedule or this time slot.')
+        return redirect('home')
+    if studyroom_schedule.status != 'free':
+        messages.error(request, "The selected time slot is not available.")
+        return redirect('home')
+
+    # Check if the reservation is still valid (created less than 5 minutes ago)
+    time_diff = timezone.now() - reservation.created_at
+    if time_diff > timezone.timedelta(minutes=5):
+        messages.error(request, "The reservation has expired.")
+        return redirect('home')
+
+    # Check if the reservation is not yet activated
+    if reservation.is_active:
+        messages.error(request, "The reservation has already been confirmed.")
+        return redirect('home')
+
+    # Check if the user wants to take the key and if the time to the reservation is less than 30 minutes
+    # and if there is a key in the history
+
+    schedule_start_time = datetime.datetime.combine(datetime.date.today(), reservation.start_time)
+    schedule_start_time = timezone.make_aware(schedule_start_time, timezone.get_current_timezone())
+    time_to_reservation = schedule_start_time - timezone.now()
+
+    # print(abs(time_to_reservation))
+    # print(time_to_reservation)
+
+    if time_to_reservation < -timezone.timedelta(minutes=60):
+        messages.error(request, "It's too late to make a reservation.")
+        return redirect('home')
+
+    if reservation.is_take:
+        # print(time_to_reservation)
+        # print(timezone.timedelta(minutes=30))
+        if time_to_reservation < timezone.timedelta(minutes=30):
+            if room.is_occupied:
+                messages.error(request, "The key is not available.")
+                return redirect('home')
+            else:
+                new_history = History.objects.create(
+                    room=room,
+                    fullname=user_obj.full_name,
+                    is_verified=True,
+                    role=Role.objects.filter(name=user_obj.role.name).first(),
+                    user=user_obj,
+                    date=timezone.now()
+                )
+                room.is_occupied = True
+                room.save()
+                new_history.save()
+                messages.success(request, "You have taken the key for the room.")
+
+    # Create the reservation in the schedule
+    studyroom_schedule.status = 'reserved'
+    studyroom_schedule.professor = user_obj
+    studyroom_schedule.save()
+
+    # Activate the reservation
+    reservation.is_active = True
+    reservation.save()
+
+    messages.success(request, "The reservation has been successfully activated.")
+    return redirect('home')

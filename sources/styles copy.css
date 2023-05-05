@@ -1,0 +1,265 @@
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+.box-background {
+    width: 525px;
+    /* height: 573px; */
+    padding-bottom: 24px;
+    box-sizing: border-box;
+    background: #4D72DE;
+    /* background: #4da2ff; */
+    border: 1px solid rgba(0, 0, 0, 0.24);
+    border-radius: 20px 20px 20px 20px;
+}
+
+.box-header {
+    padding-top: 16px;
+    padding-left: 22px;
+    margin-bottom: 10px;
+
+    width: 490px;
+    height: 83px;
+}
+
+.box-buttons {
+    margin-top: 22px;
+    text-align: center;
+}
+
+.box-buttons a {
+    /* background: linear-gradient(0deg, #585858, #585858), #5277E2; */
+    border-radius: 5px;
+
+    font-family: 'Rubik';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 17px;
+    line-height: 20px;
+    text-align: center;
+    letter-spacing: -0.05em;
+
+    padding: 4px 27px 4px 27px;
+
+    color: #FFFFFF;
+    border: 1px solid #FFFFFF;
+}
+
+.box-buttons a:hover {
+    background: #FFFFFF;
+    color: #3b3b3b;
+
+    cursor: pointer;
+}
+
+.box-room-week {
+    font-family: 'Rubik';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 15px;
+    line-height: 18px;
+    /* identical to box height */
+
+    letter-spacing: -0.05em;
+    text-decoration: underline;
+    padding-left: 22px;
+
+    color: rgba(255, 255, 255, 1);
+}
+
+.box-room-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.box-room-name {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 30px;
+    line-height: 35px;
+    letter-spacing: -0.05em;
+
+    color: #FFFFFF;
+}
+
+.box-room-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #FFFFFF;
+    border-radius: 10px;
+    height: 15px;
+
+    padding: 5px 7px 5px 7px;
+
+    font-family: 'Rubik';
+    font-style: normal;
+    font-weight: 300;
+    font-size: 13px;
+    line-height: 10px;
+    letter-spacing: -0.05em;
+    color: #333333;
+}
+
+.box-room-id {
+    margin-left: auto; 
+    /* margin-right: 5px;  */
+    
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 300;
+    font-size: 17px;
+    line-height: 20px;
+    /* identical to box height */
+
+    letter-spacing: -0.05em;
+
+    color: rgba(0, 0, 0, 0.4);
+}
+
+.box-room-info {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 300;
+    font-size: 16px;
+    line-height: 22px;
+    /* identical to box height */
+
+    letter-spacing: -0.05em;
+
+    color: #FFFFFF;
+}
+
+.box-room-status {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 300;
+    font-size: 16px;
+    line-height: 22px;
+    letter-spacing: -0.05em;
+
+    color: #FFFFFF;
+}
+
+.box-room-items {
+    display: grid;
+    justify-content: center;
+}
+
+.box-room-item {
+    display: flex;
+    align-items: center;
+    width: 503px;
+    height: 65px;
+    margin-top: 7px;
+    padding-left: 11px;
+
+    border-radius: 5px;
+}
+
+.box-room-item.inactive {
+    opacity: 0.5;
+    background: #5B636B;
+}
+
+.box-room-item.busy {
+    /* background: #DC4737; */
+    background: #6F6F6F;
+}
+
+.box-room-item.free {
+    /* background: #5277E2; */
+    background: #53AC51;
+}
+
+.box-room-item.schedule {
+    /* background: #f18a2b; */
+    background: #D15149;
+}
+
+.box-room-item-time {
+    flex: 1.5;
+
+    font-family: 'Rubik';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 17px;
+    line-height: 20px;
+    letter-spacing: -0.05em;
+
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.box-room-item-professor {
+    flex: 2.5;
+}
+
+.box-room-item-status {
+    flex: 0.6;
+    display: grid;
+    align-items: center;
+}
+
+.box-room-item-status img {
+    pointer-events: none;
+    width: 30px;
+    height: 30px;
+
+    opacity: 0.4;
+}
+
+.box-room-item-button {
+    flex: 1.6;
+}
+
+.box-room-item-button a {
+    
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+
+    font-family: 'Rubik';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 15px;
+    line-height: 18px;
+    /* identical to box height */
+
+    padding: 5px 12px 5px 12px;
+
+    letter-spacing: -0.05em;
+
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.box-room-item-button a:hover {
+    background: rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+.box-room-item-professor .box-name {
+    font-family: 'Rubik';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 17px;
+    line-height: 21px;
+    letter-spacing: -0.05em;
+
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.box-room-item-professor .box-email {
+    font-family: 'Rubik';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 12px;
+    margin-top: 3px;
+
+    /* identical to box height */
+
+    letter-spacing: -0.05em;
+
+    color: rgba(255, 255, 255, 0.8);
+}

@@ -6,6 +6,7 @@ import asyncio
 
 import pytz
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from keytaker.consumers import WSNewOrder, WSCanceledORConfirmedOrder
@@ -182,3 +183,99 @@ def cancel_takeroom(request, pk):
         'msg_id': 1,
         'msg': msg
     })
+
+
+def get_room_schedule(request, room_number):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+    if not request.user.is_staff:
+        return JsonResponse({'error': 'Access denied'}, status=403)
+    try:
+        room = Room.objects.filter(name=room_number, is_study_room=True).first()
+        # room = get_object_or_404(Room, name=room_number, is_study_room=True)
+        if not room:
+            return JsonResponse({'error': 'Room not found'})
+
+        schedule = StudyRoomSchedule.objects.filter(room=room).order_by('start_time')
+        schedule_list = []
+        for cell in schedule:
+            if cell.professor:
+                schedule_list.append({
+                    'room': cell.room.name,
+                    'start_time': cell.start_time.strftime('%H:%M'),
+                    'end_time': cell.end_time.strftime('%H:%M'),
+                    'professor': {
+                        'name': cell.professor.full_name,
+                        'email': cell.professor.email
+                    },
+                    'status': cell.status
+                })
+            else:
+                schedule_list.append({
+                    'room': cell.room.name,
+                    'start_time': cell.start_time.strftime('%H:%M'),
+                    'end_time': cell.end_time.strftime('%H:%M'),
+                    'professor': None,
+                    'status': cell.status
+                })
+        return JsonResponse({'schedule': schedule_list})
+    except StudyRoomSchedule.DoesNotExist:
+        return JsonResponse({'error': 'Error'})
+
+
+def create_reservation(request, room_name, start_time_input, is_take):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+    if not request.user.is_staff:
+        return JsonResponse({'error': 'Access denied'}, status=403)
+
+    try:
+        room = Room.objects.get(name=room_name, is_study_room=True)
+    except Room.DoesNotExist:
+        return JsonResponse({'error': 'Room not found'})
+
+    schedule = StudyRoomSchedule.objects.filter(room=room)
+    if not schedule.exists():
+        return JsonResponse({'error': 'The room does not have a schedule'})
+
+    try:
+        start_time = datetime.datetime.strptime(start_time_input, '%H:%M').time()
+    except ValueError:
+        return JsonResponse({'error': 'Invalid start time value'}, status=400)
+
+    time_slot = schedule.filter(start_time=start_time).first()
+    if not time_slot:
+        return JsonResponse({'error': 'The room does not have a schedule at this time'})
+
+    if time_slot.status != 'free':
+        return JsonResponse({'error': 'The selected time slot is not available'}, status=400)
+
+    start_time = datetime.datetime.strptime(start_time_input, '%H:%M').time()
+    schedule_start_time = datetime.datetime.combine(datetime.date.today(), time_slot.start_time)
+    schedule_start_time = timezone.make_aware(schedule_start_time, timezone.get_current_timezone())
+    time_to_reservation = schedule_start_time - timezone.now()
+
+    # print(abs(time_to_reservation))
+    # print(time_to_reservation)
+
+    if time_to_reservation < -timezone.timedelta(minutes=60):
+        return JsonResponse({'error': 'It is too late to take the key.'}, status=400)
+
+    if is_take:
+        if time_to_reservation < timezone.timedelta(minutes=30):
+            if room.is_occupied:
+                return JsonResponse({'error': 'The key is not available.'}, status=400)
+        else:
+            return JsonResponse({'error': 'The key is not available.'}, status=400)
+
+    key = generate_code()
+    reservation = Reservation.objects.create(
+        room=room,
+        start_time=start_time,
+        key=key,
+        created_at=timezone.now(),
+        is_take=is_take
+    )
+    reservation.save()
+
+    return JsonResponse({'reservation': reservation.key}, status=201)

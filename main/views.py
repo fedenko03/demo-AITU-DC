@@ -404,3 +404,5 @@ def PinLock(request, code):
     else:
         messages.error(request, 'PIN-код должен содержать от 4 до 10 цифр.')
         return redirect('homeMain')
+
+

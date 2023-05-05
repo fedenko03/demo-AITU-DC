@@ -11,4 +11,5 @@ urlpatterns = [
     path('history/', views.history_user, name='history_user'),
     path('logout/', views.logout_user, name='logout_user'),
     path('login/', views.login_user, name='login_user'),
+    path('reserve-studyroom/<str:key>/', views.reserve_studyroom, name='reserve_studyroom'),
 ]
