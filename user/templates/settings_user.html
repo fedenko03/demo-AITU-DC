@@ -1,0 +1,228 @@
+{% extends 'base_user.html' %}
+{% block title %}Настройки{% endblock %}
+
+{% block content %}
+    <section class="py-5" style="padding-top: 48px;margin-top: -10px;">
+        {% if messages %}
+            <div class="container pe-lg-5">
+                {% for message in messages %}
+                    <div class="text-white bg-dark border rounded d-flex flex-column justify-content-between align-items-center flex-lg-row p-3 p-lg-3 pb-2 pt-2 ps-lg-4 pt-lg-3 pb-lg-3 pe-lg-4 me-lg-5"
+                         style="/*margin-bottom: 5px;*/padding-top: 0px;padding-bottom: 0px;padding-left: 0px;">
+                        <div class="text-center text-lg-start py-3 py-lg-1 pt-2 pb-2">
+                            <h3 class="fw-bold mb-2" style="font-size: 20px;">Внимание!</h3>
+                            <p class="mb-0" style="font-size: 15px;">{{ message }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body text-center d-flex flex-column align-items-center">
+                            <form method="post" id="passwordForm">
+                                {% csrf_token %}
+                                <p class="text-muted" style="font-weight: bold;">Сменить пароль от аккаунта</p>
+                                <p id="errorTextPassword"
+                                   style="color: red; display: block; margin-bottom: 3px; font-size: 13px; text-align: start;"></p>
+                                <div class="mb-3"><input class="form-control form-control-sm" type="password"
+                                                         name="old_password" placeholder="Old password" required></div>
+                                <div class="mb-3"><input class="form-control form-control-sm" type="password"
+                                                         name="new_password" placeholder="New password" required></div>
+                                <div class="mb-3"><input class="form-control form-control-sm" type="password"
+                                                         name="confirm_new_password"
+                                                         placeholder="New password confirmation" required></div>
+                                <div class="mb-3">
+                                    <button class="btn btn-primary btn-sm border rounded shadow d-block w-100"
+                                            type="submit" name="change_password" disabled>Сохранить
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body text-center d-flex flex-column align-items-center">
+                            <form method="post" id="fullnameForm">
+                                {% csrf_token %}
+                                <p class="text-muted" style="font-weight: bold;">Сменить ФИО</p>
+                                <p id="errorTextFullname"
+                                   style="color: red; display: block; margin-bottom: 3px; font-size: 13px; text-align: start;"></p>
+                                <div class="mb-3"><input class="form-control form-control-sm" type="text"
+                                                         name="fullname" placeholder="Fullname" required></div>
+                                <div class="mb-3"><input class="form-control form-control-sm" type="password"
+                                                         name="password" placeholder="Password" required></div>
+                                <div class="mb-3">
+                                    <button class="btn btn-primary btn-sm border rounded shadow d-block w-100"
+                                            type="submit" name="change_fullname" disabled>Сохранить
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function handlePasswordForm() {
+            // Получение элементов формы
+            var form = document.getElementById('passwordForm');
+            var oldPasswordInput = document.getElementsByName('old_password')[0];
+            var newPasswordInput = document.getElementsByName('new_password')[0];
+            var confirmNewPasswordInput = document.getElementsByName('confirm_new_password')[0];
+            var errorTextPassword = document.getElementById('errorTextPassword');
+            var submitButton = form.querySelector('button[type="submit"]');
+
+            // Функция проверки и отображения ошибки
+            function showError(errorMessage, inputElement) {
+                errorTextPassword.textContent = errorMessage;
+                inputElement.style.borderColor = 'red';
+                submitButton.disabled = true;
+            }
+
+            // Функция удаления ошибки
+            function clearError(inputElement) {
+                errorTextPassword.textContent = '';
+                inputElement.style.borderColor = '';
+                submitButton.disabled = false;
+            }
+
+            // Функция проверки совпадения нового пароля и его подтверждения
+            function checkPasswordMatch() {
+                var newPassword = newPasswordInput.value;
+                var confirmNewPassword = confirmNewPasswordInput.value;
+
+                if (newPassword !== confirmNewPassword) {
+                    showError('Пароли не совпадают', confirmNewPasswordInput);
+                    return false;
+                }
+
+                clearError(confirmNewPasswordInput);
+                return true;
+            }
+
+            // Функция проверки длины пароля
+            function checkPasswordLength() {
+                var newPassword = newPasswordInput.value;
+
+                if (newPassword.length < 6 || newPassword.length > 20) {
+                    showError('Пароль должен содержать от 6 до 20 символов', newPasswordInput);
+                    return false;
+                }
+
+                clearError(newPasswordInput);
+                return true;
+            }
+
+            // Функция проверки заполненности полей
+            function checkFormValidity() {
+                var oldPassword = oldPasswordInput.value;
+                var newPassword = newPasswordInput.value;
+                var confirmNewPassword = confirmNewPasswordInput.value;
+
+                if (oldPassword === '' || newPassword === '' || confirmNewPassword === '') {
+                    showError('Пожалуйста, заполните все поля', oldPassword === '' ? oldPasswordInput : newPassword === '' ? newPasswordInput : confirmNewPasswordInput);
+                    return false;
+                }
+
+                clearError(oldPasswordInput);
+                clearError(newPasswordInput);
+                clearError(confirmNewPasswordInput);
+
+                return checkPasswordMatch() && checkPasswordLength();
+            }
+
+            // Обработчик события отправки формы
+            form.addEventListener('submit', function (event) {
+                if (!checkFormValidity()) {
+                    event.preventDefault(); // Предотвращение отправки формы, если проверка не пройдена
+                }
+            });
+
+            // Обработчик события ввода в полях пароля
+            oldPasswordInput.addEventListener('input', checkFormValidity);
+            newPasswordInput.addEventListener('input', checkFormValidity);
+            confirmNewPasswordInput.addEventListener('input', checkFormValidity);
+        }
+
+        // Для изменения ФИО
+        function handleFullnameForm() {
+            // Получение элементов формы
+            var form = document.getElementById('fullnameForm');
+            var fullnameInput = document.getElementsByName('fullname')[0];
+            var passwordInput = document.getElementsByName('password')[0];
+            var errorTextFullname = document.getElementById('errorTextFullname');
+            var submitButton = form.querySelector('button[type="submit"]');
+
+            // Функция проверки и отображения ошибки
+            function showError(errorMessage) {
+                errorTextFullname.textContent = errorMessage;
+                submitButton.disabled = true;
+            }
+
+            // Функция удаления ошибки
+            function clearError() {
+                errorTextFullname.textContent = '';
+                submitButton.disabled = false;
+            }
+
+            // Функция проверки длины ФИО
+            function checkFullnameLength(fullname) {
+                var fullnameWithoutSpaces = fullname.replace(/\s/g, '');
+
+                if (fullnameWithoutSpaces.length < 5 || fullnameWithoutSpaces.length > 35) {
+                    showError('ФИО должно содержать от 5 до 35 символов');
+                    return false;
+                }
+
+                clearError();
+                return true;
+            }
+
+            // Функция проверки содержимого ФИО (только буквы и пробелы)
+            function checkFullnameContent(fullname) {
+                var lettersAndSpacesRegex = /^[A-Za-zА-Яа-яЁё\s]+$/u;
+
+                if (!lettersAndSpacesRegex.test(fullname)) {
+                    showError('ФИО должно содержать только буквы');
+                    return false;
+                }
+
+                clearError();
+                return true;
+            }
+
+            // Функция проверки заполненности полей
+            function checkFormValidity() {
+                var fullname = fullnameInput.value;
+                var password = passwordInput.value;
+
+                if (fullname === '' || password === '') {
+                    showError('Пожалуйста, заполните все поля');
+                    return false;
+                }
+
+                return checkFullnameLength(fullname) && checkFullnameContent(fullname);
+            }
+
+            // Обработчик события отправки формы
+            form.addEventListener('submit', function (event) {
+                if (!checkFormValidity()) {
+                    event.preventDefault(); // Предотвращение отправки формы, если проверка не пройдена
+                }
+            });
+
+            // Обработчик события ввода в полях ФИО и пароля
+            fullnameInput.addEventListener('input', checkFormValidity);
+            passwordInput.addEventListener('input', checkFormValidity);
+        }
+
+        // Вызов функций для обработки форм
+        handlePasswordForm();
+        handleFullnameForm();
+    </script>
+{% endblock %}

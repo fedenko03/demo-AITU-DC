@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css?family=Rubik&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,300,400&display=swap">
-    
+
     <link rel="stylesheet" type="text/css" href="styles.css" />
     <title>Test</title>
 </head>
@@ -28,76 +28,199 @@
         </div>
         <div>
             <div class="box-room-week">Понедельник</div>
-            <div class="box-room-items">
-                <div class="box-room-item inactive">
-                    <div class="box-room-item-time">8:00 - 8:50</div>
-                    <div class="box-room-item-professor">
-                        <div class="box-name">Иванов И. И.</div>
-                        <div class="box-email">(ivanov_ivan@astanait.edu.kz)</div>
-                    </div>
-                    <div class="box-room-item-status">
-                        <img src="schedule.png">
-                    </div>
-                    <div class="box-room-item-button">
-                        <a>Ключ вернул</a>
-                    </div>
+            <div class="box-tail">
+                <div id="loading-overlay">
+                    <div id="loading-text">Loading...</div>
                 </div>
-                <div class="box-room-item busy">
-                    <div class="box-room-item-time">9:00 - 9:50</div>
-                    <div class="box-room-item-professor">
-                        <div class="box-name">Иванов И. И.</div>
-                        <div class="box-email">(ivanov_ivan@astanait.edu.kz)</div>
+                <div class="box-room-items">
+                    <div class="box-room-item inactive">
+                        <div class="box-room-item-time">8:00 - 8:50</div>
+                        <div class="box-room-item-professor">
+                            <div class="box-name">Иванов И. И.</div>
+                            <div class="box-email">(ivanov_ivan@astanait.edu.kz)</div>
+                        </div>
+                        <div class="box-room-item-status">
+                            <img src="schedule.png">
+                        </div>
+                        <div class="box-room-item-button">
+                            <a>Ключ вернул</a>
+                        </div>
                     </div>
-                    <div class="box-room-item-status">
-                        <img src="schedule.png">
+                    <div class="box-room-item inactive">
+                        <div class="box-room-item-time">9:00 - 9:50</div>
+                        <div class="box-room-item-professor">
+                            <div class="box-name">Иванов И. И.</div>
+                            <div class="box-email">(ivanov_ivan@astanait.edu.kz)</div>
+                        </div>
+                        <div class="box-room-item-status">
+                            <img src="schedule.png">
+                        </div>
+                        <div class="box-room-item-button">
+                            <a>Идёт занятие</a>
+                        </div>
                     </div>
-                    <div class="box-room-item-button">
-                        <a>Идёт занятие</a>
+                    <div class="box-room-item free">
+                        <div class="box-room-item-time">10:00 - 10:50</div>
+                        <div class="box-room-item-professor">
+                            <div class="box-name">СВОБОДНО</div>
+                        </div>
+                        <div class="box-room-item-status">
+                            <img src="free.png">
+                        </div>
+                        <div class="box-room-item-button">
+                            <a>Занять</a>
+                        </div>
                     </div>
-                </div>
-                <div class="box-room-item free">
-                    <div class="box-room-item-time">10:00 - 10:50</div>
-                    <div class="box-room-item-professor">
-                        <div class="box-name">СВОБОДНО</div>
+                    <div class="box-room-item schedule">
+                        <div class="box-room-item-time">11:00 - 11:50</div>
+                        <div class="box-room-item-professor">
+                            <div class="box-name">Иванов И. И.</div>
+                            <div class="box-email">(ivanov_ivan@astanait.edu.kz)</div>
+                        </div>
+                        <div class="box-room-item-status">
+                            <img src="bron.png">
+                        </div>
+                        <div class="box-room-item-button">
+                            <a>Взять ключ</a>
+                        </div>
                     </div>
-                    <div class="box-room-item-status">
-                        <img src="free.png">
+                    <div class="box-room-item schedule">
+                        <div class="box-room-item-time">12:00 - 12:50</div>
+                        <div class="box-room-item-professor">
+                            <div class="box-name">Иванов И. И.</div>
+                            <div class="box-email">(ivanov_ivan@astanait.edu.kz)</div>
+                        </div>
+                        <div class="box-room-item-status">
+                            <img src="schedule.png">
+                        </div>
+                        <div class="box-room-item-button">
+                            <a>Взять ключ</a>
+                        </div>
                     </div>
-                    <div class="box-room-item-button">
-                        <a>Занять</a>
+                    <div class="box-room-item schedule">
+                        <div class="box-room-item-time">13:00 - 13:50</div>
+                        <div class="box-room-item-professor">
+                            <div class="box-name">Иванов И. И.</div>
+                            <div class="box-email">(ivanov_ivan@astanait.edu.kz)</div>
+                        </div>
+                        <div class="box-room-item-status">
+                            <img src="schedule.png">
+                        </div>
+                        <div class="box-room-item-button">
+                            <a>Взять ключ</a>
+                        </div>
                     </div>
-                </div>
-                <div class="box-room-item schedule">
-                    <div class="box-room-item-time">11:00 - 11:50</div>
-                    <div class="box-room-item-professor">
-                        <div class="box-name">Иванов И. И.</div>
-                        <div class="box-email">(ivanov_ivan@astanait.edu.kz)</div>
+                    <div class="box-room-item schedule">
+                        <div class="box-room-item-time">14:00 - 14:50</div>
+                        <div class="box-room-item-professor">
+                            <div class="box-name">Иванов И. И.</div>
+                            <div class="box-email">(ivanov_ivan@astanait.edu.kz)</div>
+                        </div>
+                        <div class="box-room-item-status">
+                            <img src="schedule.png">
+                        </div>
+                        <div class="box-room-item-button">
+                            <a>Взять ключ</a>
+                        </div>
                     </div>
-                    <div class="box-room-item-status">
-                        <img src="bron.png">
+                    <div class="box-room-item schedule">
+                        <div class="box-room-item-time">15:00 - 15:50</div>
+                        <div class="box-room-item-professor">
+                            <div class="box-name">Иванов И. И.</div>
+                            <div class="box-email">(ivanov_ivan@astanait.edu.kz)</div>
+                        </div>
+                        <div class="box-room-item-status">
+                            <img src="schedule.png">
+                        </div>
+                        <div class="box-room-item-button">
+                            <a>Взять ключ</a>
+                        </div>
                     </div>
-                    <div class="box-room-item-button">
-                        <a>Взять ключ</a>
+                    <div class="box-room-item schedule">
+                        <div class="box-room-item-time">16:00 - 16:50</div>
+                        <div class="box-room-item-professor">
+                            <div class="box-name">Иванов И. И.</div>
+                            <div class="box-email">(ivanov_ivan@astanait.edu.kz)</div>
+                        </div>
+                        <div class="box-room-item-status">
+                            <img src="schedule.png">
+                        </div>
+                        <div class="box-room-item-button">
+                            <a>Взять ключ</a>
+                        </div>
                     </div>
-                </div>
-                <div class="box-room-item schedule">
-                    <div class="box-room-item-time">12:00 - 12:50</div>
-                    <div class="box-room-item-professor">
-                        <div class="box-name">Иванов И. И.</div>
-                        <div class="box-email">(ivanov_ivan@astanait.edu.kz)</div>
+                    <div class="box-room-item schedule">
+                        <div class="box-room-item-time">17:00 - 17:50</div>
+                        <div class="box-room-item-professor">
+                            <div class="box-name">Иванов И. И.</div>
+                            <div class="box-email">(ivanov_ivan@astanait.edu.kz)</div>
+                        </div>
+                        <div class="box-room-item-status">
+                            <img src="schedule.png">
+                        </div>
+                        <div class="box-room-item-button">
+                            <a>Взять ключ</a>
+                        </div>
                     </div>
-                    <div class="box-room-item-status">
-                        <img src="schedule.png">
+                    <div class="box-room-item schedule">
+                        <div class="box-room-item-time">18:00 - 18:50</div>
+                        <div class="box-room-item-professor">
+                            <div class="box-name">Иванов И. И.</div>
+                            <div class="box-email">(ivanov_ivan@astanait.edu.kz)</div>
+                        </div>
+                        <div class="box-room-item-status">
+                            <img src="schedule.png">
+                        </div>
+                        <div class="box-room-item-button">
+                            <a>Взять ключ</a>
+                        </div>
                     </div>
-                    <div class="box-room-item-button">
-                        <a>Взять ключ</a>
+                    <div class="box-room-item schedule">
+                        <div class="box-room-item-time">19:00 - 19:50</div>
+                        <div class="box-room-item-professor">
+                            <div class="box-name">Иванов И. И.</div>
+                            <div class="box-email">(ivanov_ivan@astanait.edu.kz)</div>
+                        </div>
+                        <div class="box-room-item-status">
+                            <img src="schedule.png">
+                        </div>
+                        <div class="box-room-item-button">
+                            <a>Взять ключ</a>
+                        </div>
+                    </div>
+                    <div class="box-room-item schedule">
+                        <div class="box-room-item-time">20:00 - 20:50</div>
+                        <div class="box-room-item-professor">
+                            <div class="box-name">Иванов И. И.</div>
+                            <div class="box-email">(ivanov_ivan@astanait.edu.kz)</div>
+                        </div>
+                        <div class="box-room-item-status">
+                            <img src="schedule.png">
+                        </div>
+                        <div class="box-room-item-button">
+                            <a>Взять ключ</a>
+                        </div>
+                    </div>
+                    <div class="box-room-item schedule">
+                        <div class="box-room-item-time">21:00 - 21:50</div>
+                        <div class="box-room-item-professor">
+                            <div class="box-name">Иванов И. И.</div>
+                            <div class="box-email">(ivanov_ivan@astanait.edu.kz)</div>
+                        </div>
+                        <div class="box-room-item-status">
+                            <img src="schedule.png">
+                        </div>
+                        <div class="box-room-item-button">
+                            <a>Взять ключ</a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="box-buttons">
-            <a style="margin-right: 10px;">Назад</a>
-            <a>Далее</a>
+            <div class="notification-info">Для взятия ключа до начала пары должно быть не более 30 минут.</div>
+            <!-- <a style="margin-right: 10px;">Назад</a>
+            <a>Далее</a> -->
         </div>
     </div>
 </body>

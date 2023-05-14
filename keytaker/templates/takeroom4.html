@@ -1,17 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}Step 4 · Взять ключ{% endblock %}
 {% block content %}
-
-    {% if messages %}
-        {% for message in messages %}
-            <span class="badge bg-dark fs-6 mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="1em"
-                                                       height="1em" fill="currentColor" viewBox="0 0 16 16"
-                                                       class="bi bi-exclamation-circle-fill"
-                                                       style="padding-bottom: 0px;margin-bottom: 0px;margin-top: -4px;">
-                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"></path>
-                                </svg>&nbsp;{{ message }}</span>
-        {% endfor %}
-    {% endif %}
     <div class="container-fluid" style="padding-top: 20px;padding-bottom: 0px;">
         <div class="card shadow" style="padding-bottom: 0px;">
             <div class="card-header py-3"
@@ -24,11 +13,23 @@
             </div>
             <div class="card-body" style="padding-top: 9px;padding-bottom: 0px;">
                 <div class=" p-4 p-lg-5"
-                     style="margin-top: -18px;padding-top: 39px;padding-right: 60px;margin-right: -15px;padding-left: 29px;margin-left: -15px;padding-bottom: 20px;margin-bottom: -24px;">
+                     style="justify-content: center;display: grid ;margin-top: -18px;padding-top: 39px;padding-right: 60px;margin-right: -15px;padding-left: 29px;margin-left: -15px;padding-bottom: 20px;margin-bottom: -24px;">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <span class="badge bg-dark fs-6 mb-2" style="">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="1em"
+                                                                       height="1em" fill="currentColor"
+                                                                       viewBox="0 0 16 16"
+                                                                       class="bi bi-exclamation-circle-fill"
+                                                                       style="padding-bottom: 0px;margin-bottom: 0px;margin-top: -4px;">
+                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"></path>
+                                </svg>&nbsp;{{ message }}</span>
+                        {% endfor %}
+                    {% endif %}
                     <p class="text-center fw-bold text-dark mb-2" style="font-size: 25px;">Ввести данные вручную</p>
                     <div class="row d-flex justify-content-center">
-                        <div class="col-md-6 col-xl-4">
-                            <div class="card mb-5">
+                        <div class="">
+                            <div class="">
                                 <div class="card-body d-flex flex-column align-items-center">
                                     <div class="alert alert-warning hidden_step" role="alert"><span>
                         <strong>ФИО не может быть пустым.</strong></span>
@@ -65,7 +66,8 @@
                         </div>
                     </div>
                     <hr>
-                    <a href="{% url 'homeMain' %}" class="fw-bold mb-2" style="font-size: 15px;color: rgb(102,102,102);text-align: left;  text-decoration:none"><i
+                    <a href="{% url 'homeMain' %}" class="fw-bold mb-2"
+                       style="font-size: 15px;color: rgb(102,102,102);text-align: left;  text-decoration:none"><i
                             class="fas fa-reply-all"></i>&nbsp;Вернуться в главное меню</a>
                 </div>
             </div>

@@ -2,18 +2,27 @@
 {% block title %}Шаг 2 · Взять ключ{% endblock %}
 {% block content %}
     {% load static %}
+    <link href="https://fonts.googleapis.com/css?family=Rubik&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,300,400&display=swap">
+
     <style>
 
         .roomFilling {
-            fill: #4da2ff;
+            fill: #989898;
         }
 
         .roomFilling:hover {
-            fill: #2c74c4;
+            fill: #696767;
+            cursor: pointer;
         }
 
         .roomFilling.active {
-            fill: #1cb93f;
+            fill: #4665e5;
+            cursor: pointer;
+        }
+
+        .roomFilling.take {
+            fill: #317e0b;
         }
 
         .roomFilling.closed {
@@ -25,11 +34,359 @@
         }
 
         .roomFilling.unavailable {
-            fill: #989898;
+            fill: #494848;
         }
 
         .roomFilling.unavailable:hover {
-            fill: #696767;
+            fill: #626262;
+        }
+
+        .box-background {
+            scale: 0.9;
+            z-index: 10;
+            position: relative;
+            display: none;
+            width: 450px;
+            /* height: 573px; */
+            /*padding-bottom: 24px;*/
+            box-sizing: border-box;
+            background: #4D72DE;
+            /* background: #4da2ff; */
+            border: 1px solid rgba(0, 0, 0, 0.24);
+            border-radius: 20px 20px 20px 20px;
+        }
+
+        .box-header {
+            padding-top: 16px;
+            padding-left: 22px;
+            /* margin-bottom: 10px; */
+
+            width: 406px;
+            height: 83px;
+        }
+
+        .box-buttons {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .box-buttons a {
+            /* background: linear-gradient(0deg, #585858, #585858), #5277E2; */
+            border-radius: 5px;
+
+            font-family: 'Rubik';
+            font-style: normal;
+            font-weight: 400;
+            font-size: 13px;
+            line-height: 15px;
+            text-align: center;
+            letter-spacing: -0.05em;
+
+            padding: 3px 23px 3px 23px;
+
+            color: #FFFFFF !important;
+            border: 1px solid #FFFFFF;
+
+            transition: all 0.5s ease;
+        }
+
+        .box-buttons a:hover {
+            background: #FFFFFF;
+            color: #3b3b3b !important;
+
+            cursor: pointer;
+        }
+
+        .box-room-week {
+            font-family: 'Rubik';
+            font-style: normal;
+            font-weight: 400;
+            font-size: 13px;
+            line-height: 13px;
+            /* identical to box height */
+
+            letter-spacing: -0.05em;
+            text-decoration: underline;
+            padding-left: 22px;
+            padding-bottom: 5px;
+
+            color: rgba(255, 255, 255, 1);
+        }
+
+        .box-room-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .box-room-name {
+            z-index: 11;
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 500;
+            font-size: 22px;
+            line-height: 22px;
+            letter-spacing: -0.05em;
+
+            color: #FFFFFF;
+        }
+
+        .box-room-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #FFFFFF;
+            border-radius: 9px;
+            height: 15px;
+            padding: 9px 7px 9px 7px;
+
+            font-family: 'Rubik';
+            font-style: normal;
+            font-weight: 300;
+            font-size: 11px;
+            line-height: 11px;
+            letter-spacing: -0.05em;
+            color: #333333;
+        }
+
+        .box-room-id {
+            z-index: 11;
+            margin-left: auto;
+            /* margin-right: 5px;  */
+
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 300;
+            font-size: 12px;
+            line-height: 15px;
+            /* identical to box height */
+
+            letter-spacing: -0.05em;
+
+            color: rgba(0, 0, 0, 0.4);
+        }
+
+        .box-room-info {
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 300;
+            font-size: 14px;
+            line-height: 16px;
+            /* identical to box height */
+
+            margin-top: 3px;
+            letter-spacing: -0.05em;
+
+            color: #FFFFFF;
+        }
+
+        .box-room-status {
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 300;
+            font-size: 14px;
+            line-height: 16px;
+            margin-top: 3px;
+            letter-spacing: -0.05em;
+
+            color: #FFFFFF;
+        }
+
+        .box-room-items {
+            overflow-y: scroll;
+            overflow-x: hidden;
+            height: 300px;
+            display: grid;
+            justify-content: center;
+        }
+
+        .box-room-items::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .box-room-items::-webkit-scrollbar-track {
+            background-color: #4D72DE;
+            /* цвет фона скролл-элемента */
+        }
+
+        .box-room-items::-webkit-scrollbar-thumb {
+            background-color: #a5b1d4;
+            /* цвет полосы прокрутки */
+            border-radius: 10px;
+            /* скругление углов полосы прокрутки */
+        }
+
+        .box-room-item {
+            display: flex;
+            align-items: center;
+            width: 425px;
+            height: 49px;
+            margin-top: 7px;
+            padding-left: 11px;
+
+            border-radius: 5px;
+        }
+
+        .box-room-item.inactive .box-room-item-button a:hover {
+            background: rgba(0, 0, 0, 0.3);
+            cursor: default;
+        }
+
+        .box-room-item.schedule .box-room-item-button a:hover {
+            background: rgba(0, 0, 0, 0.3);
+            cursor: default;
+        }
+
+        .box-room-item.inactive {
+            opacity: 0.5;
+            background: #5B636B;
+        }
+
+        .box-room-item.busy {
+            /* background: #DC4737; */
+            background: #6F6F6F;
+        }
+
+        .box-room-item.free {
+            /* background: #5277E2; */
+            background: #53AC51;
+        }
+
+        .box-room-item.schedule {
+            /* background: #f18a2b; */
+            background: #D15149;
+        }
+
+        .box-room-item-time {
+            flex: 1.5;
+
+            font-family: 'Rubik';
+            font-style: normal;
+            font-weight: 400;
+            font-size: 12px;
+            line-height: 15px;
+            letter-spacing: -0.05em;
+
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .box-room-item-professor {
+            flex: 2;
+        }
+
+        .box-room-item-status {
+            flex: 0.6;
+            display: grid;
+            align-items: center;
+        }
+
+        .box-room-item-status img {
+            pointer-events: none;
+            width: 25px;
+            height: 25px;
+
+            opacity: 0.4;
+        }
+
+        .box-room-item-button {
+            flex: 1.6;
+        }
+
+        .box-room-item-button a {
+
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+
+            font-family: 'Rubik';
+            font-style: normal;
+            font-weight: 400;
+            font-size: 12px;
+            line-height: 13px;
+            /* identical to box height */
+
+            padding: 5px 12px 5px 12px;
+
+            letter-spacing: -0.05em;
+
+            color: rgba(255, 255, 255, 0.8) !important;
+
+            transition: all 0.2s ease;
+        }
+
+        .box-room-item-button a:hover {
+            background: rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+
+        .box-room-item-professor .box-name {
+            font-family: 'Rubik';
+            font-style: normal;
+            font-weight: 400;
+            font-size: 14px;
+            line-height: 16px;
+            letter-spacing: -0.05em;
+
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .box-room-item-professor .box-email {
+            font-family: 'Rubik';
+            font-style: normal;
+            font-weight: 400;
+            font-size: 10px;
+            line-height: 12px;
+            margin-top: 3px;
+
+            /* identical to box height */
+
+            letter-spacing: -0.05em;
+
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .notification-info {
+            color: rgb(255, 255, 255);
+            font-size: 13px;
+            padding: 0px 10px 0px 10px;
+        }
+
+        .box-tail {
+            position: relative;
+        }
+
+        .confirm-booking {
+            gap: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .confirm-booking a {
+            text-decoration: none;
+        }
+
+        #loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 10;
+            border-radius: 20px;
+            display: none;
+        }
+
+        #loading-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 20px;
         }
     </style>
 
@@ -44,67 +401,117 @@
             </div>
         {% endfor %}
     {% endif %}
+    <div id="content" style="position: relative">
+        <div class="container-fluid" style="padding-top: 20px;padding-bottom: 0px;">
 
-    <div class="container-fluid" style="padding-top: 20px;padding-bottom: 0px;">
-        <div class="card shadow" style="padding-bottom: 0px;">
-            <div class="card-header py-3"
-                 style="padding-top: 14px;margin-top: -7px;padding-bottom: 7px;margin-bottom: -16px;">
-                <p class="text-primary m-0 fw-bold"><span
-                        style="background-color: rgb(255, 255, 255);">Шаг 2</span><span
-                        style="background-color: rgba(248, 249, 252, 0);">&nbsp;</span><span
-                        style="color: rgb(82, 119, 226); background-color: rgba(248, 249, 252, 0);">·</span><span
-                        style="font-weight: normal !important; color: rgb(82, 119, 226); background-color: rgba(248, 249, 252, 0);"> Взять ключ</span>
-                </p>
-            </div>
-            <div class="card-body" style="padding-top: 9px;padding-bottom: 0px;">
-                <div class="text-center p-4 p-lg-5"
-                     style="margin-top: -18px;padding-top: 39px;padding-right: 60px;margin-right: -15px;padding-left: 29px;margin-left: -15px;padding-bottom: 20px;margin-bottom: -39px;">
-                    <p class="fw-bold text-dark mb-2" style="font-size: 25px;">Выберите кабинет</p>
-                    <p class="fw-bold mb-2" style="font-size: 15px;text-align: right;color: rgb(78,78,78);">Поиск
-                        комнаты:&nbsp;
-                        <select id="selectroom" class="js-select2" name="room" placeholder="Выберите кабинет"
-                                style="border-radius: 10px; width: 150px; text-align: left">
-                            {% for room in rooms_obj %}
-                                {% if room.is_visible and not room.is_occupied %}
-                                    <option value="{{ room.map_id }}">{{ room.name }}</option>
-                                {% endif %}
-                            {% endfor %}
-                        </select>
-                    </p>
-                    <p class="fw-bold mb-2" style="font-size: 15px;text-align: right;color: rgb(78,78,78);">&nbsp;Этаж:&nbsp;
-                        <select id="floorSelect"
-                                class="form-select-sm" style="color: rgb(78,78,78);border-radius: 5px;font-size: 15px;">
-                            <optgroup label="Этажи:">
-                                <option value="1" selected="">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                            </optgroup>
-                        </select></p>
-
-                    <div id="box1" style="text-align:center;width:100%;height: 100%;">
-
-                        <div id="InfoTable" class="card"
-                             style="display: none; text-align: left; width: 300px;border-radius: 20px;border-bottom-left-radius: 0px;padding-top: 10px;padding-right: 0px;border-top-left-radius: 20px;border-top-right-radius: 20px;border-bottom-right-radius: 20px;height: auto;padding-bottom: 8px;padding-left: 8px;border-width: 2px;">
-                            <h4 id="InfoTableRoom" class="fw-bold"
-                                style="font-size: 15px;color: rgb(255,255,255);margin-bottom: 0px;">
-                                C1.2.240K
-                                <span id="InfoRole">
-                                    <span class="badge bg-secondary"
-                                          style="font-weight: normal !important; font-size: 9px;padding-bottom: 2px;margin-bottom: 0px;margin-right: 2px;">Personal</span>
-                                    <span class="badge bg-secondary"
-                                          style="font-weight: normal !important; font-size: 9px;padding-bottom: 2px;margin-bottom: 0px;margin-right: 2px;">Personal</span>
-                                </span>
-                            </h4>
-                            <p id="InfoTableDescr" class="fw-light"
-                               style="font-size: 10px;margin-bottom: 0px;color: rgb(255,255,255);">
-                                Компьютерный кабинет</p>
-                            <p id="idRoomTable" class="fw-light"
-                               style="font-size: 10px;margin-bottom: 0px;color: rgba(0,0,0,0.67);position: absolute;top: 5px;right: 10px;">
-                                _2.240K</p>
-                            <p id="InfoTableAddit" class="fw-light"
-                               style="font-size: 11px;color: rgb(255,255,255);margin-bottom: -1px;">
-                                ЗАНЯТО пользователем Alexey Fedenko</p>
+            <div class="box-background" id="content-table">
+                <div id="loading-overlay">
+                    <div id="loading-text">Loading...</div>
+                </div>
+                <div class="box-header">
+                    <div class="box-room-header">
+                        <div class="box-room-name">C1.2.121K</div>
+                        <div class="box-room-badge">Professor</div>
+                        <div class="box-room-badge">Personal</div>
+                        <div class="box-room-badge">Student</div>
+                        <div class="box-room-badge">All</div>
+                        <div class="box-room-id">_2.121K</div>
+                    </div>
+                    <div class="box-room-info">Компьютерный кабинет</div>
+                    <div class="box-room-status">Статус: ключ взял Иванов И. И.</div>
+                </div>
+                <div>
+                    <div class="box-room-week">Понедельник</div>
+                    <div class="box-tail">
+                        <div class="box-room-items">
+                            <div class="box-room-item inactive">
+                                <div class="box-room-item-time">8:00 - 8:50</div>
+                                <div class="box-room-item-professor">
+                                    <div class="box-name">Иванов И. И.</div>
+                                    <div class="box-email">(ivanov_ivan@astanait.edu.kz)</div>
+                                </div>
+                                <div class="box-room-item-status">
+                                    <img src="{% static 'img/schedule.png' %}">
+                                </div>
+                                <div class="box-room-item-button">
+                                    <a>Ключ вернул</a>
+                                </div>
+                            </div>
+                            <div class="box-room-item inactive">
+                                <div class="box-room-item-time">9:00 - 9:50</div>
+                                <div class="box-room-item-professor">
+                                    <div class="box-name">Иванов И. И.</div>
+                                    <div class="box-email">(ivanov_ivan@astanait.edu.kz)</div>
+                                </div>
+                                <div class="box-room-item-status">
+                                    <img src="{% static 'img/schedule.png' %}">
+                                </div>
+                                <div class="box-room-item-button">
+                                    <a>Идёт занятие</a>
+                                </div>
+                            </div>
+                            <div class="box-room-item free">
+                                <div class="box-room-item-time">10:00 - 10:50</div>
+                                <div class="box-room-item-professor">
+                                    <div class="box-name">СВОБОДНО</div>
+                                </div>
+                                <div class="box-room-item-status">
+                                    <img src="{% static 'img/free.png' %}">
+                                </div>
+                                <div class="box-room-item-button">
+                                    <a>Занять</a>
+                                </div>
+                            </div>
                         </div>
+                    </div>
+                </div>
+                <div class="box-buttons">
+                    <div class="notification-info">Для взятия ключа до начала пары должно быть не более 30
+                        минут.
+                    </div>
+                    <div class="confirm-booking">
+                        <p style="color: #f7f7f7; margin-top: 0; margin-bottom: 0;" id="confirmBookingTime">
+                            Забронировать кабинет c 08:00 до 08:50</p>
+                        <a id="confirmBookingButton">Далее</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow" style="padding-bottom: 0px;">
+                <div class="card-header py-3"
+                     style="padding-top: 14px;margin-top: -7px;padding-bottom: 7px;margin-bottom: -16px;">
+                    <p class="text-primary m-0 fw-bold"><span
+                            style="background-color: rgb(255, 255, 255);">Шаг 2</span><span
+                            style="background-color: rgba(248, 249, 252, 0);">&nbsp;</span><span
+                            style="color: rgb(82, 119, 226); background-color: rgba(248, 249, 252, 0);">·</span><span
+                            style="font-weight: normal !important; color: rgb(82, 119, 226); background-color: rgba(248, 249, 252, 0);"> Взять ключ</span>
+                    </p>
+                </div>
+                <div class="card-body" style="padding-top: 9px;padding-bottom: 0px;">
+                    <div class="text-center p-4 p-lg-5"
+                         style="margin-top: -18px;padding-top: 39px;padding-right: 60px;margin-right: -15px;padding-left: 29px;margin-left: -15px;padding-bottom: 20px;margin-bottom: -39px;">
+                        <p class="fw-bold text-dark mb-2" style="font-size: 25px;">Выберите кабинет</p>
+                        <p class="fw-bold mb-2" style="font-size: 15px;text-align: right;color: rgb(78,78,78);">Поиск
+                            комнаты:&nbsp;
+                            <select id="selectroom" class="js-select2" name="room" placeholder="Выберите кабинет"
+                                    style="border-radius: 10px; width: 150px; text-align: left">
+                                {% for room in rooms_obj %}
+                                    {% if room.is_visible and not room.is_occupied %}
+                                        <option value="{{ room.map_id }}">{{ room.name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <p class="fw-bold mb-2" style="font-size: 15px;text-align: right;color: rgb(78,78,78);">&nbsp;Этаж:&nbsp;
+                            <select id="floorSelect"
+                                    class="form-select-sm"
+                                    style="color: rgb(78,78,78);border-radius: 5px;font-size: 15px;">
+                                <optgroup label="Этажи:">
+                                    <option value="1" selected="">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                </optgroup>
+                            </select></p>
 
                         <div id="Tablecontainer">
                             {% include 'MapFirstFloor.html' %}
@@ -112,58 +519,357 @@
                             {% include 'MapThirdFloor.html' %}
                         </div>
 
+                        <p class="fw-light text-black-50 mb-2"
+                           style="font-size: 15px;text-align: right;color: rgb(78,78,78);">Map source: <a
+                                href="https://yuujiso.github.io/aitumap/">github</a></p>
+                        <h5 class="fw-bold mb-4" style="color: rgb(60,61,64);font-size: 20px;">Выбранный кабинет: <span
+                                id="chosedroom_confirm" class="hidden_step"></span>&nbsp;
+                            &nbsp;&nbsp;
+                            <form method="post">
+                                {% csrf_token %}
+                                {% for field in form %}
+                                    <div style="display: none">
+                                        {{ field }}
+                                    </div>
+                                {% endfor %}
+                                <button id="btn_step2a"
+                                        class="btn btn-outline-primary border border-primary me-2 py-2 px-4"
+                                        type="submit"
+                                        style="border-radius: 10px; padding-left: 20px;padding-top: 5px;padding-right: 17px;margin-right: -2px;margin-bottom: 7px;">
+                                    Далее
+                                </button>
+                            </form>
+                        </h5>
+                        <hr>
+                        <a href="{% url 'homeMain' %}" class="fw-bold mb-2"
+                           style="font-size: 15px;color: rgb(102,102,102);text-align: left; text-decoration:none">
+                            <i class="fas fa-reply-all"></i>&nbsp;Вернуться в главное меню</a>
                     </div>
-
-                    <p class="fw-light text-black-50 mb-2"
-                       style="font-size: 15px;text-align: right;color: rgb(78,78,78);">Map source: <a
-                            href="https://yuujiso.github.io/aitumap/">github</a></p>
-                    <h5 class="fw-bold mb-4" style="color: rgb(60,61,64);font-size: 20px;">Выбранный кабинет: <span
-                            id="chosedroom_confirm" class="hidden_step"></span>&nbsp;
-                        &nbsp;&nbsp;
-                        <form method="post">
-                            {% csrf_token %}
-                            {% for field in form %}
-                                <div style="display: none">
-                                    {{ field }}
-                                </div>
-                            {% endfor %}
-                            <button id="btn_step2a"
-                                    class="btn btn-outline-primary border rounded-pill border-primary me-2 py-2 px-4"
-                                    type="submit"
-                                    style="padding-left: 20px;padding-top: 5px;padding-right: 17px;margin-right: -2px;margin-bottom: 7px;">
-                                Далее
-                            </button>
-                        </form>
-                    </h5>
-                    <hr>
-                    <a href="{% url 'homeMain' %}" class="fw-bold mb-2"
-                       style="font-size: 15px;color: rgb(102,102,102);text-align: left; text-decoration:none">
-                        <i class="fas fa-reply-all"></i>&nbsp;Вернуться в главное меню</a>
                 </div>
             </div>
         </div>
     </div>
-    <script src="{% static 'js/takeroom2.js' %}"></script>
+    {#    <script src="{% static 'js/takeroom2.js' %}"></script>#}
     <script>
+        $('#btn_step2a').prop('disabled', true);
+
+        let elementsRoom = document.querySelectorAll('.roomFilling');
+        let lastClickedRoom = elementsRoom[0];
+
         $(document).ready(function () {
 
-            {% for room in rooms_obj %}
-                elem = document.getElementById("{{ room.map_id }}")
-                if (elem) {
-                    {% if not room.is_visible %}
-                        elem.classList.add('unavailable');
-                    {% elif room.is_occupied %}
-                        elem.classList.add('closed');
-                    {% endif %}
-                    elem.classList.add('dbExist');
-                }
-            {% endfor %}
+            $('.js-select2').select2({
+                placeholder: "Выберите кабинет",
+                maximumSelectionLength: 2,
+                language: "en"
+            });
 
-            for (let i = 0; i < elementsRoom.length; i++) {
-                if (!elementsRoom[i].classList.contains('dbExist')) {
-                    elementsRoom[i].classList.add('unavailable');
+            // выбираем на карте по умолчанию первый элемент доступный из списка
+
+
+            $('#selectroom').change(function () {
+                var value = $(this).val();
+                console.log(value)
+                mapElem = document.getElementById(value);
+
+                document.getElementById('content-table').style.display = 'none';
+                if (mapElem) {
+                    lastClickedRoom.classList.remove('take');
+                    mapElem.classList.add('take');
+                    lastClickedRoom = mapElem;
                 }
+                var selectedOption = $(this).find(':selected');
+                document.getElementById('chosedroom_confirm').innerHTML = selectedOption.text();
+                document.getElementById('chosedroom_confirm').classList.remove('hidden_step');
+                document.getElementById('id_room').value = selectedOption.text();
+                $('#btn_step2a').prop('disabled', false);
+            });
+
+        });
+
+        const svg1 = document.getElementById('firstFloor');
+        const svg2 = document.getElementById('secondFloor');
+        const svg3 = document.getElementById('thirdFloor');
+        const select = document.getElementById('floorSelect');
+
+        select.addEventListener('change', () => {
+            let floor = '1';
+            document.getElementById('content-table').style.display = 'none';
+            if (select.value === '1') {
+                floor = '1';
+                svg1.style.display = 'block';
+                svg2.style.display = 'none';
+                svg3.style.display = 'none';
+            } else if (select.value === '2') {
+                floor = '2';
+                svg1.style.display = 'none';
+                svg2.style.display = 'block';
+                svg3.style.display = 'none';
+            } else if (select.value === '3') {
+                floor = '3';
+                svg1.style.display = 'none';
+                svg2.style.display = 'none';
+                svg3.style.display = 'block';
             }
+            updateMap(floor);
+        });
+
+        function updateMap(floor) {
+            $.ajax({
+                url: `${location.protocol}//${location.host}/api/get_rooms_status/${floor}/`,
+                dataType: 'json',
+                success: function (data) {
+                    console.log(data.rooms_status_list)
+                    for (let i = 0; i < data.rooms_status_list.length; i++) {
+                        elem = document.getElementById(data.rooms_status_list[i].map_id)
+                        if (elem) {
+                            if (data.rooms_status_list[i].status === 'not_visible') {
+                                elem.classList.add('unavailable');
+                            } else if (data.rooms_status_list[i].status === 'free') {
+                                elem.classList.add('active');
+                            } else if (data.rooms_status_list[i].status === 'occupied') {
+                                elem.classList.add('closed');
+                            }
+                        }
+                    }
+                }
+            })
+        }
+
+        $(document).ready(function () {
+            updateMap(1);
         })
+
+        const StyleTop = 60;
+        const StyleLeft = 10;
+
+        for (let i = 0; i < elementsRoom.length; i++) {
+            // show table with info about room when user click on this room on Map.
+            elementsRoom[i].addEventListener('click', function (event) {
+                // display table in place, where user clicked
+                const contentTable = document.getElementById('content-table')
+                contentTable.style.display = 'block';
+                contentTable.style.position = 'absolute';
+
+                var container = document.getElementById('content')
+                var containerRect = container.getBoundingClientRect(); // get the container's position and size
+
+                contentTable.style.top = (event.clientY - containerRect.top - StyleTop) + 'px'; // set the top position relative to the container
+                contentTable.style.left = (event.clientX - containerRect.left - StyleLeft) + 'px'; // set the left position relative to the container
+
+                // show loading overlay and loading texts
+                const roomMapId = elementsRoom[i].id;
+                LoadingOverlay(elementsRoom[i])
+                // get all data from DB
+                //console.log(`${location.protocol}//${location.host}/api/get-room-schedule/${elementsRoom[i].id}/`)
+                $.ajax({
+                    url: `${location.protocol}//${location.host}/api/get-room-schedule/${roomMapId}/`,
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.error) {
+                            document.getElementById('loading-text').textContent = data.error;
+                            document.getElementById('content-table').style.background = '#656565';
+                            console.log(data.error)
+                        } else {
+                            // display data on table
+                            console.log(data)
+                            document.querySelector('.box-room-name').textContent = data.room.name;
+                            document.querySelector('.box-room-info').textContent = data.room.description;
+                            addRoomBadges(data.room.role);
+                            if (data.room.is_occupied) {
+                                document.querySelector('.box-room-status').textContent = `Статус: ключ взял(-а) ${data.room.user_fullname}`
+                            } else {
+
+                                mapElem = document.getElementById(roomMapId);
+                                if (mapElem) {
+                                    lastClickedRoom.classList.remove('take');
+                                    mapElem.classList.add('take');
+                                    lastClickedRoom = mapElem;
+                                }
+
+                                $('#btn_step2a').prop('disabled', false);
+                                $('#selectroom').val(roomMapId);
+                                $('#selectroom').select2();
+                                document.getElementById('chosedroom_confirm').innerHTML = data.room.name;
+                                document.getElementById('chosedroom_confirm').classList.remove('hidden_step');
+                document.getElementById('id_room').value = data.room.name;
+                                document.querySelector('.box-room-status').textContent = 'Статус: ключ у охраны'
+                            }
+
+                            if (data.room.is_study_room && data.room.is_visible) {
+                                document.getElementById('content-table').style.background = '#4D72DE';
+                                document.querySelector('.box-room-items').style.height = '300px';
+                                document.querySelector('.box-room-week').textContent = `${currentDayOfWeek}:`;
+                                addRoomItems(data.schedule, data.room)
+                            } else {
+                                if (!data.room.is_visible) {
+                                    document.querySelector('.box-room-status').textContent = 'Статус: комната отключена в настройках'
+                                    document.getElementById('content-table').style.background = '#383838';
+                                } else if (data.room.is_occupied) {
+                                    document.getElementById('content-table').style.background = '#C73B3BFF';
+                                } else if (!data.room.is_occupied) {
+                                    document.getElementById('content-table').style.background = '#4D72DE';
+                                }
+                            }
+
+                            document.getElementById('loading-overlay').style.display = 'none';
+                        }
+                    }
+                })
+            })
+        }
+
+        // hide the table when user using right-click
+        window.addEventListener('contextmenu', function (event) {
+            document.getElementById('content-table').style.display = 'none';
+        })
+
+        let today = new Date();
+        let weekday = new Array(7);
+        weekday[0] = "Воскресенье";
+        weekday[1] = "Понедельник";
+        weekday[2] = "Вторник";
+        weekday[3] = "Среда";
+        weekday[4] = "Четверг";
+        weekday[5] = "Пятница";
+        weekday[6] = "Суббота";
+
+        let currentDayOfWeek = weekday[today.getDay()];
+
+        function LoadingOverlay(elementRoom) {
+            document.querySelector('.confirm-booking').style.display = 'none';
+            document.getElementById('loading-text').textContent = 'Loading...';
+            document.getElementById('loading-overlay').style.display = 'block';
+            document.querySelector('.box-room-name').textContent = elementRoom.id;
+            document.querySelector('.box-room-id').textContent = elementRoom.id;
+            document.querySelector('.box-room-info').textContent = 'Loading...';
+            document.querySelector('.box-room-status').textContent = 'Статус: Loading...';
+            document.querySelector('.notification-info').textContent = ' '
+
+            document.querySelector('.box-room-week').textContent = ` `;
+            clearRoomBadges()
+            //addRoomBadges(badges = ['one', 'two'])
+            clearRoomItems();
+        }
+
+        function clearRoomBadges() {
+            $('.box-room-header').find('.box-room-badge').remove();
+        }
+
+        function addRoomBadges(badges) {
+            let nameElem = $('.box-room-name');
+            let idElem = $('.box-room-id');
+            for (let i = 0; i < badges.length; i++) {
+                let badge = $('<div>', {class: 'box-room-badge', text: badges[i]});
+                badge.insertBefore(idElem);
+            }
+        }
+
+        function clearRoomItems() {
+            $('.box-room-items').empty();
+            document.querySelector('.box-room-items').style.height = '0px';
+        }
+
+        function addRoomItems(items, room) {
+            console.log(items)
+            let roomItems = $('.box-room-items');
+            for (let i = 0; i < items.length; i++) {
+
+                let itemClass = 'box-room-item';  // добавляем переменную для класса элемента
+                let statusImgElem;
+                let button;
+
+                console.log(items[i].status)
+
+                // Проверяем, больше ли текущее время на 60 минут, чем items[i].start_time
+                let currentTime = new Date();
+                let startTimeParts = items[i].start_time.split(':');
+                let startDateTime = new Date();
+                startDateTime.setHours(startTimeParts[0]);
+                startDateTime.setMinutes(startTimeParts[1]);
+
+                // Устанавливаем время startDateTime на текущую дату, чтобы сравнение происходило только по времени
+
+                startDateTime.setFullYear(currentTime.getFullYear());
+                startDateTime.setMonth(currentTime.getMonth());
+                startDateTime.setDate(currentTime.getDate());
+
+                let timeDifference = startDateTime.getTime() - currentTime.getTime();
+                const MINUTES_IN_MILLISECONDS = 60 * 1000;
+                let isInactive = timeDifference < -60 * MINUTES_IN_MILLISECONDS; // Больше ли разница во времени, чем 60 минут
+
+                if (items[i].status === 'inactive' || isInactive) {
+                    statusImgElem = '';
+                    itemClass += ' inactive';
+                    button = $('<a>', {text: 'Завершено'})
+                } else if (items[i].status === 'lesson') {
+                    statusImgElem = $('<img>', {src: '{% static "img/schedule.png" %}'});
+                    itemClass += ' schedule';
+                    button = $('<a>', {text: 'Занято'})
+                } else if (items[i].status === 'free') {
+                    statusImgElem = $('<img>', {src: '{% static "img/free.png" %}'});
+                    itemClass += ' free';
+                    button = $('<a>', {
+                        text: 'Забронировать',
+                        onclick: `ConfirmBooking("${room.name}", "${items[i].start_time}", "${items[i].end_time}")`
+                    })
+                } else if (items[i].status === 'reserved') {
+                    statusImgElem = $('<img>', {src: '{% static "img/bron.png" %}'});
+                    itemClass += ' schedule';
+                    button = $('<a>', {text: 'Занято'})
+                } else if (items[i].status === 'busy') {
+                    statusImgElem = '';
+                    itemClass += ' inactive';
+                    button = $('<a>', {text: 'Идёт занятие'})
+                }
+
+                let item = $('<div>', {class: itemClass});
+                let itemTime = $('<div>', {
+                    class: 'box-room-item-time',
+                    text: `${items[i].start_time} - ${items[i].end_time}`
+                });
+                let itemProfessor = $('<div>', {class: 'box-room-item-professor'});
+                let professorNameElem;
+                let professorEmailElem;
+                if (items[i].professor) {
+                    professorNameElem = $('<div>', {class: 'box-name', text: items[i].professor.name});
+                    professorEmailElem = $('<div>', {class: 'box-email', text: items[i].professor.email});
+                } else {
+                    professorNameElem = $('<div>', {class: 'box-name', text: 'СВОБОДНО'});
+                    professorEmailElem = '';
+                }
+                let itemStatus = $('<div>', {class: 'box-room-item-status'});
+                let itemButton = $('<div>', {class: 'box-room-item-button'});
+
+                itemProfessor.append(professorNameElem, professorEmailElem);
+                itemStatus.append(statusImgElem);
+                itemButton.append(button);
+
+                item.append(itemTime, itemProfessor, itemStatus, itemButton);
+                roomItems.append(item);
+            }
+        }
+
+        function ConfirmBooking(roomName, startTime, endTime) {
+            document.querySelector('.notification-info').textContent = '';
+            $.ajax({
+                url: `${location.protocol}//${location.host}/api/create-reservation/${roomName}/${startTime}/0/`,
+                dataType: 'json',
+                success: function (data) {
+                    console.log(data)
+                    if (data.error) {
+                        document.querySelector('.confirm-booking').style.display = 'none';
+                        document.querySelector('.notification-info').textContent = data.error;
+                    } else {
+                        document.querySelector('.confirm-booking').style.display = 'flex';
+                        document.getElementById('confirmBookingTime').textContent = `Забронировать кабинет c ${startTime} до ${endTime}`
+                        document.getElementById('confirmBookingButton').href = `${location.protocol}//${location.host}/main/confirm-booking/${data.reservation}/`
+                    }
+                },
+                error: function (data) {
+                    console.log(data)
+                }
+            })
+        }
     </script>
 {% endblock %}

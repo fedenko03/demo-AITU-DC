@@ -42,33 +42,8 @@ select.addEventListener('change', () => {
         },
         dataType: 'json',
         success: function (data) {
-            //console.log(data)
-            //console.log(data.rooms_list.length)
             for (let i = 0; i < data.rooms_list.length; i++) {
                 fillTableRooms(data.rooms_list[i])
-                //console.log(data.rooms_list[i].map_id)
-                let elem1 = document.getElementById(data.rooms_list[i].map_id)
-                //console.log("\n\n\nELEM: ")
-                //console.log(elem1)
-
-                if (elem1) {
-                    if (!data.rooms_list[i].is_visible) {
-                        //console.log("is not vis " + !data.rooms_list[i].is_visible)
-                        elem1.classList.add('unavailable');
-                    } else if (data.rooms_list[i].is_occupied) {
-                        //console.log("is occ " + data.rooms_list[i].is_occupied)
-                        elem1.classList.add('closed');
-                    }
-                    elem1.classList.add('dbExist');
-                    //console.log("ELEM: ")
-                    //console.log(elem1)
-                }
-            }
-            let elementsRoom1 = document.querySelectorAll('.roomFilling');
-            for (let i = 0; i < elementsRoom1.length; i++) {
-                if (!elementsRoom1[i].classList.contains('dbExist')) {
-                    elementsRoom1[i].classList.add('unavailable');
-                }
             }
         }
     });

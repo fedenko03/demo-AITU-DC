@@ -102,3 +102,24 @@ class WSGetUser(AsyncWebsocketConsumer):
                 'role': role,
                 'is_return': is_return
             }))
+
+
+class WSUpdateBookingStatus(AsyncWebsocketConsumer):
+    consumers = []
+
+    async def connect(self):
+        await self.accept()
+        self.consumers.append(self)
+        print("WebSocket connected")
+
+    async def disconnect(self, close_code):
+        self.consumers.remove(self)
+        print("WebSocket disconnected")
+
+    async def receive(self, text_data=None, bytes_data=None):
+        if text_data:
+            text_data_json = json.loads(text_data)
+            status = text_data_json['status']
+            await self.send(text_data=json.dumps({
+                'status': status
+            }))

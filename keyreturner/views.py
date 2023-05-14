@@ -58,8 +58,10 @@ def keyreturnerMain(request):
     settings_obj.user = None
     settings_obj.token_timestamp = timezone.now()
     settings_obj.save()
+    print(settings_obj.token)
     link_confirm = "http://" + request.get_host() + "/key_return_get_user/token=" + settings_obj.token
     img = qrcode.make(link_confirm)
+    img.save("media/returnerQR.png")
 
     # blob_bytes = io.BytesIO()
     # img.save(blob_bytes, format='PNG')

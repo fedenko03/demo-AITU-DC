@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% block title %}Забронировать кабинет{% endblock %}
+{% block content %}
+    {% load static %}
+
+    <style>
+
+        #loading-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 195px;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            display: none;
+        }
+
+        .qr-content {
+            filter: blur(0px);
+        }
+
+        .loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+        }
+
+        .loading-spinner::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spinner 0.8s linear infinite;
+        }
+
+        @keyframes spinner {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+    </style>
+
+    <div class="container-fluid" style="margin-top: 10px">
+        <div class="card shadow mb-5">
+            <div class="card-header py-3" style="padding-bottom: 10px;">
+                <p class="text-primary m-0 fw-bold">{{ room }} · <span
+                        style="font-weight: normal !important;">Забронировать кабинет</span></p>
+            </div>
+            <div class="card-body" id="card-body">
+                {#                    <p class="text-center fw-bold text-dark mb-2" style="font-size: 25px;">Подтвердите действие</p>#}
+                <div class="row gy-4 gx-md-0 gy-md-0 row-cols-1 row-cols-md-2 row-cols-xl-3 d-md-flex d-xl-flex align-items-md-center">
+                    <div class="col offset-xl-2">
+                        <div style="position: relative; display: flex; justify-content: center;">
+                            <div id="loading-overlay">
+                                <div class="loading-spinner"></div>
+                            </div>
+                            <img class="qr-content" src="{{ media_url }}bookingQR.png" style="width: 195px;"
+                                 height="auto" width="100%">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div>
+                            <h4 style="color: rgb(55,55,55);font-size: 20px;">Отсканируйте QR код</h4>
+                            <p style="font-size: 13px;">Кабинет: {{ room }}<br>Время: {{ start_time }}</p>
+                            <p style="font-size: 13px;">Время действия QR кода - <b>5 минут.</b>
+                                <br>Взять ключ можно только если до начала занятия осталось <b>менее 30 минут</b> и ключ
+                                находится <b>у охраны.</b>
+                                <br><br>Перед подтверждением заявки через QR код необходимо войти в аккаунт.
+                            </p>
+                        </div>
+                        <div class="form-check" id="form-check">
+                            <input class="form-check-input" type="checkbox" id="takeKey" {% if is_take %}
+                                   checked {% endif %}>
+                            <label class="form-check-label" for="takeKey">Взять ключ</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-xl-flex justify-content-xl-center align-items-xl-end"></div>
+                <hr>
+                <a href="{% url 'homeMain' %}" class="fw-bold mb-2"
+                   style="font-size: 15px;color: rgb(102,102,102);text-align: left; text-decoration:none">
+                    <i class="fas fa-reply-all"></i>&nbsp;Вернуться в главное меню</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var start_time = '{{ start_time }}'
+        var url = window.location.href;
+        var parts = url.split('/');
+        var ws_key = parts[parts.length - 2];
+
+        var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+        var socket = new WebSocket(ws_scheme + "://" + window.location.host + "/ws/update_booking_status/");
+        socket.onmessage = function (e) {
+            var data = JSON.parse(e.data);
+            console.log(data)
+            if (data && data.length > 0 && data[0].key === ws_key) {
+                if (data[0].status === 'error') {
+                    document.getElementById('card-body').innerHTML = `<div class="card-body" style="padding-top: 25px;padding-bottom: 0px;">
+                <div class="text-center p-4 p-lg-5" style="margin-top: -18px;padding-top: 39px;padding-right: 60px;margin-right: -15px;padding-left: 29px;margin-left: -15px;padding-bottom: 20px;margin-bottom: -24px;">
+
+                        <div>
+                            <div class="row mb-2">
+                                <div class="col-md-8 col-xl-6 text-center mx-auto">
+                                    <h2 class="display-6 fw-bold text-danger" style="font-size: 40px;"><i class="far fa-check-circle"></i>&nbsp;Ошибка!</h2>
+                                    <p class="text-muted" style="font-size: 20px;margin-bottom: 10px;">Не удалось забронировать кабинет. Попробуйте снова  (${start_time}).</p>
+                                </div>
+                            </div>
+
+                            <a href="/keytaker/st2/" class="btn btn-outline-primary text-center border border-primary me-2 py-2 px-4" type="button" style="border-radius: 10px; padding-left: 20px;padding-top: 5px;padding-right: 17px;margin-right: -2px;margin-bottom: 7px;">На
+                                главную</a>
+                            <hr>
+                        </div>
+
+                </div>
+            </div>`
+                    console.log('error')
+                } else if (data[0].status === 'success') {
+                    document.getElementById('card-body').innerHTML = `<div class="card-body" style="padding-top: 25px;padding-bottom: 0px;">
+                <div class="text-center p-4 p-lg-5" style="margin-top: -18px;padding-top: 39px;padding-right: 60px;margin-right: -15px;padding-left: 29px;margin-left: -15px;padding-bottom: 20px;margin-bottom: -24px;">
+
+                        <div>
+                            <div class="row mb-2">
+                                <div class="col-md-8 col-xl-6 text-center mx-auto">
+                                    <h2 class="display-6 fw-bold text-success" style="font-size: 40px;"><i class="far fa-check-circle"></i>&nbsp;Успешно!</h2>
+                                    <p class="text-muted" style="font-size: 20px;margin-bottom: 10px;">Заявка на бронирование кабинета подтверждена (${start_time}).</p>
+                                </div>
+                            </div>
+
+                            <a href="/keytaker/st2/" class="btn btn-outline-primary text-center border border-primary me-2 py-2 px-4" type="button" style="border-radius: 10px; padding-left: 20px;padding-top: 5px;padding-right: 17px;margin-right: -2px;margin-bottom: 7px;">На
+                                главную</a>
+                            <hr>
+                        </div>
+
+                </div>
+            </div>`
+                    console.log('success')
+                }
+            }
+        };
+
+        socket.onclose = function (event) {
+            document.getElementById("loader").style.display = "flex";
+        };
+
+        socket.onopen = function (event) {
+            document.getElementById("loader").style.display = "none";
+        };
+
+
+        let pathArray = location.pathname.split('/');
+        let key = pathArray[pathArray.length - 2];
+        checkboxAjax(key, 0)
+
+        document.getElementById('takeKey').addEventListener('change', function () {
+            let isTake = document.getElementById('takeKey').checked ? 1 : 0;
+            document.getElementById('loading-overlay').style.display = 'block';
+            document.querySelector('.qr-content').style.filter = "blur(5px)";
+            checkboxAjax(key, isTake)
+        });
+
+        function checkboxAjax(key, isTake) {
+            $.ajax({
+                url: `${location.protocol}//${location.host}/api/booking-change-is-take/${key}/${isTake}/`,
+                dataType: 'json',
+                success: function (data) {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    document.querySelector('.qr-content').style.filter = "blur(0px)";
+                    if (data.error) {
+                        document.getElementById('form-check').title = data.error;
+                        //console.log(data.error)
+                        document.getElementById('takeKey').checked = 0;
+                        document.getElementById('takeKey').disabled = 1;
+                    } else {
+                        console.log('success');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    document.querySelector('.qr-content').style.filter = "blur(0px)";
+                    console.log(error)
+                    console.log('error');
+                }
+            });
+        }
+
+    </script>
+{% endblock %}

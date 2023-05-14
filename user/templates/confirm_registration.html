@@ -14,7 +14,7 @@
                     {% if error %}
                         <p style="color:red">{{ error }}</p>
                     {% endif %}
-                    <div class="my-2"><input class="border rounded-pill shadow-sm form-control" type="code" id="code" name="code" placeholder="Код"></div>
+                    <div class="my-2"><input class="border rounded-pill shadow-sm form-control" type="code" id="code" name="code" placeholder="Код" required></div>
                     <div class="my-2"><button class="btn btn-primary shadow ms-2" type="submit">Создать</button></div>
                 </form>
                 <a href="{% url 'register' %}">Вернуться на страницу регистрации</a>

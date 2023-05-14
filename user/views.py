@@ -7,6 +7,7 @@ from datetime import timedelta
 import pytz
 from django.contrib.auth import *
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.hashers import check_password
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.contrib import messages
@@ -15,7 +16,7 @@ from django.core.mail import send_mail
 from AITUDC import settings
 from api.views import new_order_notify
 from keyreturner.models import SettingsKeyReturner
-from keytaker.consumers import WSCanceledORConfirmedOrder, WSGetUser
+from keytaker.consumers import WSCanceledORConfirmedOrder, WSGetUser, WSUpdateBookingStatus
 from keytaker.views import check_room
 from keytaker.forms import ChooserData
 from .models import *
@@ -119,7 +120,7 @@ def register(request):
 
         except Exception as e:
             print(e)
-            messages.error(request, 'Error. Reload the page')
+            messages.error(request, 'Произошла неизвестная ошибка')
             return redirect('confirm_registration')
 
     return render(request, 'register.html', {
@@ -219,13 +220,83 @@ def confirm_keytaking(request, confirmation_code):  # step 4
         if settings_obj:
             error = qr_checker(request, settings_obj)
             if error:
-                messages.error(request, 'Error. Reload the page')
+                messages.error(request, error)
                 return redirect('home')
             settings_obj.is_confirm = True
             profile_obj = MainUser.objects.filter(email=request.user.username).first()
             if not profile_obj:
                 messages.error(request, 'Пользователь не найден или не авторизован')
                 return redirect('home')
+
+            if settings_obj.room.is_study_room:
+                current_datetime = timezone.now().astimezone(local_tz)
+
+                # Определяем начало текущего интервала времени.
+                # Фильтруем ячейки по указанному интервалу времени
+                print(current_datetime.minute)
+                if (current_datetime.minute >= 0) and (current_datetime.minute < 30):
+                    interval_start_time = str(current_datetime.hour) + ':00'
+                    cells = StudyRoomSchedule.objects.get(room=settings_obj.room, start_time=interval_start_time)
+
+                    print('1 ' + interval_start_time)
+                    if cells.status == 'free':
+                        cells.status = 'reserved'
+                        cells.professor = profile_obj
+                        cells.save()
+                    else:
+                        if not cells.professor.email == profile_obj.email:
+                            messages.error(request,
+                                           'Вы не можете сейчас взять ключ от кабинета, так как Вас нет в расписании кабинета с ' + str(
+                                               current_datetime.hour) + ':00 до ' + str(current_datetime.hour) + ':50')
+                            return redirect('home')
+                elif (current_datetime.minute >= 30) and (current_datetime.minute < 50):
+                    interval_start_time1 = str(current_datetime.hour) + ':00'
+                    interval_start_time2 = str(current_datetime.hour + 1) + ':00'
+                    cells1 = StudyRoomSchedule.objects.get(room=settings_obj.room, start_time=interval_start_time1)
+                    cells2 = StudyRoomSchedule.objects.get(room=settings_obj.room, start_time=interval_start_time2)
+                    print('2 ' + interval_start_time1 + ' + ' + interval_start_time2)
+                    if cells2.status == 'free':
+                        cells2.status = 'reserved'
+                        cells2.professor = profile_obj
+                        cells2.save()
+
+                    if not cells1.professor and not cells2.professor:
+                        messages.error(request,
+                                       'Вы не можете сейчас взять ключ от кабинета, так как Вас нет в расписании кабинета с ' + str(
+                                           current_datetime.hour) + ' до ' + str(current_datetime.hour + 1) + ':50')
+                        return redirect('home')
+
+                    error_flag = False
+                    if not cells1.professor and cells2.professor:
+                        if not cells2.professor.email == profile_obj.email:
+                            error_flag = True
+                        else:
+                            error_flag = False
+                    elif cells1.professor and not cells2.professor:
+                        if not cells1.professor.email == profile_obj.email:
+                            error_flag = True
+                        else:
+                            error_flag = False
+
+                    if error_flag:
+                        messages.error(request,
+                                       'Вы не можете сейчас взять ключ от кабинета, так как Вас нет в расписании кабинета.')
+                        return redirect('home')
+                else:
+                    interval_start_time = str(current_datetime.hour + 1) + ':00'
+                    cells = StudyRoomSchedule.objects.get(room=settings_obj.room, start_time=interval_start_time)
+                    print('3 ' + interval_start_time)
+                    if cells.status == 'free':
+                        cells.status = 'reserved'
+                        cells.professor = profile_obj
+                        cells.save()
+                    else:
+                        if not cells.professor.email == profile_obj.email:
+                            messages.error(request,
+                                           'Вы не можете сейчас взять ключ от кабинета, так как Вас нет в расписании кабинета с ' + str(
+                                               current_datetime.hour + 1) + ':00 до ' + str(
+                                               current_datetime.hour + 1) + ':50')
+                            return redirect('home')
 
             history = History.objects.create(
                 room=settings_obj.room,
@@ -248,6 +319,66 @@ def confirm_keytaking(request, confirmation_code):  # step 4
     except Exception as e:
         print(e)
         return redirect('home')
+
+
+@login_required(login_url='login_user')
+def settings_user(request):
+    if request.method == "POST":
+        if 'change_password' in request.POST:
+            old_password = request.POST.get('old_password')
+            new_password = request.POST.get('new_password')
+            confirm_new_password = request.POST.get('confirm_new_password')
+            if not new_password == confirm_new_password:
+                messages.error(request, 'Новый пароль не совпадает')
+                return redirect('settings_user')
+            if len(new_password) < 6:
+                messages.error(request, 'Пароль должен содержать не менее 6 символов.')
+                return redirect('settings_user')
+            if len(new_password) > 20:
+                messages.error(request, 'Пароль должен содержать не более 20 символов.')
+                return redirect('settings_user')
+            checkPassword = check_password(old_password, request.user.password)
+            if checkPassword:
+                user_obj = User.objects.get(username=request.user)
+                user_obj.set_password(new_password)
+                user_obj.save()
+                messages.success(request, 'Password changed successfully. Please log in again.')
+                return redirect('login_user')
+            else:
+                messages.error(request, 'Неверный пароль')
+                return redirect('settings_user')
+
+        if 'change_fullname' in request.POST:
+            fullname = request.POST.get('fullname')
+            password = request.POST.get('password')
+
+            name_without_spaces = fullname.replace(" ", "")
+            if len(name_without_spaces) < 5:
+                messages.error(request, 'ФИО должно содержать не менее 5 символов.')
+                return redirect('settings_user')
+
+            if len(name_without_spaces) > 35:
+                messages.error(request, 'ФИО должно содержать не более 35 символов.')
+                return redirect('settings_user')
+
+            if not fullname.replace(" ", "").isalpha():
+                messages.error(request, 'Имя может содержать только буквы и пробелы.')
+                return redirect('settings_user')
+
+            checkPassword = check_password(password, request.user.password)
+            if checkPassword:
+                user_obj = User.objects.get(username=request.user)
+                user_obj.first_name = fullname
+                user_obj.save()
+                profile_obj = MainUser.objects.filter(email=request.user.username).first()
+                profile_obj.full_name = fullname
+                profile_obj.save()
+                messages.success(request, 'Fullname changed successfully.')
+                return redirect('settings_user')
+            else:
+                messages.error(request, 'Неверный пароль')
+                return redirect('settings_user')
+    return render(request, 'settings_user.html')
 
 
 @login_required(login_url='login_user')
@@ -295,14 +426,102 @@ def home(request):
 
             error = check_room(room)
             if error:
-                messages.error(request, 'Error. Reload the page')
+                messages.error(request, error)
                 return redirect('home')
 
             user_obj = MainUser.objects.filter(email=request.user.username).first()
             error = role_checker(room, user_obj.role.name)
             if error:
-                messages.error(request, 'Error. Reload the page')
+                messages.error(request, error)
                 return redirect('home')
+
+            room_obj = Room.objects.filter(name=room).first()
+            if room_obj.is_study_room:
+                current_datetime = timezone.now().astimezone(local_tz)
+
+                # Определяем начало текущего интервала времени.
+                # Фильтруем ячейки по указанному интервалу времени
+                print(current_datetime.minute)
+                if (current_datetime.minute >= 0) and (current_datetime.minute < 30):
+                    interval_start_time = str(current_datetime.hour) + ':00'
+                    try:
+                        cells = StudyRoomSchedule.objects.get(room=room_obj, start_time=interval_start_time)
+                    except StudyRoomSchedule.DoesNotExist:
+                        messages.error(request, 'Сейчас взять ключ от кабинета не получится. Попробуйте позже')
+                        return redirect('home')
+
+                    if not cells:
+                        messages.error(request, 'Сейчас взять ключ от кабинета не получится. Попробуйте позже')
+                        return redirect('home')
+
+                    print('1 ' + interval_start_time)
+                    if not cells.professor:
+                        messages.error(request,
+                                       'Кабинет не забронирован на ' + str(current_datetime.hour) + ':00. Для брони подойдите к охране.')
+                        return redirect('home')
+                    if not cells.professor.email == user_obj.email:
+                        messages.error(request,
+                                       'Вы не можете сейчас взять ключ от кабинета, так как Вас нет в расписании кабинета с ' + str(
+                                           current_datetime.hour) + ':00 до ' + str(current_datetime.hour) + ':50')
+                        return redirect('home')
+                elif (current_datetime.minute >= 30) and (current_datetime.minute < 50):
+                    interval_start_time1 = str(current_datetime.hour) + ':00'
+                    interval_start_time2 = str(current_datetime.hour + 1) + ':00'
+                    try:
+                        cells1 = StudyRoomSchedule.objects.get(room=room_obj, start_time=interval_start_time1)
+                        cells2 = StudyRoomSchedule.objects.get(room=room_obj, start_time=interval_start_time2)
+                    except StudyRoomSchedule.DoesNotExist:
+                        messages.error(request, 'Сейчас взять ключ от кабинета не получится. Попробуйте позже')
+                        return redirect('home')
+
+                    print('2 ' + interval_start_time1 + ' + ' + interval_start_time2)
+
+                    if not cells1.professor and not cells2.professor:
+                        messages.error(request,
+                                       'Вы не можете сейчас взять ключ от кабинета, так как Вас нет в расписании кабинета с ' + str(
+                                           current_datetime.hour) + ':00 до ' + str(current_datetime.hour + 1) + ':50')
+                        return redirect('home')
+
+                    error_flag = False
+                    if not cells1.professor and cells2.professor:
+                        if not cells2.professor.email == user_obj.email:
+                            error_flag = True
+                        else:
+                            error_flag = False
+                    elif cells1.professor and not cells2.professor:
+                        if not cells1.professor.email == user_obj.email:
+                            error_flag = True
+                        else:
+                            error_flag = False
+
+                    if error_flag:
+                        messages.error(request,
+                                       'Вы не можете сейчас взять ключ от кабинета, так как Вас нет в расписании кабинета с ' + str(
+                                           current_datetime.hour) + ':00 до ' + str(current_datetime.hour + 1) + ':50')
+                        return redirect('home')
+                else:
+                    interval_start_time = str(current_datetime.hour + 1) + ':00'
+                    try:
+                        cells = StudyRoomSchedule.objects.get(room=room_obj, start_time=interval_start_time)
+                    except StudyRoomSchedule.DoesNotExist:
+                        messages.error(request, 'Сейчас взять ключ от кабинета не получится. Попробуйте позже')
+                        return redirect('home')
+
+                    if not cells:
+                        messages.error(request, 'Сейчас взять ключ от кабинета не получится. Попробуйте позже')
+                        return redirect('home')
+
+                    print('3 ' + interval_start_time)
+                    if not cells.professor:
+                        messages.error(request,
+                                       'Кабинет не забронирован на ' + str(current_datetime.hour+1) + ':00. Для брони подойдите к охране.')
+                        return redirect('home')
+                    if not cells.professor.email == user_obj.email:
+                        messages.error(request,
+                                       'Вы не можете сейчас взять ключ от кабинета, так как Вас нет в расписании кабинета с ' + str(
+                                           current_datetime.hour + 1) + ':00 до ' + str(
+                                           current_datetime.hour + 1) + ':50')
+                        return redirect('home')
 
             if len(note) > 50:
                 messages.error(request, 'Ваш комментарий слишком длинный')
@@ -332,9 +551,12 @@ def home(request):
             return redirect('home')
 
     profile_obj = MainUser.objects.filter(email=request.user.username).first()
+    role = profile_obj.role if profile_obj else None
+    print(role)
     room_list = Room.objects.filter(
         is_visible=True,
-        is_occupied=False
+        is_occupied=False,
+        role__in=[profile_obj.role]
     ).all().order_by('name')
     return render(request, 'home-user.html', {
         'room_list': room_list,
@@ -402,6 +624,7 @@ def ws_get_user(request, user_obj):
 
 @login_required(login_url='login_user')
 def reserve_studyroom(request, key):
+    status_list = []
     try:
         reservation = Reservation.objects.get(key=key)
     except Reservation.DoesNotExist:
@@ -423,15 +646,27 @@ def reserve_studyroom(request, key):
         start_time=reservation.start_time
     ).first()
     if not studyroom_schedule:
+        status_list.append({'status': 'error',
+                            'key': reservation.key})
+        for consumer in WSUpdateBookingStatus.consumers:
+            asyncio.run(consumer.send(text_data=json.dumps(status_list)))
         messages.error(request, 'The room ' + room.name + ' does not have a schedule or this time slot.')
         return redirect('home')
     if studyroom_schedule.status != 'free':
+        status_list.append({'status': 'error',
+                            'key': reservation.key})
+        for consumer in WSUpdateBookingStatus.consumers:
+            asyncio.run(consumer.send(text_data=json.dumps(status_list)))
         messages.error(request, "The selected time slot is not available.")
         return redirect('home')
 
     # Check if the reservation is still valid (created less than 5 minutes ago)
     time_diff = timezone.now() - reservation.created_at
     if time_diff > timezone.timedelta(minutes=5):
+        status_list.append({'status': 'error',
+                            'key': reservation.key})
+        for consumer in WSUpdateBookingStatus.consumers:
+            asyncio.run(consumer.send(text_data=json.dumps(status_list)))
         messages.error(request, "The reservation has expired.")
         return redirect('home')
 
@@ -451,6 +686,10 @@ def reserve_studyroom(request, key):
     # print(time_to_reservation)
 
     if time_to_reservation < -timezone.timedelta(minutes=60):
+        status_list.append({'status': 'error',
+                            'key': reservation.key})
+        for consumer in WSUpdateBookingStatus.consumers:
+            asyncio.run(consumer.send(text_data=json.dumps(status_list)))
         messages.error(request, "It's too late to make a reservation.")
         return redirect('home')
 
@@ -485,4 +724,8 @@ def reserve_studyroom(request, key):
     reservation.save()
 
     messages.success(request, "The reservation has been successfully activated.")
+    status_list.append({'status': 'success',
+                        'key': reservation.key})
+    for consumer in WSUpdateBookingStatus.consumers:
+        asyncio.run(consumer.send(text_data=json.dumps(status_list)))
     return redirect('home')

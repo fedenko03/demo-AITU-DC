@@ -31,7 +31,7 @@
             <ul class="navbar-nav mx-auto">
                 <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Главная</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'history_user' %}">История</a></li>
-                {#                <li class="nav-item"><a class="nav-link" href="">Настройки</a></li>#}
+                <li class="nav-item"><a class="nav-link" href="{% url 'settings_user' %}">Настройки</a></li>
                 <li class="nav-item"></li>
             </ul>
             {% if not user.is_authenticated %}
@@ -49,14 +49,14 @@
 <footer class="bg-primary-gradient sticky-footer">
     <div class="container py-4 py-lg-5">
         <hr>
-        <div class="text-muted d-flex justify-content-between align-items-center pt-3">
-            <p class="mb-0">Copyright © AITU Digital control 2023</p>
-
+        <div class="text-muted  justify-content-between  pt-3">
+            <p class="">Copyright © AITU Digital control 2023</p>
+            <p class="">{{ request.user.first_name }}, {{ request.user.email }}</p>
         </div>
     </div>
 </footer>
 
-<script src="{% static 'js/loading.js' %}"></script>
+{#<script src="{% static 'js/loading.js' %}"></script>#}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{% static 'js/bold-and-bright.js' %}"></script>
 <script src="{% static 'js/user-selector.js' %}"></script>

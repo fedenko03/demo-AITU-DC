@@ -54,7 +54,7 @@ def getHistoryData(request, page, step):
     elif step == 0:
         print("step = 0")
         if page - 1 >= 1:  # 2 page
-            fromHstr = (page-2) * objectsOnPage  # 0
+            fromHstr = (page - 2) * objectsOnPage  # 0
             toHstr = fromHstr + objectsOnPage  # 5
         else:
             return JsonResponse({'history_obj': history_list})
@@ -133,7 +133,7 @@ def get_last5_orders(request):
 
     last_5_orders = Orders.objects.filter(
         is_available=True,
-        orders_timestamp__gte=current_time-time_diff
+        orders_timestamp__gte=current_time - time_diff
     ).order_by('-orders_timestamp')[:5]
 
     orders_list = []
@@ -191,43 +191,71 @@ def get_room_schedule(request, room_number):
     if not request.user.is_staff:
         return JsonResponse({'error': 'Access denied'}, status=403)
     try:
-        room = Room.objects.filter(name=room_number, is_study_room=True).first()
+        room = Room.objects.filter(map_id=room_number).first()
         # room = get_object_or_404(Room, name=room_number, is_study_room=True)
         if not room:
             return JsonResponse({'error': 'Room not found'})
 
-        schedule = StudyRoomSchedule.objects.filter(room=room).order_by('start_time')
+        role_names = []
+        for role in room.role.all():
+            role_names.append(role.name)
+
+        user_fullname = ''
+        if room.is_occupied:
+            history_obj = History.objects.filter(
+                room=room,
+                is_return=False
+            ).first()
+            if history_obj:
+                user_fullname = history_obj.fullname
+        else:
+            user_fullname = None
+
+        room_info = {
+            'name': room.name,
+            'description': room.description,
+            'is_occupied': room.is_occupied,
+            'user_fullname': user_fullname,
+            'is_study_room': room.is_study_room,
+            'is_visible': room.is_visible,
+            'role': role_names
+        }
+
         schedule_list = []
-        for cell in schedule:
-            if cell.professor:
-                schedule_list.append({
-                    'room': cell.room.name,
-                    'start_time': cell.start_time.strftime('%H:%M'),
-                    'end_time': cell.end_time.strftime('%H:%M'),
-                    'professor': {
-                        'name': cell.professor.full_name,
-                        'email': cell.professor.email
-                    },
-                    'status': cell.status
-                })
-            else:
-                schedule_list.append({
-                    'room': cell.room.name,
-                    'start_time': cell.start_time.strftime('%H:%M'),
-                    'end_time': cell.end_time.strftime('%H:%M'),
-                    'professor': None,
-                    'status': cell.status
-                })
-        return JsonResponse({'schedule': schedule_list})
+        if room.is_study_room:
+            schedule = StudyRoomSchedule.objects.filter(room=room).order_by('start_time')
+
+            for cell in schedule:
+                if cell.professor:
+                    schedule_list.append({
+                        'start_time': cell.start_time.strftime('%H:%M'),
+                        'end_time': cell.end_time.strftime('%H:%M'),
+                        'professor': {
+                            'name': cell.professor.full_name,
+                            'email': cell.professor.email
+                        },
+                        'status': cell.status
+                    })
+                else:
+                    schedule_list.append({
+                        'start_time': cell.start_time.strftime('%H:%M'),
+                        'end_time': cell.end_time.strftime('%H:%M'),
+                        'professor': None,
+                        'status': cell.status
+                    })
+        return JsonResponse({
+            'room': room_info,
+            'schedule': schedule_list
+        })
     except StudyRoomSchedule.DoesNotExist:
         return JsonResponse({'error': 'Error'})
 
 
 def create_reservation(request, room_name, start_time_input, is_take):
     if not request.user.is_authenticated:
-        return JsonResponse({'error': 'Unauthorized'}, status=401)
+        return JsonResponse({'error': 'Unauthorized'})
     if not request.user.is_staff:
-        return JsonResponse({'error': 'Access denied'}, status=403)
+        return JsonResponse({'error': 'Access denied'})
 
     try:
         room = Room.objects.get(name=room_name, is_study_room=True)
@@ -241,14 +269,14 @@ def create_reservation(request, room_name, start_time_input, is_take):
     try:
         start_time = datetime.datetime.strptime(start_time_input, '%H:%M').time()
     except ValueError:
-        return JsonResponse({'error': 'Invalid start time value'}, status=400)
+        return JsonResponse({'error': 'Invalid start time value'})
 
     time_slot = schedule.filter(start_time=start_time).first()
     if not time_slot:
         return JsonResponse({'error': 'The room does not have a schedule at this time'})
 
     if time_slot.status != 'free':
-        return JsonResponse({'error': 'The selected time slot is not available'}, status=400)
+        return JsonResponse({'error': 'The selected time slot is not available'})
 
     start_time = datetime.datetime.strptime(start_time_input, '%H:%M').time()
     schedule_start_time = datetime.datetime.combine(datetime.date.today(), time_slot.start_time)
@@ -259,14 +287,14 @@ def create_reservation(request, room_name, start_time_input, is_take):
     # print(time_to_reservation)
 
     if time_to_reservation < -timezone.timedelta(minutes=60):
-        return JsonResponse({'error': 'It is too late to take the key.'}, status=400)
+        return JsonResponse({'error': 'It is too late to take the key.'})
 
     if is_take:
         if time_to_reservation < timezone.timedelta(minutes=30):
             if room.is_occupied:
-                return JsonResponse({'error': 'The key is not available.'}, status=400)
+                return JsonResponse({'error': 'The key is not available.'})
         else:
-            return JsonResponse({'error': 'The key is not available.'}, status=400)
+            return JsonResponse({'error': 'The key is not available.'})
 
     key = generate_code()
     reservation = Reservation.objects.create(
@@ -278,4 +306,62 @@ def create_reservation(request, room_name, start_time_input, is_take):
     )
     reservation.save()
 
-    return JsonResponse({'reservation': reservation.key}, status=201)
+    return JsonResponse({'reservation': reservation.key})
+
+
+def booking_change_is_take(request, key, is_take):
+    try:
+        reservation_obj = Reservation.objects.get(key=key)
+    except Reservation.DoesNotExist:
+        return JsonResponse({'error': 'Reservation not found.'})
+
+    try:
+        room = Room.objects.get(name=reservation_obj.room, is_study_room=True)
+    except Room.DoesNotExist:
+        return JsonResponse({'error': 'Room not found'})
+
+    schedule_start_time = datetime.datetime.combine(datetime.date.today(), reservation_obj.start_time)
+    schedule_start_time = timezone.make_aware(schedule_start_time, timezone.get_current_timezone())
+    time_to_reservation = schedule_start_time - timezone.now()
+
+    if room.is_occupied:
+        return JsonResponse({'error': 'Ключа нет у охраны.'})
+
+    if time_to_reservation > timezone.timedelta(minutes=30):
+        return JsonResponse({'error': 'Взять ключ можно только если осталось менее 30 минут до начала занятия.'})
+
+    # Check if the reservation is still valid (created less than 5 minutes ago)
+    time_diff = timezone.now() - reservation_obj.created_at
+    if time_diff > timezone.timedelta(minutes=5):
+        return JsonResponse({'error': 'The reservation has expired.'})
+
+    # Check if the reservation is not yet activated
+    if reservation_obj.is_active:
+        return JsonResponse({'error': 'The reservation has already been confirmed.'})
+
+    reservation_obj.is_take = is_take
+    reservation_obj.save()
+    return JsonResponse({'success': is_take})
+
+
+def get_rooms_status(request, floor):
+    rooms_list = Room.objects.filter(floor=floor).all().order_by('name')
+    rooms_status_list = []
+    for room in rooms_list:
+        status = ''
+
+        if not room.is_visible:
+            status = 'not_visible'
+        # elif room.is_study_room:
+        #     status = 'study_room'
+        elif room.is_occupied:
+            status = 'occupied'
+        else:
+            status = 'free'
+
+        rooms_status_list.append({
+            'room': room.name,
+            'map_id': room.map_id,
+            'status': status
+        })
+    return JsonResponse({'rooms_status_list': rooms_status_list})

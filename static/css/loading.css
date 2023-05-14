@@ -40,6 +40,7 @@ body.loading::before {
 ::-webkit-scrollbar {
     width: 5px;
 }
+
 ::-webkit-scrollbar-thumb {
     background: #4e73df;
 }

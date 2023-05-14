@@ -186,10 +186,12 @@ def takeroom3(request):
         settings_obj.save()
 
         link_confirm = "http://" + request.get_host() + "/confirm_keytaking/token=" + settings_obj.confirmation_code
+        print(link_confirm)
         img = qrcode.make(link_confirm)
-        blob_bytes = io.BytesIO()
-        img.save(blob_bytes, format='PNG')
-        blob_bytes.seek(0)
+        img.save("media/qr.png")
+        # blob_bytes = io.BytesIO()
+        # img.save(blob_bytes, format='PNG')
+        # blob_bytes.seek(0)
         # blob_service_client = BlockBlobService(account_name='demoaitustorage',
         #                                        account_key='8VleNnuJtHCquOzk8yMbYk3KKu8SbpInPhXiCcFGzKzZ53TMjUVoMtaSjfySdAwFaftp4vvM9ENZ+AStR+RpHw==')
         # blob_service_client.create_blob_from_bytes(container_name='media', blob_name='qr.png', blob=blob_bytes.read())
@@ -340,7 +342,7 @@ def fill_room_schedule():
             try:
                 # Trying to get schedule for this room and time
                 schedule = Schedule.objects.get(day=datetime.date.today().weekday()+1, room=room, start_time=start_time)
-                status = 'busy'
+                status = 'lesson'
                 professor = schedule.professor
             except Schedule.DoesNotExist:
                 # If schedule not exists then create empty cell

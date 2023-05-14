@@ -1,12 +1,53 @@
 // websocket
 var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
-var socket = new WebSocket(ws_scheme + "://" + window.location.host + "/ws/new_order/");
+var socket = null;
+var countdownInterval = null;
+var countdownSeconds = 15;
 
-socket.onmessage = function (e) {
-    var data = JSON.parse(e.data);
-    createNotification(data)
-};
+function connectWebSocket() {
+    socket = new WebSocket(ws_scheme + "://" + window.location.host + "/ws/new_order/");
 
+    socket.onmessage = function (event) {
+        var data = JSON.parse(event.data);
+        createNotification(data);
+    };
+
+    socket.onclose = function (event) {
+        document.getElementById("loader").style.display = "flex";
+        startCountdown();
+    };
+
+    socket.onopen = function (event) {
+        document.getElementById("loader").style.display = "none";
+        resetCountdown();
+    };
+}
+
+// Начальная попытка подключения
+connectWebSocket();
+
+function startCountdown() {
+    var countdownElement = document.getElementById("loader-countdown");
+    countdownElement.textContent = countdownSeconds;
+
+    countdownInterval = setInterval(function () {
+        countdownSeconds--;
+
+        if (countdownSeconds <= 0) {
+            clearInterval(countdownInterval);
+            countdownSeconds = 15;
+            connectWebSocket(); // Запуск новой попытки подключения
+        } else {
+            countdownElement.textContent = countdownSeconds;
+        }
+    }, 1000);
+}
+
+function resetCountdown() {
+    clearInterval(countdownInterval);
+    countdownSeconds = 15;
+    document.getElementById("loader-countdown").textContent = "";
+}
 
 
 // notification style
@@ -109,7 +150,7 @@ function createNotification(data) {
         let navbarNotificationCount = document.getElementById("navbarNotificationCount")
         let NotCountInt = parseInt(navbarNotificationCount.textContent);
         NotCountInt = NotCountInt - 1;
-        if(NotCountInt <= 0) {
+        if (NotCountInt <= 0) {
             NotCountInt = 0
             let navbarZeroNotification = document.createElement("a")
             navbarZeroNotification.innerHTML = `<a id="zero-notifications-navbar" class="dropdown-item text-center small text-gray-500">Нет активных заявок</a>`
@@ -131,7 +172,7 @@ function createNotification(data) {
         let navbarNotificationCount = document.getElementById("navbarNotificationCount")
         let NotCountInt = parseInt(navbarNotificationCount.textContent);
         NotCountInt = NotCountInt - 1;
-        if(NotCountInt <= 0) {
+        if (NotCountInt <= 0) {
             NotCountInt = 0
             let navbarZeroNotification = document.createElement("a")
             navbarZeroNotification.innerHTML = `<a id="zero-notifications-navbar" class="dropdown-item text-center small text-gray-500">Нет активных заявок</a>`
@@ -158,7 +199,7 @@ function deleteNotification(notification, notificationContainer) {
 
 function deleteNotificationNavBar(notification, notificationContainer) {
     try {
-            notificationContainer.removeChild(notification);
+        notificationContainer.removeChild(notification);
     } catch (e) {
         console.log("Уведомление уже было скрыто/удалено.")
     }

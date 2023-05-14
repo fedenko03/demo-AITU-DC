@@ -1,28 +1,34 @@
 from datetime import datetime
 
+import qrcode
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.contrib.postgres.aggregates import ArrayAgg
+from django.core.exceptions import ValidationError
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth.hashers import check_password
 from django.views.decorators.http import require_GET
 
+from AITUDC import settings
 from api.views import confirmed_order, canceled_order
-from keytaker.models import Orders, History, Room
+from keytaker.models import Orders, History, Room, Reservation, StudyRoomSchedule, Schedule
 from django.contrib import messages
 from django.utils import timezone
 
 from django.core import serializers
 
-from keytaker.views import check_room
+from keytaker.views import check_room, create_empty_cells, clear_room_schedule, fill_room_schedule
 from main.models import PIN
 from user.models import MainUser
 import openpyxl
 from openpyxl.styles import PatternFill
 import pytz
 from datetime import datetime
+import pandas as pd
+# import magic
+from openpyxl import load_workbook
 
 local_tz = pytz.timezone('Asia/Almaty')
 
@@ -116,6 +122,9 @@ def homeMain(request):
 @login_required(login_url='loginMain')
 def settingsMain(request):
     if request.method == "POST":
+        if not request.user.is_staff:
+            messages.error(request, 'Access denied')
+            return redirect('loginMain')
         if 'change_password' in request.POST:
             old_password = request.POST.get('old_password')
             new_password = request.POST.get('new_password')
@@ -129,10 +138,84 @@ def settingsMain(request):
             else:
                 messages.error(request, 'Неверный пароль')
                 return redirect('settingsMain')
+        elif 'create_ec' in request.POST:
+            create_empty_cells()
+            messages.success(request, 'Empty cells for each room was successfully created.')
+            return redirect('settingsMain')
+        elif 'clear_rs' in request.POST:
+            clear_room_schedule()
+            messages.success(request, 'Room schedule was successfully cleared.')
+            return redirect('settingsMain')
+        elif 'fill_rs' in request.POST:
+            fill_room_schedule()
+            messages.success(request, 'Room schedule was successfully filled.')
+            return redirect('settingsMain')
+        elif 'upload_schedule' in request.POST:
+            file = request.FILES.get('schedule_file')
+            if not file:
+                messages.error(request, 'Файл не найден.')
+                return redirect('settingsMain')
+            try:
+                error = create_schedule_from_excel(file)
+                if error:
+                    messages.error(request, error)
+                    return redirect('settingsMain')
+                messages.success(request, 'Расписание успешно создано.')
+                return redirect('settingsMain')
+            except ValidationError as e:
+                messages.error(request, 'Ошибка создания расписания.')
+                return redirect('settingsMain')
+
     orders_list = getOrders()
     return render(request, 'settings.html', {
         'orders_list': orders_list
     })
+
+
+def create_schedule_from_excel(file):
+    df = pd.read_excel(file, engine='openpyxl')
+
+    # Проверка наличия столбцов
+    required_columns = ['Room', 'week_day', 'professor/email', 'start_time', 'end_time']
+    missing_columns = [column for column in required_columns if column not in df.columns]
+
+    if missing_columns:
+        # Если некоторые столбцы отсутствуют, генерируем ошибку
+        error_message = f"Отсутствуют необходимые столбцы: {', '.join(missing_columns)}"
+        return error_message
+
+    # Очищаем старые данные в расписании
+    Schedule.objects.all().delete()
+
+    for index, row in df.iterrows():
+        room_name = row['Room']
+        week_day = row['week_day']
+        email = row['professor/email']
+        start_time = row['start_time']
+        end_time = row['end_time']
+
+        # Проверка данных перед созданием расписания
+        if not room_name or not week_day or not email or not start_time or not end_time\
+                or room_name == '' or week_day == '' or email == '' or start_time == '' or end_time == ''\
+                or str(room_name) == 'nan' or str(week_day) == 'nan' or str(email) == 'nan' or str(start_time) == 'nan' \
+                or str(end_time) == 'nan':
+            return f"Неполные данные в таблице. Проверьте все поля. ({index+2})"
+
+        room_obj = Room.objects.filter(name=room_name).first()
+        professor_obj = MainUser.objects.filter(email=email).first()
+        if not room_obj:
+            return f"Проверьте все поля. Комната ' + str(room_name) + ' не найдена. ({index+2})"
+        if not professor_obj:
+            return f"Проверьте все поля. Пользователь ' + str(email) + ' не найден. ({index+2})"
+
+        # Создание записи в расписании
+        schedule = Schedule.objects.create(
+            day=week_day,
+            room=room_obj,
+            start_time=start_time,
+            end_time=end_time,
+            professor=professor_obj)
+        schedule.save()
 
 
 def loginMain(request):
@@ -327,9 +410,60 @@ def roomsMain(request):
     })
 
 
+@login_required(login_url='loginMain')
+def confirmBooking(request, key):
+    try:
+        reservation_obj = Reservation.objects.get(key=key)
+    except Reservation.DoesNotExist:
+        messages.error(request, "Reservation not found")
+        return redirect('homeMain')
+
+    studyroom_schedule = StudyRoomSchedule.objects.filter(
+        room=reservation_obj.room,
+        start_time=reservation_obj.start_time
+    ).first()
+
+    if not studyroom_schedule:
+        messages.error(request, 'The room ' + reservation_obj.name + ' does not have a schedule or this time slot.')
+        return redirect('homeMain')
+    if studyroom_schedule.status != 'free':
+        messages.error(request, "The selected time slot is not available.")
+        return redirect('homeMain')
+
+    # Check if the reservation is still valid (created less than 5 minutes ago)
+    time_diff = timezone.now() - reservation_obj.created_at
+    if time_diff > timezone.timedelta(minutes=5):
+        messages.error(request, "The reservation has expired.")
+        return redirect('homeMain')
+
+    # Check if the reservation is not yet activated
+    if reservation_obj.is_active:
+        messages.error(request, "The reservation has already been confirmed.")
+        return redirect('homeMain')
+
+    link_confirm = "http://" + request.get_host() + "/reserve-studyroom/" + reservation_obj.key + "/"
+    print(link_confirm)
+    img = qrcode.make(link_confirm)
+    img.save("media/bookingQR.png")
+    return render(request, 'confirm-booking-qr.html', {
+        'media_url': settings.MEDIA_URL,
+        'room': reservation_obj.room.name,
+        'start_time': reservation_obj.start_time.strftime('%H:%M'),
+        'key': reservation_obj.key,
+        'is_take': reservation_obj.is_take,
+        'is_active': reservation_obj.is_active
+    })
+
+
 def get_rooms_floor(request):
     floor = request.GET.get('floor')
-    rooms_list = Room.objects.filter(floor=floor).annotate(role_name_list=ArrayAgg('role__name')).values('name', 'description', 'is_occupied', 'is_visible', 'map_id', 'role_name_list').order_by('name')
+    rooms_list = Room.objects.filter(floor=floor).annotate(role_name_list=ArrayAgg('role__name')).values('name',
+                                                                                                         'description',
+                                                                                                         'is_occupied',
+                                                                                                         'is_visible',
+                                                                                                         'map_id',
+                                                                                                         'role_name_list').order_by(
+        'name')
     if not rooms_list:
         return JsonResponse({
             'rooms_list': None
@@ -371,7 +505,7 @@ def get_room_map(request):
         'is_visible': room_obj.is_visible,
         'user_fullname': user_fullname
     }
-    #print(room_map_info)
+    # print(room_map_info)
     return JsonResponse({'room_map_info': room_map_info})
 
 
@@ -404,5 +538,3 @@ def PinLock(request, code):
     else:
         messages.error(request, 'PIN-код должен содержать от 4 до 10 цифр.')
         return redirect('homeMain')
-
-
