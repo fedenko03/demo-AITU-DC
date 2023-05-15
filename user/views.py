@@ -16,7 +16,7 @@ from django.core.mail import send_mail
 from AITUDC import settings
 from api.views import new_order_notify
 from keyreturner.models import SettingsKeyReturner
-from keytaker.consumers import WSCanceledORConfirmedOrder, WSGetUser, WSUpdateBookingStatus
+from keytaker.consumers import WSCanceledORConfirmedOrder, WSGetUser, WSUpdateBookingStatus, WebSocketQR
 from keytaker.views import check_room
 from keytaker.forms import ChooserData
 from .models import *
@@ -588,7 +588,7 @@ def key_return_get_user(request, token):
         messages.error(request, 'Пользователь не найден')
         return redirect('home')
     if timezone.now() - settings_obj.token_timestamp >= timezone.timedelta(minutes=5):
-        messages.error = (request, 'Срок действия QR кода истёк.')
+        messages.error(request, 'Срок действия QR кода истёк.')
         return redirect('home')
     settings_obj.user = user_obj
     settings_obj.step = 2
@@ -620,6 +620,12 @@ def ws_get_user(request, user_obj):
         })
     for consumer in WSGetUser.consumers:
         asyncio.run(consumer.send(text_data=json.dumps(history_list)))
+
+    status_list = []
+    status_list.append({'notification_type': 'mobile',
+                        'data': 'none'})
+    for consumer in WebSocketQR.consumers:
+        asyncio.run(consumer.send(text_data=json.dumps(status_list)))
 
 
 @login_required(login_url='login_user')

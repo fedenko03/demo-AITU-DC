@@ -1,19 +1,24 @@
+import json
 import token
+from datetime import timedelta
 
 import pytz
 import qrcode
 import random
 import string
+
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.utils import timezone
+import asyncio
 import math
 from django.conf import settings
 import io
 from azure.storage.blob import BlockBlobService
 
 from keyreturner.models import SettingsKeyReturner
+from keytaker.consumers import WebSocketQR
 from keytaker.models import History, Room
 from keytaker.views import getOrders
 
@@ -61,7 +66,18 @@ def keyreturnerMain(request):
     print(settings_obj.token)
     link_confirm = "http://" + request.get_host() + "/key_return_get_user/token=" + settings_obj.token
     img = qrcode.make(link_confirm)
+
     img.save("media/returnerQR.png")
+
+    status_list = []
+    status_list.append({'notification_type': 'key_returner',
+                        'data': {
+                            'link_confirm': link_confirm,
+                            'qr_url': settings.MEDIA_URL + 'returnerQR.png',
+                            'timestamp': (settings_obj.token_timestamp + timedelta(minutes=5)).astimezone(local_tz).strftime("%H:%M:%S %d.%m.%Y")
+                        }})
+    for consumer in WebSocketQR.consumers:
+        asyncio.run(consumer.send(text_data=json.dumps(status_list)))
 
     # blob_bytes = io.BytesIO()
     # img.save(blob_bytes, format='PNG')

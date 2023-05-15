@@ -4,18 +4,7 @@
     {% load static %}
 
     <div class="container-fluid">
-        {% if messages %}
-            {% for message in messages %}
-                <span class="badge bg-dark fs-6 mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="1em"
-                                                           height="1em" fill="currentColor"
-                                                           viewBox="0 0 16 16"
-                                                           class="bi bi-exclamation-circle-fill"
-                                                           style="padding-bottom: 0px;margin-bottom: 0px;margin-top: -4px;">
-                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"></path>
-                                </svg>&nbsp;{{ message }}</span>
-            {% endfor %}
-        {% endif %}
-        <div class="card shadow mb-5">
+        <div class="card shadow mb-5" style="margin-top: 15px;">
             <div class="card-header py-3">
                 <p style="top: 1rem;right: 1rem;position: absolute;"> {{ order.orders_timestamp }}</p>
                 <p class="text-primary m-0 fw-bold">Взятие ключа (Заявка #{{ order.id }})</p>
@@ -23,13 +12,26 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <span class="badge bg-dark fs-6 mb-2"><svg xmlns="http://www.w3.org/2000/svg"
+                                                                           width="1em"
+                                                                           height="1em" fill="currentColor"
+                                                                           viewBox="0 0 16 16"
+                                                                           class="bi bi-exclamation-circle-fill"
+                                                                           style="padding-bottom: 0px;margin-bottom: 0px;margin-top: -4px;">
+                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"></path>
+                                </svg>&nbsp;{{ message }}</span>
+                            {% endfor %}
+                        {% endif %}
                         <form method="post">
                             {% csrf_token %}
                             <div class="mb-3"><label class="form-label" for="signature"><strong>Введите код
-                                подтверждения:</strong></label>
-                                <textarea style="resize: none;" class="form-control form-control-sm"
-                                          id="signature" rows="4"
-                                          name="code"></textarea></div>
+                                подтверждения (цифры):</strong></label>
+                                <textarea style="width: 200px; font-size: 20px; resize: none;"
+                                          class="form-control form-control-sm"
+                                          id="signature" rows="1"
+                                          name="code" oninput="validateInput(this)"></textarea></div>
                             <div class="mb-3">
                                 <button class="btn btn-primary btn-sm" type="submit">Подтвердить</button>
                                 <button id="cancelOrderPage" class="btn btn-danger btn-sm" style="margin-left: 10px;">
@@ -60,18 +62,18 @@
 
 
     <script>
-    document.getElementById('signature').addEventListener("keydown", function (event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-        }
-    });
+        document.getElementById('signature').addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+            }
+        });
 
         var button = document.getElementById("cancelOrderPage");
         if (button) {
             button.addEventListener("click", function () {
                 url = location.protocol + "//" + location.host + "/main/cancel-takeroomMain/" +
-                {{ order.id }}
-                console.log(url)
+                    {{ order.id }}
+                    console.log(url)
                 var xhr = new XMLHttpRequest();
                 xhr.open('GET', url, true);
                 xhr.onreadystatechange = function () {
@@ -82,6 +84,10 @@
                 };
                 xhr.send();
             });
+        }
+
+        function validateInput(element) {
+            element.value = element.value.replace(/\D/g, '');
         }
     </script>
 {% endblock %}

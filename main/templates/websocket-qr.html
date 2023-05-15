@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.png' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik&display=swap" rel="stylesheet">
+    <style>
+        body {
+            overflow-y: hidden;
+            background-color: #F4F9FF;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .card {
+            width: 625px;
+            height: 721px;
+
+            background: #FFFFFF;
+            box-shadow: 0px 2px 29px rgba(0, 0, 0, 0.1);
+            border-radius: 19.8203px;
+        }
+
+        .main-text {
+        {#margin: 0;#} padding: 30px 0 0 0;
+            font-family: 'Rubik';
+            font-style: normal;
+            font-weight: 400;
+            font-size: 40px;
+            line-height: 47px;
+            text-align: center;
+
+            color: #000000;
+        }
+
+        .image-qr {
+            width: 238px;
+            height: 238px;
+            margin: 0 auto;
+        }
+
+        .update-button {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            margin: 40px;
+            cursor: pointer;
+        }
+
+        .action-text {
+            font-family: 'Rubik';
+            font-style: normal;
+            font-weight: 400;
+            font-size: 28.9045px;
+            line-height: 34px;
+            margin: 0 0 14px 0;
+
+            color: #000000;
+        }
+
+        .blue-text {
+            font-family: 'Rubik';
+            font-style: normal;
+            font-weight: 400;
+            font-size: 28.9045px;
+            line-height: 34px;
+
+            color: #3385FF;
+        }
+
+        .action-container {
+            display: grid;
+            justify-content: center;
+            padding: 50px 60px 0 60px;
+        }
+
+        .qr-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+
+        #loading-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 238px;
+            height: 238px;
+            /* background-color: rgba(0, 0, 0, 0.2); */
+            z-index: 10;
+            display: none;
+        }
+
+        .spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            border: 9px solid #3385FF;
+            border-top: 9px solid transparent;
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        .reconnection-container {
+            padding: 0 60px 0 60px;
+            display: none;
+        }
+
+        .reconnection-container p {
+            text-align: center;
+        }
+
+        .timer-reconnection {
+            font-family: 'Rubik';
+            font-style: normal;
+            font-weight: 400;
+            font-size: 55px;
+            line-height: 65px;
+            margin: 0 0 14px 0;
+
+            color: #3385FF;
+        }
+
+        .mobilewebsite {
+            text-align: center;
+            display: none;
+        }
+
+        .in-process {
+            display: none;
+        }
+
+        .in-process-text {
+            font-family: 'Rubik';
+            font-style: normal;
+            font-weight: 400;
+            font-size: 25px;
+            line-height: 30px;
+            margin: 0 0 14px 0;
+
+            text-align: center;
+
+            color: #3385FF;
+        }
+
+        .qr-margin {
+            margin: 40px 0 0 0;
+        }
+
+        /* Mobile Styles */
+        @media only screen and (max-width: 375px) {
+            .card {
+                width: 320px;
+                height: 335px;
+            }
+
+            .main-text {
+                font-size: 17px;
+                line-height: 38px;
+                margin: 0;
+                padding: 15px 0 10px 0px;
+            }
+
+            .action-container {
+                padding: 17px 35px 0 35px;
+            }
+
+            .image-qr {
+                width: 110px;
+                height: 110px;
+            }
+
+            .action-text {
+                margin: 0 0 0 0;
+                font-size: 14px;
+                line-height: 26px;
+            }
+
+            .blue-text {
+                font-size: 14px;
+                line-height: 26px;
+            }
+
+            .qr-margin {
+                margin: 13px 0 0 0;
+            }
+
+            #loading-overlay {
+                width: 110px;
+                height: 110px;
+            }
+
+            .spinner {
+                width: 30px;
+                height: 30px;
+                border: 5px solid #3385FF;
+                border-top: 5px solid transparent;
+            }
+
+            .timer-reconnection {
+                font-size: 27px;
+                line-height: 25px;
+            }
+
+            .in-process-text {
+                font-size: 16px;
+                line-height: 24px;
+            }
+
+            .update-button {
+                margin: 23px;
+            }
+
+            .update-button svg {
+                width: 45px;
+            }
+
+        }
+
+        @media only screen and (min-width: 376px) and (max-width: 480px) {
+            .card {
+                width: 375px;
+                height: 405px;
+            }
+
+            .main-text {
+                font-size: 22px;
+                line-height: 38px;
+                margin: 0;
+                padding: 25px 0 15px 0px;
+            }
+
+            .action-container {
+                padding: 17px 35px 0 35px;
+            }
+
+            .image-qr {
+                width: 150px;
+                height: 150px;
+            }
+
+            .action-text {
+                margin: 0 0 2px 0;
+                font-size: 16px;
+                line-height: 26px;
+            }
+
+            .blue-text {
+                font-size: 16px;
+                line-height: 26px;
+            }
+
+            .qr-margin {
+                margin: 13px 0 0 0;
+            }
+
+            #loading-overlay {
+                width: 150px;
+                height: 150px;
+            }
+
+            .spinner {
+                width: 40px;
+                height: 40px;
+                border: 5px solid #3385FF;
+                border-top: 5px solid transparent;
+            }
+
+            .timer-reconnection {
+                font-size: 32px;
+                line-height: 25px;
+            }
+
+            .in-process-text {
+                font-size: 16px;
+                line-height: 24px;
+            }
+
+            .update-button {
+                margin: 25px;
+            }
+
+            .update-button svg {
+                width: 47px;
+            }
+
+        }
+
+        @media only screen and (min-width: 481px) and (max-width: 680px) {
+            .card {
+                width: 435px;
+                height: 450px;
+            }
+
+            .main-text {
+                font-size: 25px;
+                line-height: 38px;
+                margin: 0;
+                padding: 25px 0 15px 0px;
+            }
+
+            .action-container {
+                padding: 20px 40px 0 40px;
+            }
+
+            .image-qr {
+                width: 180px;
+                height: 180px;
+            }
+
+            .action-text {
+                margin: 0 0 5px 0;
+                font-size: 18px;
+                line-height: 26px;
+            }
+
+            .blue-text {
+                font-size: 18px;
+                line-height: 26px;
+            }
+
+            .qr-margin {
+                margin: 20px 0 0 0;
+            }
+
+            #loading-overlay {
+                width: 180px;
+                height: 180px;
+            }
+
+            .spinner {
+                width: 60px;
+                height: 60px;
+                border: 5px solid #3385FF;
+                border-top: 5px solid transparent;
+            }
+
+            .timer-reconnection {
+                font-size: 35px;
+                line-height: 42px;
+            }
+
+            .in-process-text {
+                font-size: 20px;
+                line-height: 24px;
+            }
+
+            .update-button {
+                margin: 30px;
+            }
+
+            .update-button svg {
+                width: 50px;
+            }
+        }
+
+
+        @media only screen and (min-width: 681px) and (max-width: 1024px) {
+            .card {
+                transform: scale(0.9);
+            }
+
+            .update-button svg {
+                width: 55px;
+            }
+
+            .update-button {
+                margin: 36px;
+            }
+        }
+
+        @media only screen and (min-width: 1025px) {
+            .card {
+                transform: scale(1);
+            }
+
+            .update-button {
+                margin: 40px;
+            }
+
+            .update-button svg {
+                width: 65px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <div class="card">
+        <div>
+            <p class="main-text" id="main-text">Отсканируйте QR</p>
+            <div class="qr-container" style="text-align: center;">
+                <div id="loading-overlay">
+                    <div class="spinner"></div>
+                </div>
+                <img alt="QR" class="image-qr" id="image-qr" src="{{ media_url }}bookingQR.png">
+            </div>
+        </div>
+        <div class="reconnection-container" id="reconnection">
+            <p class="timer-reconnection" id="timer-reconnection">15</p>
+            <p class="action-text">Пытаемся подключиться</p>
+        </div>
+        <div class="in-process" id="in-process">
+            <p class="in-process-text" id="in-process-text">Взять ключ</p>
+        </div>
+        <div class="mobilewebsite action-container" id="mobilewebsite">
+            <p class="action-text"><span class="blue-text">https://digital-control.astanait.edu.kz</span></p>
+        </div>
+        <div class="action-container" id="action-container">
+            <p class="action-text" id="at-1">Действие: <span class="blue-text"
+                                                             id="span-at-1">забронировать кабинет</span></p>
+            <p class="action-text" id="at-2">Кабинет: <span class="blue-text" id="span-at-2">С1.2.240К</span></p>
+            <p class="action-text" id="at-3">Время: <span class="blue-text" id="span-at-3">08:00 - 08:50</span></p>
+            <p class="action-text qr-margin" id="at-4">QR активен до: <span class="blue-text" id="span-at-4">15:15 15.05.2023</span>
+            </p>
+        </div>
+    </div>
+</div>
+<div class="update-button" title="Обновить QR вручную">
+    <svg width="61" height="54" viewBox="0 0 61 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <mask id="path-1-inside-1_513_2503" fill="white">
+            <path
+                    d="M54 27C54 20.5712 51.7061 14.3534 47.531 9.4649C43.3558 4.57642 37.5734 1.3381 31.2237 0.332415C24.8741 -0.673269 18.374 0.619685 12.8925 3.97872C7.4111 7.33775 3.30808 12.5424 1.32147 18.6565C-0.665129 24.7707 -0.404937 31.393 2.05525 37.3325C4.51544 43.2719 9.01417 48.1386 14.7423 51.0572C20.4703 53.9758 27.0519 54.7548 33.303 53.254C39.5542 51.7532 45.0647 48.0712 48.8435 42.8702L43.9031 39.2808C40.979 43.3055 36.7148 46.1547 31.8775 47.3161C27.0401 48.4774 21.9472 47.8746 17.5146 45.6161C13.0821 43.3576 9.60082 39.5916 7.69706 34.9955C5.7933 30.3994 5.59195 25.2749 7.12924 20.5436C8.66653 15.8123 11.8416 11.7848 16.0833 9.18549C20.3249 6.58618 25.3549 5.58565 30.2684 6.36388C35.182 7.14211 39.6566 9.64801 42.8874 13.4309C46.1183 17.2137 47.8934 22.0252 47.8934 27H54Z"/>
+        </mask>
+        <path
+                d="M54 27C54 20.5712 51.7061 14.3534 47.531 9.4649C43.3558 4.57642 37.5734 1.3381 31.2237 0.332415C24.8741 -0.673269 18.374 0.619685 12.8925 3.97872C7.4111 7.33775 3.30808 12.5424 1.32147 18.6565C-0.665129 24.7707 -0.404937 31.393 2.05525 37.3325C4.51544 43.2719 9.01417 48.1386 14.7423 51.0572C20.4703 53.9758 27.0519 54.7548 33.303 53.254C39.5542 51.7532 45.0647 48.0712 48.8435 42.8702L43.9031 39.2808C40.979 43.3055 36.7148 46.1547 31.8775 47.3161C27.0401 48.4774 21.9472 47.8746 17.5146 45.6161C13.0821 43.3576 9.60082 39.5916 7.69706 34.9955C5.7933 30.3994 5.59195 25.2749 7.12924 20.5436C8.66653 15.8123 11.8416 11.7848 16.0833 9.18549C20.3249 6.58618 25.3549 5.58565 30.2684 6.36388C35.182 7.14211 39.6566 9.64801 42.8874 13.4309C46.1183 17.2137 47.8934 22.0252 47.8934 27H54Z"
+                stroke="#3385FF" stroke-width="13.3737" mask="url(#path-1-inside-1_513_2503)"/>
+        <rect x="38.7109" y="25.1445" width="5.20482" height="15.9398" transform="rotate(-56.128 38.7109 25.1445)"
+              fill="#3385FF"/>
+        <rect x="56.5078" y="17.8926" width="5.20482" height="15.9398" transform="rotate(33.872 56.5078 17.8926)"
+              fill="#3385FF"/>
+    </svg>
+
+</div>
+</body>
+
+<script>
+    const qrCodeElement = document.getElementById('image-qr');
+
+    // websocket
+    var ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+    var socket = null;
+    var countdownInterval = null;
+    var countdownSeconds = 15;
+
+    function connectWebSocket() {
+        socket = new WebSocket(ws_scheme + "://" + window.location.host + "/ws/notification_type/");
+        socket.onmessage = function (e) {
+            var data = JSON.parse(e.data);
+            console.log(data)
+            console.log('new data')
+            inProcess_mode('получаем данные')
+            if (data[0].notification_type === 'key_returner') {
+                document.getElementById('span-at-1').textContent = 'Вернуть ключ'
+                document.getElementById('at-1').style.display = 'block'
+                document.getElementById('at-2').style.display = 'none'
+                document.getElementById('at-3').style.display = 'none'
+                document.getElementById('at-4').style.display = 'block'
+                document.getElementById('span-at-4').textContent = data[0].data.timestamp
+                qrCodeElement.src = data[0].data.qr_url + '?' + Math.random();
+                scanQR_mode()
+            } else if (data[0].notification_type === 'key_booking') {
+                document.getElementById('span-at-1').textContent = 'Забронировать кабинет'
+                document.getElementById('span-at-2').textContent = data[0].data.room
+                document.getElementById('span-at-3').textContent = data[0].data.time + ":00 - " + data[0].data.time + ":50"
+                document.getElementById('span-at-4').textContent = data[0].data.timestamp
+                document.getElementById('at-1').style.display = 'block'
+                document.getElementById('at-2').style.display = 'block'
+                document.getElementById('at-3').style.display = 'block'
+                document.getElementById('at-4').style.display = 'block'
+                qrCodeElement.src = data[0].data.qr_url + '?' + Math.random();
+                if (data[0].data.is_take) {
+                    document.getElementById('span-at-1').textContent += ' (+ключ)'
+                }
+                scanQR_mode()
+            } else if (data[0].notification_type === 'mobile') {
+                mobileQR_mode()
+            }
+        }
+        socket.onclose = function (event) {
+            loading_mode()
+            startCountdown();
+        };
+
+        socket.onopen = function (event) {
+            mobileQR_mode()
+            resetCountdown();
+        };
+    }
+
+    // Начальная попытка подключения
+    connectWebSocket();
+
+    function startCountdown() {
+        var countdownElement = document.getElementById("timer-reconnection");
+        countdownElement.textContent = countdownSeconds;
+
+        countdownInterval = setInterval(function () {
+            countdownSeconds--;
+
+            if (countdownSeconds <= 0) {
+                clearInterval(countdownInterval);
+                countdownSeconds = 15;
+                connectWebSocket(); // Запуск новой попытки подключения
+            } else {
+                countdownElement.textContent = countdownSeconds;
+            }
+        }, 1000);
+    }
+
+    function resetCountdown() {
+        clearInterval(countdownInterval);
+        countdownSeconds = 15;
+        document.getElementById("timer-reconnection").textContent = "";
+    }
+
+    // functions designs
+
+    function showSpinner() {
+        document.getElementById('image-qr').style.opacity = '0'
+        document.getElementById('loading-overlay').style.display = 'block'
+    }
+
+    function showQR() {
+        document.getElementById('image-qr').style.opacity = '1'
+        document.getElementById('loading-overlay').style.display = 'none'
+    }
+
+    function hideActionContainer() {
+        document.getElementById('action-container').style.display = 'none'
+    }
+
+    function showActionContainer() {
+        document.getElementById('action-container').style.display = 'block'
+    }
+
+    function hideReconnection() {
+        document.getElementById('reconnection').style.display = 'none'
+    }
+
+    function showReconnection() {
+        document.getElementById('reconnection').style.display = 'block'
+    }
+
+    function hideMobilewebsite() {
+        document.getElementById('mobilewebsite').style.display = 'none'
+    }
+
+    function showMobilewebsite() {
+        document.getElementById('mobilewebsite').style.display = 'block'
+    }
+
+    function showProcess() {
+        document.getElementById('in-process').style.display = 'block'
+    }
+
+    function hideProcess() {
+        document.getElementById('in-process').style.display = 'none'
+    }
+
+    function loading_mode() {
+        showSpinner()
+        document.getElementById('main-text').innerHTML = 'Соединение потеряно'
+        showReconnection()
+
+        hideProcess()
+        hideMobilewebsite()
+        hideActionContainer()
+    }
+
+    function scanQR_mode() {
+        showQR()
+        document.getElementById('main-text').innerHTML = 'Отсканируйте QR'
+        showActionContainer()
+
+        hideProcess()
+        hideMobilewebsite()
+        hideReconnection()
+    }
+
+    function mobileQR_mode() {
+        showQR()
+        document.getElementById('main-text').innerHTML = 'Мобильная версия сайта'
+        showMobilewebsite()
+
+        hideProcess()
+        hideActionContainer()
+        hideReconnection()
+    }
+
+    function inProcess_mode(data) {
+        showSpinner()
+        document.getElementById('main-text').textContent = 'В процессе...'
+        document.getElementById('in-process-text').textContent = data
+        showProcess()
+
+        hideMobilewebsite()
+        hideActionContainer()
+        hideReconnection()
+    }
+
+    // scanQR_mode()
+    mobileQR_mode()
+    // inProcess_mode()
+    // loading_mode()
+</script>
+
+</html>

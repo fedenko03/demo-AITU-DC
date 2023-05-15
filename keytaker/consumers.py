@@ -123,3 +123,29 @@ class WSUpdateBookingStatus(AsyncWebsocketConsumer):
             await self.send(text_data=json.dumps({
                 'status': status
             }))
+
+
+class WebSocketQR(AsyncWebsocketConsumer):
+    consumers = []
+
+    async def connect(self):
+        await self.accept()
+        self.consumers.append(self)
+        print("WebSocket QR connected")
+
+    async def disconnect(self, close_code):
+        self.consumers.remove(self)
+        print("WebSocket QR disconnected")
+
+    async def receive(self, text_data=None, bytes_data=None):
+        if text_data:
+            text_data_json = json.loads(text_data)
+            notification_type = text_data_json['notification_type']
+            data = text_data_json['data']
+            await self.send(text_data=json.dumps({
+                'notification_type': notification_type,
+                'data': data
+            }))
+
+    async def send_notification(self, notification_data):
+        await self.send(json.dumps(notification_data))

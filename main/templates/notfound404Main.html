@@ -1,39 +1,80 @@
-{% load static %}
 <!DOCTYPE html>
-<html lang="ru">
-
+<html lang="en">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Not Found</title>
-    <link href="{% static 'css/loading.css' %}" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-    <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&amp;display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Anek+Gurmukhi:400,500&amp;display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Anek+Kannada&amp;display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Antic&amp;display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Anybody&amp;display=swap">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+    <title>404 Page Not Found</title>
+    <style>
+        body {
+            background-color: #ffffff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap" rel="stylesheet">
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #333;
+            display: inline-block;
+            position: relative;
+        }
 
+        h1::after {
+            content: '404';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 25rem;
+            color: #777;
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        h1 span {
+            width: 1000px;
+            display: block;
+            position: relative;
+            z-index: 1;
+        }
+
+        p {
+            font-size: 1.2rem;
+            color: #777;
+            margin-bottom: 2rem;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            h1::after {
+                font-size: 15rem;
+            }
+
+            p {
+                font-size: 1rem;
+            }
+        }
+    </style>
 </head>
-
-<div class="container d-xl-flex justify-content-xl-center align-items-xl-center" style="height: 500px;">
-    <div style="text-align: center;">
-        <p class="fw-bolder text-danger mb-2" style="font-size: 20px;">Ошибка 404</p>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em" fill="currentColor"
-             class="text-danger" style="font-size: 100px;">
-            <!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. -->
-            <path d="M143.9 398.6C131.4 394.1 124.9 380.3 129.4 367.9C146.9 319.4 198.9 288 256 288C313.1 288 365.1 319.4 382.6 367.9C387.1 380.3 380.6 394.1 368.1 398.6C355.7 403.1 341.9 396.6 337.4 384.1C328.2 358.5 297.2 336 256 336C214.8 336 183.8 358.5 174.6 384.1C170.1 396.6 156.3 403.1 143.9 398.6V398.6zM208.4 208C208.4 225.7 194 240 176.4 240C158.7 240 144.4 225.7 144.4 208C144.4 190.3 158.7 176 176.4 176C194 176 208.4 190.3 208.4 208zM304.4 208C304.4 190.3 318.7 176 336.4 176C354 176 368.4 190.3 368.4 208C368.4 225.7 354 240 336.4 240C318.7 240 304.4 225.7 304.4 208zM512 256C512 397.4 397.4 512 256 512C114.6 512 0 397.4 0 256C0 114.6 114.6 0 256 0C397.4 0 512 114.6 512 256zM256 48C141.1 48 48 141.1 48 256C48 370.9 141.1 464 256 464C370.9 464 464 370.9 464 256C464 141.1 370.9 48 256 48z"></path>
-        </svg>
-        <h1 class="fw-normal text-dark mb-4" style="font-size: 40px;">Страница не найдена</h1>
-        <a class="btn btn-outline-primary fs-5 py-2 px-4" href="{% url 'homeMain' %}" style="border-radius: 23.6px;">На главную
-        </a>
-    </div>
+<body>
+<div>
+    <h1><span>Not found</span></h1>
+    <p>The page you are looking for does not exist.</p>
+    <a href="{% url 'homeMain' %}">Go back to homepage</a>
 </div>
-
+</body>
 </html>

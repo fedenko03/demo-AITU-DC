@@ -30,7 +30,7 @@
 
         .loader {
             display: none;
-            z-index: 99;
+            z-index: 10000 !important;
             position: fixed;
             top: 0;
             left: 0;
@@ -80,7 +80,8 @@
 <div id="loader" class="loader">
     <div class="loader-content">
         <div class="loader-spinner"></div>
-        <p class="loader-text" id="loader-text">Connection Lost. Please reload the page or wait for the connection to be restored.</p>
+        <p class="loader-text" id="loader-text">Connection Lost. Please reload the page or wait for the connection to be
+            restored.</p>
         <p id="loader-countdown" class="loader-countdown" style="font-size: 20px"></p>
     </div>
 </div>

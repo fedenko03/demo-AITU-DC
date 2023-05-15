@@ -1,4 +1,6 @@
-from datetime import datetime
+import asyncio
+import json
+from datetime import datetime, timedelta
 
 import qrcode
 from django.contrib.auth import authenticate, login, logout
@@ -13,6 +15,7 @@ from django.views.decorators.http import require_GET
 
 from AITUDC import settings
 from api.views import confirmed_order, canceled_order
+from keytaker.consumers import WebSocketQR
 from keytaker.models import Orders, History, Room, Reservation, StudyRoomSchedule, Schedule
 from django.contrib import messages
 from django.utils import timezone
@@ -114,8 +117,13 @@ def not_foundMain(request):
 @login_required(login_url='loginMain')
 def homeMain(request):
     orders_list = getOrders()
+    link_confirm = "http://" + request.get_host() + "/"
+    print(link_confirm)
+    img = qrcode.make(link_confirm)
+    img.save("media/mobile.png")
     return render(request, 'home-main.html', {
-        'orders_list': orders_list
+        'orders_list': orders_list,
+        'media_url': settings.MEDIA_URL
     })
 
 
@@ -195,18 +203,18 @@ def create_schedule_from_excel(file):
         end_time = row['end_time']
 
         # Проверка данных перед созданием расписания
-        if not room_name or not week_day or not email or not start_time or not end_time\
-                or room_name == '' or week_day == '' or email == '' or start_time == '' or end_time == ''\
+        if not room_name or not week_day or not email or not start_time or not end_time \
+                or room_name == '' or week_day == '' or email == '' or start_time == '' or end_time == '' \
                 or str(room_name) == 'nan' or str(week_day) == 'nan' or str(email) == 'nan' or str(start_time) == 'nan' \
                 or str(end_time) == 'nan':
-            return f"Неполные данные в таблице. Проверьте все поля. ({index+2})"
+            return f"Неполные данные в таблице. Проверьте все поля. ({index + 2})"
 
         room_obj = Room.objects.filter(name=room_name).first()
         professor_obj = MainUser.objects.filter(email=email).first()
         if not room_obj:
-            return f"Проверьте все поля. Комната ' + str(room_name) + ' не найдена. ({index+2})"
+            return f"Проверьте все поля. Комната ' + str(room_name) + ' не найдена. ({index + 2})"
         if not professor_obj:
-            return f"Проверьте все поля. Пользователь ' + str(email) + ' не найден. ({index+2})"
+            return f"Проверьте все поля. Пользователь ' + str(email) + ' не найден. ({index + 2})"
 
         # Создание записи в расписании
         schedule = Schedule.objects.create(
@@ -424,7 +432,7 @@ def confirmBooking(request, key):
     ).first()
 
     if not studyroom_schedule:
-        messages.error(request, 'The room ' + reservation_obj.name + ' does not have a schedule or this time slot.')
+        messages.error(request, 'The room ' + reservation_obj.room.name + ' does not have a schedule or this time slot.')
         return redirect('homeMain')
     if studyroom_schedule.status != 'free':
         messages.error(request, "The selected time slot is not available.")
@@ -445,6 +453,20 @@ def confirmBooking(request, key):
     print(link_confirm)
     img = qrcode.make(link_confirm)
     img.save("media/bookingQR.png")
+
+    status_list = []
+    status_list.append({'notification_type': 'key_booking',
+                        'data': {
+                            'link_confirm': link_confirm,
+                            'qr_url': settings.MEDIA_URL + 'bookingQR.png',
+                            'timestamp': (reservation_obj.created_at + timedelta(minutes=5)).astimezone(local_tz).strftime("%H:%M:%S %d.%m.%Y"),
+                            'room': reservation_obj.room.name,
+                            'time': reservation_obj.start_time.strftime("%H"),
+                            'is_take': reservation_obj.is_take
+                        }})
+    for consumer in WebSocketQR.consumers:
+        asyncio.run(consumer.send(text_data=json.dumps(status_list)))
+
     return render(request, 'confirm-booking-qr.html', {
         'media_url': settings.MEDIA_URL,
         'room': reservation_obj.room.name,
@@ -521,6 +543,13 @@ def pinLocked(request):
         code_obj.save()
         return redirect('homeMain')
     return render(request, 'pin.html')
+
+
+@login_required(login_url='loginMain')
+def websocketQR(request):
+    return render(request, 'websocket-qr.html', {
+        'media_url': settings.MEDIA_URL,
+    })
 
 
 @login_required(login_url='loginMain')
