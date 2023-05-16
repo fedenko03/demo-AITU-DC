@@ -1,4 +1,6 @@
+import asyncio
 import json
+from datetime import timedelta
 
 import pytz
 from django.contrib.auth.decorators import *
@@ -7,7 +9,7 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.contrib import messages
 
-from .consumers import WSNewOrder
+from .consumers import WSNewOrder, WebSocketQR
 from .models import *
 from .forms import ChooseRoom, ChooserData
 import qrcode
@@ -189,6 +191,19 @@ def takeroom3(request):
         print(link_confirm)
         img = qrcode.make(link_confirm)
         img.save("media/qr.png")
+
+        status_list = []
+        status_list.append({'notification_type': 'key_taker',
+                            'data': {
+                                'link_confirm': link_confirm,
+                                'qr_url': settings.MEDIA_URL + 'qr.png',
+                                'timestamp': (settings_obj.code_timestamp + timedelta(minutes=5)).astimezone(
+                                    local_tz).strftime("%H:%M:%S %d.%m.%Y"),
+                                'room': settings_obj.room.name
+                            }})
+        for consumer in WebSocketQR.consumers:
+            asyncio.run(consumer.send(text_data=json.dumps(status_list)))
+
         # blob_bytes = io.BytesIO()
         # img.save(blob_bytes, format='PNG')
         # blob_bytes.seek(0)

@@ -236,7 +236,11 @@ def confirm_keytaking(request, confirmation_code):  # step 4
                 print(current_datetime.minute)
                 if (current_datetime.minute >= 0) and (current_datetime.minute < 30):
                     interval_start_time = str(current_datetime.hour) + ':00'
-                    cells = StudyRoomSchedule.objects.get(room=settings_obj.room, start_time=interval_start_time)
+                    try:
+                        cells = StudyRoomSchedule.objects.get(room=settings_obj.room, start_time=interval_start_time)
+                    except StudyRoomSchedule.DoesNotExist:
+                        messages.error(request, 'Ошибка при получении информации о расписании. Взять ключ можно только если до начала занятия осталось менее 30 минут и ключ находится у охраны.')
+                        return redirect('home')
 
                     print('1 ' + interval_start_time)
                     if cells.status == 'free':
@@ -252,8 +256,14 @@ def confirm_keytaking(request, confirmation_code):  # step 4
                 elif (current_datetime.minute >= 30) and (current_datetime.minute < 50):
                     interval_start_time1 = str(current_datetime.hour) + ':00'
                     interval_start_time2 = str(current_datetime.hour + 1) + ':00'
-                    cells1 = StudyRoomSchedule.objects.get(room=settings_obj.room, start_time=interval_start_time1)
-                    cells2 = StudyRoomSchedule.objects.get(room=settings_obj.room, start_time=interval_start_time2)
+
+                    try:
+                        cells1 = StudyRoomSchedule.objects.get(room=settings_obj.room, start_time=interval_start_time1)
+                        cells2 = StudyRoomSchedule.objects.get(room=settings_obj.room, start_time=interval_start_time2)
+                    except StudyRoomSchedule.DoesNotExist:
+                        messages.error(request, 'Ошибка при получении информации о расписании. Взять ключ можно только если до начала занятия осталось менее 30 минут и ключ находится у охраны.')
+                        return redirect('home')
+
                     print('2 ' + interval_start_time1 + ' + ' + interval_start_time2)
                     if cells2.status == 'free':
                         cells2.status = 'reserved'
@@ -284,7 +294,13 @@ def confirm_keytaking(request, confirmation_code):  # step 4
                         return redirect('home')
                 else:
                     interval_start_time = str(current_datetime.hour + 1) + ':00'
-                    cells = StudyRoomSchedule.objects.get(room=settings_obj.room, start_time=interval_start_time)
+
+                    try:
+                        cells = StudyRoomSchedule.objects.get(room=settings_obj.room, start_time=interval_start_time)
+                    except StudyRoomSchedule.DoesNotExist:
+                        messages.error(request, 'Ошибка при получении информации о расписании. Взять ключ можно только если до начала занятия осталось менее 30 минут и ключ находится у охраны.')
+                        return redirect('home')
+
                     print('3 ' + interval_start_time)
                     if cells.status == 'free':
                         cells.status = 'reserved'
@@ -312,6 +328,13 @@ def confirm_keytaking(request, confirmation_code):  # step 4
             settings_obj.save()
             history.save()
             messages.success(request, 'Заявка на взятие ключа подтверждена успешно.')
+
+            status_list = []
+            status_list.append({'notification_type': 'success',
+                                'data': 'none'})
+            for consumer in WebSocketQR.consumers:
+                asyncio.run(consumer.send(text_data=json.dumps(status_list)))
+
             return redirect('home')
         else:
             messages.error(request, 'Заявки не существует, возможно её уже активировали ')
@@ -595,6 +618,13 @@ def key_return_get_user(request, token):
     settings_obj.in_process = True
     settings_obj.save()
     ws_get_user(request, user_obj)
+
+    status_list = []
+    status_list.append({'notification_type': 'success',
+                        'data': 'none'})
+    for consumer in WebSocketQR.consumers:
+        asyncio.run(consumer.send(text_data=json.dumps(status_list)))
+
     messages.success(request, 'Успешно! Выберите нужную заявку на экране администратора')
     return redirect('home')
 
@@ -730,6 +760,13 @@ def reserve_studyroom(request, key):
     reservation.save()
 
     messages.success(request, "The reservation has been successfully activated.")
+
+    status_list = []
+    status_list.append({'notification_type': 'success',
+                        'data': 'none'})
+    for consumer in WebSocketQR.consumers:
+        asyncio.run(consumer.send(text_data=json.dumps(status_list)))
+
     status_list.append({'status': 'success',
                         'key': reservation.key})
     for consumer in WSUpdateBookingStatus.consumers:

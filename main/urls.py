@@ -20,5 +20,6 @@ urlpatterns = [
     path('confirm-takeroom/<int:pk>', views.confirm_takeroom, name='confirm-takeroom'),
     path('cancel-takeroomMain/<int:pk>', views.cancel_takeroomMain, name='cancel-takeroomMain'),
     path('confirm-booking/<str:key>/', views.confirmBooking, name='confirm-booking'),
-    path('qr/', views.websocketQR, name='websocketQR')
+    path('qr/', views.websocketQR, name='websocketQR'),
+    path('update-qr/', views.updateQR, name='updateQR')
    ]

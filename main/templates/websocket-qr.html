@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Rubik&display=swap" rel="stylesheet">
     <style>
         body {
+            user-select: none;
             overflow-y: hidden;
             background-color: #F4F9FF;
         }
@@ -31,7 +32,7 @@
         }
 
         .main-text {
-        {#margin: 0;#} padding: 30px 0 0 0;
+            padding: 30px 0 0 0;
             font-family: 'Rubik';
             font-style: normal;
             font-weight: 400;
@@ -43,6 +44,7 @@
         }
 
         .image-qr {
+            pointer-events: none;
             width: 238px;
             height: 238px;
             margin: 0 auto;
@@ -170,6 +172,22 @@
             margin: 40px 0 0 0;
         }
 
+        .green-f {
+            color: #00A510;
+        }
+
+        .red-f {
+            color: #E50000;
+        }
+
+        .success_part {
+            display: none;
+        }
+
+        .error_part {
+            display: none;
+        }
+
         /* Mobile Styles */
         @media only screen and (max-width: 375px) {
             .card {
@@ -186,6 +204,11 @@
 
             .action-container {
                 padding: 17px 35px 0 35px;
+            }
+
+            .qr-container svg {
+                width: 85px;
+                height: 85px;
             }
 
             .image-qr {
@@ -257,6 +280,11 @@
                 padding: 17px 35px 0 35px;
             }
 
+            .qr-container svg {
+                width: 100px;
+                height: 100px;
+            }
+
             .image-qr {
                 width: 150px;
                 height: 150px;
@@ -326,6 +354,11 @@
                 padding: 20px 40px 0 40px;
             }
 
+            .qr-container svg {
+                width: 130px;
+                height: 130px;
+            }
+
             .image-qr {
                 width: 180px;
                 height: 180px;
@@ -377,7 +410,6 @@
             }
         }
 
-
         @media only screen and (min-width: 681px) and (max-width: 1024px) {
             .card {
                 transform: scale(0.9);
@@ -411,36 +443,80 @@
 <body>
 <div class="container">
     <div class="card">
-        <div>
-            <p class="main-text" id="main-text">Отсканируйте QR</p>
-            <div class="qr-container" style="text-align: center;">
-                <div id="loading-overlay">
-                    <div class="spinner"></div>
-                </div>
-                <img alt="QR" class="image-qr" id="image-qr" src="{{ media_url }}bookingQR.png">
+        <div class="error_part" id="error_part">
+            <p class="main-text red-f">Ошибка!</p>
+            <div class="qr-container">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
+                     width="185" height="185" viewBox="0 0 256 256" xml:space="preserve">
+<g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;"
+   transform="translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)">
+	<path d="M 45 57.469 L 45 57.469 c -1.821 0 -3.319 -1.434 -3.399 -3.252 L 38.465 23.95 c -0.285 -3.802 2.722 -7.044 6.535 -7.044 h 0 c 3.813 0 6.82 3.242 6.535 7.044 l -3.137 30.267 C 48.319 56.036 46.821 57.469 45 57.469 z"
+          style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(229,0,0); fill-rule: nonzero; opacity: 1;"
+          transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/>
+    <circle cx="45" cy="67.67" r="5.42"
+            style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(229,0,0); fill-rule: nonzero; opacity: 1;"
+            transform="  matrix(1 0 0 1 0 0) "/>
+    <path d="M 45 90 C 20.187 90 0 69.813 0 45 C 0 20.187 20.187 0 45 0 c 24.813 0 45 20.187 45 45 C 90 69.813 69.813 90 45 90 z M 45 6 C 23.495 6 6 23.495 6 45 s 17.495 39 39 39 s 39 -17.495 39 -39 S 66.505 6 45 6 z"
+          style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(229,0,0); fill-rule: nonzero; opacity: 1;"
+          transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/>
+</g>
+</svg>
+            </div>
+            <div class="action-container">
+                <p class="action-text">Время действия QR-кода истекло</p>
             </div>
         </div>
-        <div class="reconnection-container" id="reconnection">
-            <p class="timer-reconnection" id="timer-reconnection">15</p>
-            <p class="action-text">Пытаемся подключиться</p>
+        <div class="success_part" id="success_part">
+            <p class="main-text green-f">Успешно!</p>
+            <div class="qr-container">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
+                     width="185" height="185" viewBox="0 0 256 256" xml:space="preserve">
+                    <g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;"
+                       transform="translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)"><path d="M 43.077 63.077 c -0.046 0 -0.093 -0.001 -0.14 -0.002 c -1.375 -0.039 -2.672 -0.642 -3.588 -1.666 L 23.195 43.332 c -1.84 -2.059 -1.663 -5.22 0.396 -7.06 c 2.059 -1.841 5.22 -1.664 7.06 0.396 l 12.63 14.133 l 38.184 -38.184 c 1.951 -1.952 5.119 -1.952 7.07 0 c 1.953 1.953 1.953 5.119 0 7.071 L 46.612 61.612 C 45.674 62.552 44.401 63.077 43.077 63.077 z"
+          style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,165,16); fill-rule: nonzero; opacity: 1;"
+          transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/>
+                        <path d="M 45 90 C 20.187 90 0 69.813 0 45 C 0 20.187 20.187 0 45 0 c 2.762 0 5 2.239 5 5 s -2.238 5 -5 5 c -19.299 0 -35 15.701 -35 35 s 15.701 35 35 35 s 35 -15.701 35 -35 c 0 -2.761 2.238 -5 5 -5 s 5 2.239 5 5 C 90 69.813 69.813 90 45 90 z"
+                              style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,165,16); fill-rule: nonzero; opacity: 1;"
+                              transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/></g></svg>
+            </div>
+            <div class="action-container">
+                <p class="action-text">Заявка обработана успешно</p>
+            </div>
         </div>
-        <div class="in-process" id="in-process">
-            <p class="in-process-text" id="in-process-text">Взять ключ</p>
-        </div>
-        <div class="mobilewebsite action-container" id="mobilewebsite">
-            <p class="action-text"><span class="blue-text">https://digital-control.astanait.edu.kz</span></p>
-        </div>
-        <div class="action-container" id="action-container">
-            <p class="action-text" id="at-1">Действие: <span class="blue-text"
-                                                             id="span-at-1">забронировать кабинет</span></p>
-            <p class="action-text" id="at-2">Кабинет: <span class="blue-text" id="span-at-2">С1.2.240К</span></p>
-            <p class="action-text" id="at-3">Время: <span class="blue-text" id="span-at-3">08:00 - 08:50</span></p>
-            <p class="action-text qr-margin" id="at-4">QR активен до: <span class="blue-text" id="span-at-4">15:15 15.05.2023</span>
-            </p>
+
+        <div id="general_part">
+            <div>
+                <p class="main-text" id="main-text">Отсканируйте QR</p>
+                <div class="qr-container" style="text-align: center;">
+                    <div id="loading-overlay">
+                        <div class="spinner"></div>
+                    </div>
+                    <img alt="QR" class="image-qr" id="image-qr" src="{{ media_url }}bookingQR.png">
+                </div>
+            </div>
+            <div class="reconnection-container" id="reconnection">
+                <p class="timer-reconnection" id="timer-reconnection">15</p>
+                <p class="action-text">Пытаемся подключиться</p>
+            </div>
+            <div class="in-process" id="in-process">
+                <p class="in-process-text" id="in-process-text">Взять ключ</p>
+            </div>
+            <div class="mobilewebsite action-container" id="mobilewebsite">
+                <p class="action-text"><span class="blue-text"
+                                             id="website_link">https://digital-control.astanait.edu.kz</span></p>
+            </div>
+            <div class="action-container" id="action-container">
+                <p class="action-text" id="at-1">Действие: <span class="blue-text"
+                                                                 id="span-at-1">забронировать кабинет</span></p>
+                <p class="action-text" id="at-2">Кабинет: <span class="blue-text" id="span-at-2">С1.2.240К</span></p>
+                <p class="action-text" id="at-3">Время: <span class="blue-text" id="span-at-3">08:00 - 08:50</span></p>
+                <p class="action-text qr-margin" id="at-4">QR активен до: <span class="blue-text" id="span-at-4">00:40:10 17.05.2023</span>
+                </p>
+            </div>
         </div>
     </div>
 </div>
-<div class="update-button" title="Обновить QR вручную">
+<div class="update-button" title="Переподключиться к серверу вручную">
     <svg width="61" height="54" viewBox="0 0 61 54" fill="none" xmlns="http://www.w3.org/2000/svg">
         <mask id="path-1-inside-1_513_2503" fill="white">
             <path
@@ -460,7 +536,6 @@
 
 <script>
     const qrCodeElement = document.getElementById('image-qr');
-
     // websocket
     var ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
     var socket = null;
@@ -471,8 +546,8 @@
         socket = new WebSocket(ws_scheme + "://" + window.location.host + "/ws/notification_type/");
         socket.onmessage = function (e) {
             var data = JSON.parse(e.data);
-            console.log(data)
-            console.log('new data')
+            // console.log(data)
+            // console.log('new data')
             inProcess_mode('получаем данные')
             if (data[0].notification_type === 'key_returner') {
                 document.getElementById('span-at-1').textContent = 'Вернуть ключ'
@@ -483,6 +558,7 @@
                 document.getElementById('span-at-4').textContent = data[0].data.timestamp
                 qrCodeElement.src = data[0].data.qr_url + '?' + Math.random();
                 scanQR_mode()
+                startExpirationCheck()
             } else if (data[0].notification_type === 'key_booking') {
                 document.getElementById('span-at-1').textContent = 'Забронировать кабинет'
                 document.getElementById('span-at-2').textContent = data[0].data.room
@@ -497,8 +573,33 @@
                     document.getElementById('span-at-1').textContent += ' (+ключ)'
                 }
                 scanQR_mode()
+                startExpirationCheck()
+            } else if (data[0].notification_type === 'key_taker') {
+                document.getElementById('span-at-1').textContent = 'Взять ключ'
+                document.getElementById('span-at-2').textContent = data[0].data.room
+                document.getElementById('span-at-4').textContent = data[0].data.timestamp
+                document.getElementById('at-1').style.display = 'block'
+                document.getElementById('at-2').style.display = 'block'
+                document.getElementById('at-3').style.display = 'none'
+                document.getElementById('at-4').style.display = 'block'
+                qrCodeElement.src = data[0].data.qr_url + '?' + Math.random();
+                scanQR_mode()
+                startExpirationCheck()
             } else if (data[0].notification_type === 'mobile') {
                 mobileQR_mode()
+                endExpirationCheck()
+            } else if (data[0].notification_type === 'success') {
+                success_mode()
+                endExpirationCheck()
+                setTimeout(function () {
+                    mobileQR_mode()
+                }, 5000);
+            } else if (data[0].notification_type === 'error') {
+                error_mode()
+                endExpirationCheck()
+                setTimeout(function () {
+                    mobileQR_mode()
+                }, 5000);
             }
         }
         socket.onclose = function (event) {
@@ -514,6 +615,14 @@
 
     // Начальная попытка подключения
     connectWebSocket();
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var updateButton = document.querySelector('.update-button');
+
+        updateButton.addEventListener('click', function () {
+            connectWebSocket();
+        });
+    });
 
     function startCountdown() {
         var countdownElement = document.getElementById("timer-reconnection");
@@ -536,6 +645,55 @@
         clearInterval(countdownInterval);
         countdownSeconds = 15;
         document.getElementById("timer-reconnection").textContent = "";
+    }
+
+
+    // Обработка времени
+    var intervalId; // Глобальная переменная для хранения идентификатора интервала
+
+    function startExpirationCheck() {
+        // Перед запуском нового интервала, удаляем предыдущий (если есть)
+        clearInterval(intervalId);
+        // Запускаем новый интервал
+        intervalId = setInterval(checkExpirationTime, 2000);
+    }
+
+    function endExpirationCheck() {
+        clearInterval(intervalId);
+    }
+
+    function checkExpirationTime() {
+        var expirationElement = document.getElementById('span-at-4');
+        var expirationTimeString = expirationElement.textContent;
+        var expirationDateTime = parseDateTimeString(expirationTimeString);
+
+        var currentDateTime = new Date();
+
+        if (currentDateTime >= expirationDateTime) {
+            error_mode();
+            clearInterval(intervalId); // Удаляем текущий интервал
+            setTimeout(function () {
+                mobileQR_mode()
+            }, 5000);
+        }
+    }
+
+    function parseDateTimeString(dateTimeString) {
+        var parts = dateTimeString.split(' ');
+        var timePart = parts[0];
+        var datePart = parts[1];
+
+        var timeParts = timePart.split(':');
+        var hour = timeParts[0];
+        var minute = timeParts[1];
+        var second = timeParts[2];
+
+        var dateParts = datePart.split('.');
+        var day = dateParts[0];
+        var month = dateParts[1] - 1; // Месяцы в JavaScript начинаются с 0, поэтому вычитаем 1
+        var year = dateParts[2];
+
+        return new Date(year, month, day, hour, minute, second);
     }
 
     // functions designs
@@ -582,7 +740,35 @@
         document.getElementById('in-process').style.display = 'none'
     }
 
+    function showSuccessPart() {
+        document.getElementById('success_part').style.display = 'block'
+    }
+
+    function hideSuccessPart() {
+        document.getElementById('success_part').style.display = 'none'
+    }
+
+    function showErrorPart() {
+        document.getElementById('error_part').style.display = 'block'
+    }
+
+    function hideErrorPart() {
+        document.getElementById('error_part').style.display = 'none'
+    }
+
+    function showGeneralPart() {
+        document.getElementById('general_part').style.display = 'block'
+    }
+
+    function hideGeneralPart() {
+        document.getElementById('general_part').style.display = 'none'
+    }
+
     function loading_mode() {
+        hideErrorPart()
+        hideSuccessPart()
+        showGeneralPart()
+
         showSpinner()
         document.getElementById('main-text').innerHTML = 'Соединение потеряно'
         showReconnection()
@@ -593,6 +779,10 @@
     }
 
     function scanQR_mode() {
+        hideErrorPart()
+        hideSuccessPart()
+        showGeneralPart()
+
         showQR()
         document.getElementById('main-text').innerHTML = 'Отсканируйте QR'
         showActionContainer()
@@ -603,8 +793,14 @@
     }
 
     function mobileQR_mode() {
+        hideErrorPart()
+        hideSuccessPart()
+        showGeneralPart()
+
         showQR()
         document.getElementById('main-text').innerHTML = 'Мобильная версия сайта'
+        qrCodeElement.src = '{{ media_url }}mobileQR.png' + '?' + Math.random();
+        document.getElementById('website_link').textContent = window.location.protocol + '//' + window.location.host
         showMobilewebsite()
 
         hideProcess()
@@ -613,6 +809,10 @@
     }
 
     function inProcess_mode(data) {
+        hideErrorPart()
+        hideSuccessPart()
+        showGeneralPart()
+
         showSpinner()
         document.getElementById('main-text').textContent = 'В процессе...'
         document.getElementById('in-process-text').textContent = data
@@ -623,6 +823,21 @@
         hideReconnection()
     }
 
+    function success_mode() {
+        showSuccessPart()
+        hideErrorPart()
+        hideGeneralPart()
+    }
+
+    function error_mode() {
+        hideSuccessPart()
+        showErrorPart()
+        hideGeneralPart()
+    }
+
+
+    // error_mode()
+    // success_mode()
     // scanQR_mode()
     mobileQR_mode()
     // inProcess_mode()

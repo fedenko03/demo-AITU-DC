@@ -547,6 +547,9 @@ def pinLocked(request):
 
 @login_required(login_url='loginMain')
 def websocketQR(request):
+    link_confirm = "http://" + request.get_host()
+    img = qrcode.make(link_confirm)
+    img.save("media/mobileQR.png")
     return render(request, 'websocket-qr.html', {
         'media_url': settings.MEDIA_URL,
     })
@@ -567,3 +570,13 @@ def PinLock(request, code):
     else:
         messages.error(request, 'PIN-код должен содержать от 4 до 10 цифр.')
         return redirect('homeMain')
+
+
+@login_required(login_url='loginMain')
+def updateQR(request):
+    status_list = []
+    status_list.append({'notification_type': 'mobile',
+                        'data': 'none'})
+    for consumer in WebSocketQR.consumers:
+        asyncio.run(consumer.send(text_data=json.dumps(status_list)))
+    return JsonResponse({'status': 'updated'})

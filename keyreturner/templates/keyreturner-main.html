@@ -418,5 +418,15 @@
             xhr.send();
         }
 
+        window.addEventListener('beforeunload', function (event) {
+            $.ajax({
+                url: `${location.protocol}//${location.host}/main/update-qr/`,
+                dataType: 'json',
+                success: function (data) {
+                    console.log(data)
+                }
+            });
+        })
+
     </script>
 {% endblock %}
