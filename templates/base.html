@@ -7,8 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
     <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.png' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik&display=swap" rel="stylesheet">
     <link href="{% static 'css/loading.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'css/style.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/gide.css' %}" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/main-notifications.css' %}">
     <link rel="stylesheet"
@@ -77,6 +79,45 @@
 <body id="menybody" class="sidebar-toggled"
       style="font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;">
 
+<div id="modal-window" class="modal-window">
+    <div class="modal-card">
+        <div class="close-button" onclick="hideModalGide()">
+            <svg width="40" height="40" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M443.6 387.099L312.4 255.399L443.9 125.399C449.3 119.999 449.3 111.199 443.9 105.799L406.5 68.1992C403.9 65.5992 400.4 64.1992 396.7 64.1992C393 64.1992 389.5 65.6992 386.9 68.1992L256 197.799L124.9 68.2992C122.3 65.6992 118.8 64.2992 115.1 64.2992C111.4 64.2992 107.9 65.7992 105.3 68.2992L68.0002 105.899C62.6002 111.299 62.6002 120.099 68.0002 125.499L199.5 255.499L68.4002 387.099C65.8002 389.699 64.3002 393.199 64.3002 396.899C64.3002 400.599 65.7002 404.099 68.4002 406.699L105.8 444.299C108.5 446.999 112 448.399 115.6 448.399C119.1 448.399 122.7 447.099 125.4 444.299L256 313.099L386.7 444.199C389.4 446.899 392.9 448.299 396.5 448.299C400 448.299 403.6 446.999 406.3 444.199L443.7 406.599C446.3 403.999 447.8 400.499 447.8 396.799C447.7 393.199 446.2 389.699 443.6 387.099Z"
+                      fill="#FE4747"/>
+            </svg>
+
+        </div>
+        <div class="modal-header-v2">
+            <p class="modal-text">Руководство</p>
+            <div class="separator"></div>
+        </div>
+        <div class="modal-body-v2">
+            <div class="modal-buttons">
+                <button id="mode1" class="modal-button active-button" onclick="Mode1()">Как взять ключ</button>
+                <button id="mode2" class="modal-button" onclick="Mode2()">Как вернуть ключ</button>
+                <button id="mode3" class="modal-button" onclick="Mode3()">Как забронировать кабинет</button>
+            </div>
+            <div class="modal-content-v2">
+                <div class="mc-content">
+                    <p id="mc-step" class="mc-step">Шаг 1</p>
+                    <p id="mc-text1" class="mc-text">Выберите действие “Взять ключ” на главной странице.</p>
+                    <div style="display: flex;">
+                        <img id="image1-step" class="image-step" src="{% static 'img/gide/1/step1.png' %}" alt="">
+                        <img id="image2-step" class="image-step" src="{% static 'img/gide/1/step1.png' %}" alt="">
+                    </div>
+                    <p id="mc-text2" class="mc-text">Выберите действие “Взять ключ” на главной странице.</p>
+                    <img id="image3-step" class="image-step" src="{% static 'img/gide/1/step1.png' %}" alt="">
+                </div>
+                <div class="steps-buttons">
+                    <button id="prev-btn" class="step-button inactive">Назад</button>
+                    <button id="next-btn" class="step-button">Далее</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="loader" class="loader">
     <div class="loader-content">
         <div class="loader-spinner"></div>
@@ -111,13 +152,25 @@
                 <li class="nav-item"><a class="nav-link" href="{% url 'roomsMain' %}"><i class="fas fa-door-closed"
                                                                                          style="font-size: 14px;"></i><span>Кабинеты</span></a>
                 </li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'websocketQR' %}" target="_blank">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor"
-                         viewBox="0 0 16 16" class="bi bi-qr-code">
-                        <path fill-rule="evenodd"
-                              d="M5 1H1v4h4V1ZM1 11v4h4v-4H1ZM15 1h-4v4h4V1ZM5 0h1v6H0V0h5Zm0 10h1v6H0v-6h5Zm6-10h-1v6h6V0h-5ZM8 1V0h1v2H8v2H7V1h1Zm0 5V4h1v2H8ZM6 8V7h1V6h1v2h1V7h5v1h-4v1H7V8H6Zm0 0v1H2V8H1v1H0V7h3v1h3Zm10 1h-1V7h1v2Zm-1 0h-1v2h2v-1h-1V9Zm-4 0h2v1h-1v1h-1V9Zm2 3v-1h-1v1h-1v1H9v1h3v-2h1Zm0 0h3v1h-2v1h-1v-2Zm-4-1v1h1v-2H7v1h2Zm-2 4.5V12h1v3h4v1H7v-.5Zm9-1.5v2h-3v-1h2v-1h1ZM2 2h2v2H2V2Zm10 0h2v2h-2V2ZM4 12H2v2h2v-2Z"></path>
-                    </svg>
-                    <span>&nbsp;Страница с QR</span></a></li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'websocketQR' %}" target="_blank">
+                        <svg style="opacity: 0.7" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"
+                             fill="currentColor"
+                             viewBox="0 0 16 16" class="bi bi-qr-code">
+                            <path fill-rule="evenodd"
+                                  d="M5 1H1v4h4V1ZM1 11v4h4v-4H1ZM15 1h-4v4h4V1ZM5 0h1v6H0V0h5Zm0 10h1v6H0v-6h5Zm6-10h-1v6h6V0h-5ZM8 1V0h1v2H8v2H7V1h1Zm0 5V4h1v2H8ZM6 8V7h1V6h1v2h1V7h5v1h-4v1H7V8H6Zm0 0v1H2V8H1v1H0V7h3v1h3Zm10 1h-1V7h1v2Zm-1 0h-1v2h2v-1h-1V9Zm-4 0h2v1h-1v1h-1V9Zm2 3v-1h-1v1h-1v1H9v1h3v-2h1Zm0 0h3v1h-2v1h-1v-2Zm-4-1v1h1v-2H7v1h2Zm-2 4.5V12h1v3h4v1H7v-.5Zm9-1.5v2h-3v-1h2v-1h1ZM2 2h2v2H2V2Zm10 0h2v2h-2V2ZM4 12H2v2h2v-2Z"></path>
+                        </svg>
+                        <span>&nbsp;Страница с QR</span></a></li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="showModalGide()">
+                        <svg style="opacity: 0.6" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                             fill="currentColor"
+                             class="bi bi-info-square-fill" viewBox="0 0 16 16">
+                            <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm8.93 4.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM8 5.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+                        </svg>
+                        <span> Руководство</span></a>
+                </li>
+
             </ul>
             <div class="text-center d-none d-md-inline">
                 <button class="btn rounded-circle border-0" id="sidebarToggle"
@@ -299,6 +352,7 @@
         }
     });
 
+     var staticUrl = "{% get_static_prefix %}";
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -310,5 +364,7 @@
 <!-- <script src="{% static 'js/steps.js' %}"></script> -->
 <script src="{% static 'js/bs-init.js' %}"></script>
 <script src="{% static 'js/theme.js' %}"></script>
+<script src="{% static 'js/gide.js' %}"></script>
+
 
 </html>

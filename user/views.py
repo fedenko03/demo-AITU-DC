@@ -761,11 +761,11 @@ def reserve_studyroom(request, key):
 
     messages.success(request, "The reservation has been successfully activated.")
 
-    status_list = []
-    status_list.append({'notification_type': 'success',
-                        'data': 'none'})
+    ws_qr_status_list = []
+    ws_qr_status_list.append({'notification_type': 'success',
+                              'data': 'none'})
     for consumer in WebSocketQR.consumers:
-        asyncio.run(consumer.send(text_data=json.dumps(status_list)))
+        asyncio.run(consumer.send(text_data=json.dumps(ws_qr_status_list)))
 
     status_list.append({'status': 'success',
                         'key': reservation.key})
