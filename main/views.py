@@ -147,18 +147,30 @@ def settingsMain(request):
                 messages.error(request, 'Неверный пароль')
                 return redirect('settingsMain')
         elif 'create_ec' in request.POST:
+            if not request.user.is_superuser:
+                messages.success(request, 'Недостаточно прав для выполнения этой команды.')
+                return redirect('settingsMain')
             create_empty_cells()
             messages.success(request, 'Empty cells for each room was successfully created.')
             return redirect('settingsMain')
         elif 'clear_rs' in request.POST:
+            if not request.user.is_superuser:
+                messages.success(request, 'Недостаточно прав для выполнения этой команды.')
+                return redirect('settingsMain')
             clear_room_schedule()
             messages.success(request, 'Room schedule was successfully cleared.')
             return redirect('settingsMain')
         elif 'fill_rs' in request.POST:
+            if not request.user.is_superuser:
+                messages.success(request, 'Недостаточно прав для выполнения этой команды.')
+                return redirect('settingsMain')
             fill_room_schedule()
             messages.success(request, 'Room schedule was successfully filled.')
             return redirect('settingsMain')
         elif 'upload_schedule' in request.POST:
+            if not request.user.is_superuser:
+                messages.success(request, 'Недостаточно прав для выполнения этой команды.')
+                return redirect('settingsMain')
             file = request.FILES.get('schedule_file')
             if not file:
                 messages.error(request, 'Файл не найден.')

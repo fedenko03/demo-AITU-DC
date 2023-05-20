@@ -10,6 +10,7 @@
 
         .roomFilling {
             fill: #989898;
+            stroke: #6b6b6b;
         }
 
         .roomFilling:hover {
@@ -39,8 +40,7 @@
 
 
         .box-background {
-            {#scale: 0.9;#}
-            z-index: 10;
+        {#scale: 0.9;#} z-index: 10;
             position: relative;
             display: none;
             width: 450px;
@@ -673,8 +673,11 @@ ${!data.is_visible ? `<td class="text-danger">Скрыта</td>` : `<td class="t
             updateMap(1);
         })
 
+        const StyleRight = 450;
+        const RightMostWidth = 300;
+
         let elementsRoom = document.querySelectorAll('.roomFilling');
-        const StyleTop = 60;
+        const StyleTop = 40;
         const StyleLeft = 10;
 
         for (let i = 0; i < elementsRoom.length; i++) {
@@ -690,6 +693,14 @@ ${!data.is_visible ? `<td class="text-danger">Скрыта</td>` : `<td class="t
 
                 contentTable.style.top = (event.clientY - containerRect.top - StyleTop) + 'px'; // set the top position relative to the container
                 contentTable.style.left = (event.clientX - containerRect.left - StyleLeft) + 'px'; // set the left position relative to the container
+
+                var viewportWidth = window.innerWidth;
+                var signLeft = parseFloat(getComputedStyle(contentTable).left);
+                var signWidth = parseFloat(getComputedStyle(contentTable).width);
+                var rightmostPoint = signLeft + signWidth + RightMostWidth;
+                if (rightmostPoint > viewportWidth) {
+                    contentTable.style.left = (event.clientX - containerRect.left - StyleRight) + 'px';
+                }
 
                 // show loading overlay and loading texts
                 const roomMapId = elementsRoom[i].id;

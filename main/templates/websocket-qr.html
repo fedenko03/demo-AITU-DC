@@ -546,8 +546,6 @@
         socket = new WebSocket(ws_scheme + "://" + window.location.host + "/ws/notification_type/");
         socket.onmessage = function (e) {
             var data = JSON.parse(e.data);
-            // console.log(data)
-            // console.log('new data')
             inProcess_mode('получаем данные')
             if (data[0].notification_type === 'key_returner') {
                 document.getElementById('span-at-1').textContent = 'Вернуть ключ'

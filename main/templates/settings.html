@@ -3,6 +3,17 @@
 {% block content %}
     {% load static %}
 
+    <style>
+        .block-div {
+            z-index: 99;
+            background-color: rgba(0, 0, 0, 0.3);
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 5px;
+        }
+    </style>
+
     {% if messages %}
         {% for message in messages %}
             <div class="text-bg-dark border rounded flex-column justify-content-between align-items-center flex-lg-row"
@@ -59,15 +70,18 @@
                                 <div class="card-header py-3">
                                     <h6 class="text-primary fw-bold m-0">Расписание</h6>
                                 </div>
-                                <div class="card-body">
-
+                                {% if not request.user.is_superuser %}
+                                    <div class="block-div"></div>
+                                {% endif %}
+                                <div class="card-body" style="position: relative; {% if not request.user.is_superuser %} filter: blur(5px);{% endif %}">
                                     <form method="post" enctype="multipart/form-data">
                                         {% csrf_token %}
                                         <h4 class="fw-bold" style="font-size:15px">Загрузить расписание на триместр</h4>
                                         <input type="file" name="schedule_file" accept=".xls, .xlsx" required>
                                         <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
                                             <button class="btn btn-dark btn-sm border d-block"
-                                                    type="submit" name="upload_schedule" style="width: 140px; border-radius: 10px">Загрузить
+                                                    type="submit" name="upload_schedule"
+                                                    style="width: 140px; border-radius: 10px">Загрузить
                                             </button>
                                         </div>
                                     </form>
@@ -77,7 +91,8 @@
                                         <h4 class="fw-bold" style="font-size:15px">Очистить расписание на день</h4>
                                         <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
                                             <button class="btn btn-dark btn-sm border d-block"
-                                                    type="submit" name="clear_rs" style="width: 140px;border-radius: 10px">Очистить
+                                                    type="submit" name="clear_rs"
+                                                    style="width: 140px;border-radius: 10px">Очистить
                                             </button>
                                         </div>
                                     </form>
@@ -87,7 +102,8 @@
                                         <h4 class="fw-bold" style="font-size:15px">Заполнить расписание на день</h4>
                                         <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
                                             <button class="btn btn-dark btn-sm border d-block"
-                                                    type="submit" name="fill_rs" style="width: 140px;border-radius: 10px">Заполнить
+                                                    type="submit" name="fill_rs"
+                                                    style="width: 140px;border-radius: 10px">Заполнить
                                             </button>
                                         </div>
                                     </form>

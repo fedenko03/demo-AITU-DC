@@ -3,13 +3,15 @@ import random
 import string
 import json
 import asyncio
+from datetime import timedelta
 
 import pytz
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
-from keytaker.consumers import WSNewOrder, WSCanceledORConfirmedOrder
+from AITUDC import settings
+from keytaker.consumers import WSNewOrder, WSCanceledORConfirmedOrder, WebSocketQR
 from keytaker.models import *
 
 local_tz = pytz.timezone('Asia/Almaty')
@@ -32,6 +34,11 @@ def check_room(room):
 
 
 def getHistoryData(request, page, step):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Unauthorized'})
+    if not request.user.is_staff:
+        return JsonResponse({'error': 'Access denied'})
+
     # step=1 - next
     # step=0 - previous
     history_obj = History.objects.filter(
@@ -75,6 +82,11 @@ def getHistoryData(request, page, step):
 
 
 def searchRoom(request, room):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Unauthorized'})
+    if not request.user.is_staff:
+        return JsonResponse({'error': 'Access denied'})
+
     error = check_room(room)
     if error:
         return JsonResponse({'error': error})
@@ -128,6 +140,11 @@ def confirmed_order(email, msg):
 
 
 def get_last5_orders(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Unauthorized'})
+    if not request.user.is_staff:
+        return JsonResponse({'error': 'Access denied'})
+
     current_time = timezone.now()
     time_diff = timezone.timedelta(minutes=5)
 
@@ -167,6 +184,11 @@ def takeroom_isVar_changed(request):
 
 
 def cancel_takeroom(request, pk):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Unauthorized'})
+    if not request.user.is_staff:
+        return JsonResponse({'error': 'Access denied'})
+
     order_obj = Orders.objects.filter(id=pk).first()
     if order_obj:
         if not order_obj.is_confirm or order_obj.is_available:
@@ -310,6 +332,11 @@ def create_reservation(request, room_name, start_time_input, is_take):
 
 
 def booking_change_is_take(request, key, is_take):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Unauthorized'})
+    if not request.user.is_staff:
+        return JsonResponse({'error': 'Access denied'})
+
     try:
         reservation_obj = Reservation.objects.get(key=key)
     except Reservation.DoesNotExist:
@@ -341,10 +368,29 @@ def booking_change_is_take(request, key, is_take):
 
     reservation_obj.is_take = is_take
     reservation_obj.save()
+
+    status_list = []
+    status_list.append({'notification_type': 'key_booking',
+                        'data': {
+                            'link_confirm': 'http//',
+                            'qr_url': settings.MEDIA_URL + 'bookingQR.png',
+                            'timestamp': (reservation_obj.created_at + timedelta(minutes=5)).astimezone(
+                                local_tz).strftime("%H:%M:%S %d.%m.%Y"),
+                            'room': reservation_obj.room.name,
+                            'time': reservation_obj.start_time.strftime("%H"),
+                            'is_take': reservation_obj.is_take
+                        }})
+    for consumer in WebSocketQR.consumers:
+        asyncio.run(consumer.send(text_data=json.dumps(status_list)))
     return JsonResponse({'success': is_take})
 
 
 def get_rooms_status(request, floor):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Unauthorized'})
+    if not request.user.is_staff:
+        return JsonResponse({'error': 'Access denied'})
+
     rooms_list = Room.objects.filter(floor=floor).all().order_by('name')
     rooms_status_list = []
     for room in rooms_list:

@@ -9,6 +9,7 @@
 
         .roomFilling {
             fill: #989898;
+            stroke: #6b6b6b;
         }
 
         .roomFilling:hover {
@@ -639,7 +640,8 @@
         $(document).ready(function () {
             updateMap(1);
         })
-
+        const StyleRight = 450;
+        const RightMostWidth = 300;
         const StyleTop = 60;
         const StyleLeft = 10;
 
@@ -656,6 +658,14 @@
 
                 contentTable.style.top = (event.clientY - containerRect.top - StyleTop) + 'px'; // set the top position relative to the container
                 contentTable.style.left = (event.clientX - containerRect.left - StyleLeft) + 'px'; // set the left position relative to the container
+
+                var viewportWidth = window.innerWidth;
+                var signLeft = parseFloat(getComputedStyle(contentTable).left);
+                var signWidth = parseFloat(getComputedStyle(contentTable).width);
+                var rightmostPoint = signLeft + signWidth + RightMostWidth;
+                if (rightmostPoint > viewportWidth) {
+                    contentTable.style.left = (event.clientX - containerRect.left - StyleRight) + 'px';
+                }
 
                 // show loading overlay and loading texts
                 const roomMapId = elementsRoom[i].id;

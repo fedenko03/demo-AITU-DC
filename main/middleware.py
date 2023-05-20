@@ -1,8 +1,25 @@
+from django.http import HttpResponseForbidden
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
 
 from main.models import PIN
+
+from django.http import HttpResponseForbidden
+
+
+class SuperuserWebSocketMiddleware:
+    def __init__(self, inner):
+        self.inner = inner
+
+    async def __call__(self, scope, receive, send):
+        path = scope['path']
+        user = scope['user']
+
+        if not user.is_staff and (path == '/ws/notification_type/' or path == '/ws/update_booking_status/' or path == '/ws/new_order/'):
+            return HttpResponseForbidden("Доступ запрещен!")
+
+        return await self.inner(scope, receive, send)
 
 
 class NotFoundMiddleware(MiddlewareMixin):
