@@ -372,7 +372,7 @@ def booking_change_is_take(request, key, is_take):
     status_list = []
     status_list.append({'notification_type': 'key_booking',
                         'data': {
-                            'link_confirm': 'http//',
+                            'link_confirm': 'link',
                             'qr_url': settings.MEDIA_URL + 'bookingQR.png',
                             'timestamp': (reservation_obj.created_at + timedelta(minutes=5)).astimezone(
                                 local_tz).strftime("%H:%M:%S %d.%m.%Y"),

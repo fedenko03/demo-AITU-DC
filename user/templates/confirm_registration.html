@@ -6,18 +6,23 @@
         <div class="container">
             <div class="border rounded border-white d-flex flex-column justify-content-between align-items-center flex-lg-row bg-primary-gradient p-4 p-lg-5">
                 <div class="text-center text-lg-start py-3 py-lg-1">
+                    {% if error %}
+                        <p style="color:red">{{ error }}</p>
+                    {% endif %}
                     <h2 class="fw-bold mb-2">Проверьте почту</h2>
                     <p class="mb-0">Мы отправили код подтверждения для активации аккаунта</p>
                 </div>
                 <form class="d-flex justify-content-center flex-wrap flex-lg-nowrap" method="post">
                     {% csrf_token %}
-                    {% if error %}
-                        <p style="color:red">{{ error }}</p>
-                    {% endif %}
-                    <div class="my-2"><input class="border rounded-pill shadow-sm form-control" type="code" id="code" name="code" placeholder="Код" required></div>
-                    <div class="my-2"><button class="btn btn-primary shadow ms-2" type="submit">Создать</button></div>
+                    <div class="my-2"><input class="border rounded-pill shadow-sm form-control" type="code" id="code"
+                                             name="code" placeholder="Код" required></div>
+                    <div class="my-2">
+                        <button class="btn btn-primary shadow ms-2" type="submit">Создать</button>
+                    </div>
                 </form>
-                <a href="{% url 'register' %}">Вернуться на страницу регистрации</a>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: center; margin-top: 10px;">
+                <a class="" href="{% url 'register' %}">Вернуться на страницу регистрации</a>
             </div>
         </div>
     </section>

@@ -68,12 +68,24 @@
                         <div class="col">
                             <div class="card shadow mb-4">
                                 <div class="card-header py-3">
-                                    <h6 class="text-primary fw-bold m-0">Расписание</h6>
+                                    <h6 class="text-primary fw-bold m-0">Расписание & Пользователи</h6>
                                 </div>
                                 {% if not request.user.is_superuser %}
                                     <div class="block-div"></div>
                                 {% endif %}
                                 <div class="card-body" style="position: relative; {% if not request.user.is_superuser %} filter: blur(5px);{% endif %}">
+                                <form method="post" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <h4 class="fw-bold" style="font-size:15px">Добавить пользователей</h4>
+                                        <input type="file" name="users_file" accept=".xls, .xlsx" required>
+                                        <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                                            <button class="btn btn-dark btn-sm border d-block"
+                                                    type="submit" name="add_users"
+                                                    style="width: 140px; border-radius: 10px">Загрузить
+                                            </button>
+                                        </div>
+                                    </form>
+
                                     <form method="post" enctype="multipart/form-data">
                                         {% csrf_token %}
                                         <h4 class="fw-bold" style="font-size:15px">Загрузить расписание на триместр</h4>

@@ -45,23 +45,6 @@ class History(models.Model):
         verbose_name_plural = 'History'
 
 
-class ReservationHistory(models.Model):
-    room = models.ForeignKey(Room, on_delete=models.CASCADE, blank=True, null=True)
-    fullname = models.CharField(max_length=50)
-    role = models.ForeignKey(Role, on_delete=models.CASCADE, blank=True, null=True)
-    is_verified = models.BooleanField(default=False)
-    is_return = models.BooleanField(default=False)
-    user = models.ForeignKey(MainUser, on_delete=models.CASCADE, blank=True, null=True)
-    date = models.DateTimeField(blank=True, null=True)
-
-    def __str__(self):
-        return self.fullname
-
-    class Meta:
-        verbose_name = 'History'
-        verbose_name_plural = 'History'
-
-
 class Schedule(models.Model):
     DAYS_OF_WEEK = (
         (1, 'Monday'),

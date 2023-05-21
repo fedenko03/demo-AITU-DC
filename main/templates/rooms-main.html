@@ -698,8 +698,17 @@ ${!data.is_visible ? `<td class="text-danger">Скрыта</td>` : `<td class="t
                 var signLeft = parseFloat(getComputedStyle(contentTable).left);
                 var signWidth = parseFloat(getComputedStyle(contentTable).width);
                 var rightmostPoint = signLeft + signWidth + RightMostWidth;
+
+                contentTable.style.borderTopLeftRadius = "0px";
+                contentTable.style.borderTopRightRadius = "20px";
+                document.getElementById('loading-overlay').style.borderTopLeftRadius = "0px";
+                document.getElementById('loading-overlay').style.borderTopRightRadius = "20px";
                 if (rightmostPoint > viewportWidth) {
                     contentTable.style.left = (event.clientX - containerRect.left - StyleRight) + 'px';
+                    contentTable.style.borderTopLeftRadius = "20px";
+                    contentTable.style.borderTopRightRadius = "0px";
+                    document.getElementById('loading-overlay').style.borderTopLeftRadius = "20px";
+                    document.getElementById('loading-overlay').style.borderTopRightRadius = "0px";
                 }
 
                 // show loading overlay and loading texts

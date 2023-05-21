@@ -30,6 +30,7 @@ django-celery-beat==2.4.0
 django-celery-results==2.4.0
 django-excel==0.0.10
 django-mongodb-engine==0.6.0
+django-ratelimit==4.0.0
 django-storages==1.13.2
 django-timezone-field==5.0
 djangotoolbox==1.8.0
@@ -45,7 +46,9 @@ incremental==22.10.0
 kombu==5.2.4
 lml==0.1.0
 msgpack==1.0.4
+numpy==1.24.3
 openpyxl==3.1.1
+pandas==2.0.1
 Pillow==9.3.0
 prompt-toolkit==3.0.36
 psycopg2==2.9.5
@@ -72,6 +75,8 @@ six==1.16.0
 sniffio==1.3.0
 sqlparse==0.2.4
 texttable==1.6.7
+Twisted==22.10.0
+twisted-iocpsupport==1.0.2
 txaio==23.1.1
 typing_extensions==4.4.0
 tzdata==2022.7

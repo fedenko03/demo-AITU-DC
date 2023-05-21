@@ -30,6 +30,10 @@
 
     <style>
 
+        #header-icon {
+            background-image: url({% static 'img/favicon.png' %});
+        }
+
         .loader {
             display: none;
             z-index: 10000 !important;
@@ -153,23 +157,23 @@
                                                                                          style="font-size: 14px;"></i><span>Кабинеты</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'websocketQR' %}" target="_blank">
-                        <svg style="opacity: 0.7" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"
-                             fill="currentColor"
-                             viewBox="0 0 16 16" class="bi bi-qr-code">
-                            <path fill-rule="evenodd"
-                                  d="M5 1H1v4h4V1ZM1 11v4h4v-4H1ZM15 1h-4v4h4V1ZM5 0h1v6H0V0h5Zm0 10h1v6H0v-6h5Zm6-10h-1v6h6V0h-5ZM8 1V0h1v2H8v2H7V1h1Zm0 5V4h1v2H8ZM6 8V7h1V6h1v2h1V7h5v1h-4v1H7V8H6Zm0 0v1H2V8H1v1H0V7h3v1h3Zm10 1h-1V7h1v2Zm-1 0h-1v2h2v-1h-1V9Zm-4 0h2v1h-1v1h-1V9Zm2 3v-1h-1v1h-1v1H9v1h3v-2h1Zm0 0h3v1h-2v1h-1v-2Zm-4-1v1h1v-2H7v1h2Zm-2 4.5V12h1v3h4v1H7v-.5Zm9-1.5v2h-3v-1h2v-1h1ZM2 2h2v2H2V2Zm10 0h2v2h-2V2ZM4 12H2v2h2v-2Z"></path>
-                        </svg>
-                        <span>&nbsp;Страница с QR</span></a></li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="showModalGide()">
-                        <svg style="opacity: 0.6" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                             fill="currentColor"
-                             class="bi bi-info-square-fill" viewBox="0 0 16 16">
-                            <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm8.93 4.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM8 5.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
-                        </svg>
-                        <span> Руководство</span></a>
+                    <a class="nav-link" href="{% url 'schedule_page' %}">
+                        <i class="far fa-calendar-alt"></i>
+                        <span>&nbsp;Расписание</span>
+                    </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'websocketQR' %}" target="_blank">
+                        <i class="fas fa-mobile-alt"></i>
+                        <span>&nbsp;Страница с QR</span>
+                    </a>
+                </li>
+                {#                <li class="nav-item">#}
+                {#                    <a class="nav-link" href="#" onclick="showModalGide()">#}
+                {#                        <i class="fas fa-info"></i>#}
+                {#                        <span> Руководство</span>#}
+                {#                    </a>#}
+                {#                </li>#}
 
             </ul>
             <div class="text-center d-none d-md-inline">
@@ -255,6 +259,8 @@
                                        href='#'>
                                         <i class="fas fa-lock fa-sm fa-fw me-2 text-gray-400">
                                         </i>&nbsp;Заблокировать</a>
+                                    <a class="dropdown-item" href="#" onclick="showModalGide()">
+                                        <i class="fas fa-info fa-sm fa-fw me-2 text-gray-400"></i> &nbsp;Руководство</a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item" href="{% url 'logoutMain' %}">
                                         <i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400">
@@ -352,7 +358,7 @@
         }
     });
 
-     var staticUrl = "{% get_static_prefix %}";
+    var staticUrl = "{% get_static_prefix %}";
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>

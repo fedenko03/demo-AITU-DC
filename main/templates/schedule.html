@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block title %}Расписание{% endblock %}
+{% block content %}
+    {% load static %}
+
+    <div class="container-fluid" style="margin-top: 20px;">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <p class="text-primary m-0 fw-bold">Расписание</p>
+                    {% if request.user.is_superuser %}
+                        <a class="btn btn-dark btn-sm ms-auto me-0" href="{% url 'settingsMain' %}">Сменить
+                            расписание</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <form method="GET" action="{% url 'schedule_page' %}">
+                        <p class="text m-0 fw-bold" style="margin-bottom: 10px !important;">Фильтры: </p>
+                        <div class=" col-xl-4 text-nowrap">
+                            <div id="dataTable_length" class="dataTables_length" aria-controls="dataTable">
+                                <label class="form-label">Day:
+                                    <select name="day" id="day-filter"
+                                            class="d-inline-block form-select form-select-sm">
+                                        <option value="1" {% if '1' in selected_days %}selected{% endif %}>Monday
+                                        </option>
+                                        <option value="2" {% if '2' in selected_days %}selected{% endif %}>Tuesday
+                                        </option>
+                                        <option value="3" {% if '3' in selected_days %}selected{% endif %}>Wednesday
+                                        </option>
+                                        <option value="4" {% if '4' in selected_days %}selected{% endif %}>Thursday
+                                        </option>
+                                        <option value="5" {% if '5' in selected_days %}selected{% endif %}>Friday
+                                        </option>
+                                        <option value="6" {% if '6' in selected_days %}selected{% endif %}>Saturday
+                                        </option>
+                                        <option value="7" {% if '7' in selected_days %}selected{% endif %}>Sunday
+                                        </option>
+                                    </select>
+                                </label>
+                            </div>
+                        </div>
+                        <div class=" col-xl-4 text-nowrap">
+                            <div id="dataTable_length" class="dataTables_length" aria-controls="dataTable">
+                                <label class="form-label">Room:
+                                    <select name="room" id="room-filter"
+                                            class="d-inline-block form-select form-select-sm">
+                                        <option value="">All</option>
+                                        {% for room in all_rooms %}
+                                            <option value="{{ room.name }}"
+                                                    {% if room.id|stringformat:'s' in selected_rooms %}selected{% endif %}>{{ room.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </label>
+                            </div>
+                        </div>
+                        <div class=" col-xl-4 text-nowrap">
+                            <div id="dataTable_length" class="dataTables_length" aria-controls="dataTable">
+                                <label class="form-label">Professor:
+                                    <select name="professor" id="professor-filter"
+                                            class="d-inline-block form-select form-select-sm">
+                                        <option value="">All</option>
+                                        {% for professor in all_professors %}
+                                            <option value="{{ professor.email }}"
+                                                    {% if professor.id|stringformat:'s' in selected_professors %}selected{% endif %}>{{ professor.full_name }}
+                                                ({{ professor.email }})
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </label>
+                            </div>
+                        </div>
+                        <div class=" col-xl-3 text-nowrap">
+                            <button class="btn btn-primary btn-sm" type="submit">Применить фильтры</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
+                    <table class="table my-0" id="dataTable">
+                        <thead>
+                        <tr>
+                            <th>Day</th>
+                            <th>Room</th>
+                            <th>Professor</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for schedule in schedules %}
+                            <tr>
+                                <td>{{ schedule.get_day_display }}</td>
+                                <td>{{ schedule.room.name }}</td>
+                                <td>{{ schedule.professor.user.username }}</td>
+                                <td>{{ schedule.start_time|time:"H:i" }}</td>
+                                <td>{{ schedule.end_time|time:"H:i" }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5" class="empty-row">No schedules found.</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,6 +1,8 @@
 import asyncio
 import json
+import os
 from datetime import datetime, timedelta
+from zipfile import BadZipFile
 
 import qrcode
 from django.contrib.auth import authenticate, login, logout
@@ -24,7 +26,7 @@ from django.core import serializers
 
 from keytaker.views import check_room, create_empty_cells, clear_room_schedule, fill_room_schedule
 from main.models import PIN
-from user.models import MainUser
+from user.models import MainUser, Role
 import openpyxl
 from openpyxl.styles import PatternFill
 import pytz
@@ -117,7 +119,8 @@ def not_foundMain(request):
 @login_required(login_url='loginMain')
 def homeMain(request):
     orders_list = getOrders()
-    link_confirm = "http://" + request.get_host() + "/"
+    protocol = 'https' if request.is_secure() else 'http'
+    link_confirm = f'{protocol}://{request.get_host()}/'
     print(link_confirm)
     img = qrcode.make(link_confirm)
     img.save("media/mobile.png")
@@ -172,11 +175,16 @@ def settingsMain(request):
                 messages.success(request, 'Недостаточно прав для выполнения этой команды.')
                 return redirect('settingsMain')
             file = request.FILES.get('schedule_file')
+
             if not file:
                 messages.error(request, 'Файл не найден.')
                 return redirect('settingsMain')
             try:
-                error = create_schedule_from_excel(file)
+                try:
+                    error = create_schedule_from_excel(file)
+                except BadZipFile:
+                    error = 'Файл не является допустимым форматом или поврежден'
+
                 if error:
                     messages.error(request, error)
                     return redirect('settingsMain')
@@ -184,6 +192,28 @@ def settingsMain(request):
                 return redirect('settingsMain')
             except ValidationError as e:
                 messages.error(request, 'Ошибка создания расписания.')
+                return redirect('settingsMain')
+        elif 'add_users' in request.POST:
+            if not request.user.is_superuser:
+                messages.success(request, 'Недостаточно прав для выполнения этой команды.')
+                return redirect('settingsMain')
+            file = request.FILES.get('users_file')
+            if not file:
+                messages.error(request, 'Файл не найден.')
+                return redirect('settingsMain')
+            try:
+                try:
+                    error = create_schedule_from_excel(file)
+                except BadZipFile:
+                    error = 'Файл не является допустимым форматом или поврежден'
+
+                if error:
+                    messages.error(request, error)
+                    return redirect('settingsMain')
+                messages.success(request, 'Пользователи успешно добавлены.')
+                return redirect('settingsMain')
+            except ValidationError as e:
+                messages.error(request, 'Ошибка добавления пользователей.')
                 return redirect('settingsMain')
 
     orders_list = getOrders()
@@ -193,6 +223,10 @@ def settingsMain(request):
 
 
 def create_schedule_from_excel(file):
+    # Проверка расширения файла
+    _, file_extension = os.path.splitext(file.name)
+    if file_extension not in ['.xls', '.xlsx']:
+        return "Неверное расширение файла. Пожалуйста, загрузите файл Excel."
     df = pd.read_excel(file, engine='openpyxl')
 
     # Проверка наличия столбцов
@@ -236,6 +270,57 @@ def create_schedule_from_excel(file):
             end_time=end_time,
             professor=professor_obj)
         schedule.save()
+
+
+def create_main_users_from_excel(file):
+    # Проверка расширения файла
+    _, file_extension = os.path.splitext(file.name)
+    if file_extension not in ['.xls', '.xlsx']:
+        return "Неверное расширение файла. Пожалуйста, загрузите файл Excel."
+
+    df = pd.read_excel(file, engine='openpyxl')
+
+    # Проверка наличия столбцов
+    required_columns = ['email', 'fullname', 'password', 'role']
+    missing_columns = [column for column in required_columns if column not in df.columns]
+
+    if missing_columns:
+        # Если некоторые столбцы отсутствуют, генерируем ошибку
+        error_message = f"Отсутствуют необходимые столбцы: {', '.join(missing_columns)}"
+        return error_message
+
+    for index, row in df.iterrows():
+        email = row['email']
+        full_name = row['fullname']
+        password = str(row['password'])
+        role_name = row['role']
+
+        # Проверка данных перед созданием пользователей
+        if not email or not full_name or not password or not role_name:
+            return f"Неполные данные в таблице. Проверьте все поля. (Строка: {index + 2})"
+
+        # Проверка существования пользователя
+        if User.objects.filter(username=email).exists():
+            return f"Пользователь с email '{email}' уже существует. Проверьте все поля. (Строка: {index + 2})"
+
+        # Проверка наличия роли
+        role_obj = Role.objects.filter(name=role_name).first()
+        if not role_obj:
+            return f"Роль '{role_name}' не найдена. Проверьте все поля. (Строка: {index + 2})"
+
+        # Создание пользователя User
+        user = User.objects.create_user(username=email, email=email, password=password)
+
+        # Создание пользователя MainUser
+        main_user = MainUser.objects.create(
+            full_name=full_name,
+            email=email,
+            user=user,
+            role=role_obj,
+            is_active=True
+        )
+
+    return "Пользователи успешно созданы из файла Excel."
 
 
 def loginMain(request):
@@ -461,7 +546,8 @@ def confirmBooking(request, key):
         messages.error(request, "The reservation has already been confirmed.")
         return redirect('homeMain')
 
-    link_confirm = "http://" + request.get_host() + "/reserve-studyroom/" + reservation_obj.key + "/"
+    protocol = 'https' if request.is_secure() else 'http'
+    link_confirm = f'{protocol}://{request.get_host()}/reserve-studyroom/{reservation_obj.key}/'
     print(link_confirm)
     img = qrcode.make(link_confirm)
     img.save("media/bookingQR.png")
@@ -559,7 +645,8 @@ def pinLocked(request):
 
 @login_required(login_url='loginMain')
 def websocketQR(request):
-    link_confirm = "http://" + request.get_host()
+    protocol = 'https' if request.is_secure() else 'http'
+    link_confirm = f'{protocol}://{request.get_host()}/'
     img = qrcode.make(link_confirm)
     img.save("media/mobileQR.png")
     return render(request, 'websocket-qr.html', {
@@ -592,3 +679,33 @@ def updateQR(request):
     for consumer in WebSocketQR.consumers:
         asyncio.run(consumer.send(text_data=json.dumps(status_list)))
     return JsonResponse({'status': 'updated'})
+
+
+@login_required(login_url='loginMain')
+def schedule_page(request):
+    selected_days = request.GET.getlist('day')
+    selected_rooms = request.GET.getlist('room')
+    selected_professors = request.GET.getlist('professor')
+
+    schedules = Schedule.objects.all()
+
+    if selected_days:
+        schedules = schedules.filter(day__in=selected_days)
+    if selected_rooms and selected_rooms != ['']:
+        schedules = schedules.filter(room__name__in=selected_rooms)
+    if selected_professors and selected_professors != ['']:
+        professor_ids = MainUser.objects.filter(user__username__in=selected_professors).values_list('id', flat=True)
+        schedules = schedules.filter(professor__id__in=professor_ids)
+    else:
+        schedules = schedules.filter(day__in='1')
+
+    schedules = schedules.order_by('day', 'room', 'start_time')
+
+    return render(request, 'schedule.html', {
+        'schedules': schedules,
+        'selected_days': selected_days,
+        'selected_rooms': selected_rooms,
+        'selected_professors': selected_professors,
+        'all_rooms': Room.objects.all(),
+        'all_professors': MainUser.objects.all()
+    })

@@ -187,7 +187,8 @@ def takeroom3(request):
         settings_obj.error = ''
         settings_obj.save()
 
-        link_confirm = "http://" + request.get_host() + "/confirm_keytaking/token=" + settings_obj.confirmation_code
+        protocol = 'https' if request.is_secure() else 'http'
+        link_confirm = f'{protocol}://{request.get_host()}/confirm_keytaking/token={settings_obj.confirmation_code}'
         print(link_confirm)
         img = qrcode.make(link_confirm)
         img.save("media/qr.png")

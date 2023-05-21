@@ -15,7 +15,6 @@ import asyncio
 import math
 from django.conf import settings
 import io
-from azure.storage.blob import BlockBlobService
 
 from keyreturner.models import SettingsKeyReturner
 from keytaker.consumers import WebSocketQR
@@ -64,7 +63,8 @@ def keyreturnerMain(request):
     settings_obj.token_timestamp = timezone.now()
     settings_obj.save()
     print(settings_obj.token)
-    link_confirm = "http://" + request.get_host() + "/key_return_get_user/token=" + settings_obj.token
+    protocol = 'https' if request.is_secure() else 'http'
+    link_confirm = f'{protocol}://{request.get_host()}/key_return_get_user/token={settings_obj.token}'
     img = qrcode.make(link_confirm)
 
     img.save("media/returnerQR.png")

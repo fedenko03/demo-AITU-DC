@@ -21,5 +21,6 @@ urlpatterns = [
     path('cancel-takeroomMain/<int:pk>', views.cancel_takeroomMain, name='cancel-takeroomMain'),
     path('confirm-booking/<str:key>/', views.confirmBooking, name='confirm-booking'),
     path('qr/', views.websocketQR, name='websocketQR'),
-    path('update-qr/', views.updateQR, name='updateQR')
+    path('update-qr/', views.updateQR, name='updateQR'),
+    path('schedule/', views.schedule_page, name='schedule_page')
    ]

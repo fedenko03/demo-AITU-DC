@@ -82,6 +82,10 @@ def register(request):
         role = request.POST.get('role')
 
         try:
+            if not re.match(r'^[A-Za-zА-Яа-я\s]+$', fullname):
+                messages.error(request, 'Fullname can only contain Latin or Cyrillic letters.')
+                return redirect('register')
+
             if fullname == '':
                 messages.error(request, 'Incorrect fullname.')
                 return redirect('register')
@@ -92,6 +96,14 @@ def register(request):
 
             if not email.endswith('@astanait.edu.kz'):
                 messages.error(request, 'Email must be from @astanait.edu.kz domain.')
+                return redirect('register')
+
+            if len(password) < 6 or len(password) > 20:
+                messages.error(request, 'Password must be between 6 and 20 characters.')
+                return redirect('register')
+
+            if not re.match(r'^[A-Za-z0-9]+$', password):
+                messages.error(request, 'Password can only contain uppercase/lowercase letters and numbers.')
                 return redirect('register')
 
             user_obj = User(username=email, email=email, first_name=fullname)
@@ -109,9 +121,13 @@ def register(request):
             )
             profile_obj.save()
 
+            protocol = 'https' if request.is_secure() else 'http'
+            link_confirm = f'{protocol}://{request.get_host()}/confirm_registration/'
+
             # Email confirmation
             subject = 'Confirm your email address'
-            message = f'Enter this code to confirm your account: {profile_obj.confirmation_code}'
+            message = f'Enter this code to confirm your account: {profile_obj.confirmation_code}' \
+                      f'Link - {link_confirm}'
             from_email = settings.EMAIL_HOST_USER
             recipient_list = [profile_obj.email]
             send_mail(subject, message, from_email, recipient_list)
@@ -142,7 +158,21 @@ def confirm_registration(request):
                 login(request, user.user)
                 return redirect('home')
             else:
-                return render(request, 'confirm_registration.html', {'error': 'Code expired'})
+                user.confirmation_code = generate_code()
+                user.code_timestamp = timezone.now()
+                user.save()
+
+                protocol = 'https' if request.is_secure() else 'http'
+                link_confirm = f'{protocol}://{request.get_host()}/confirm_registration/'
+                # Email confirmation
+                subject = 'Confirm your email address'
+                message = f'Enter this code to confirm your account: {user.confirmation_code} \n' \
+                          f'Link - {link_confirm}'
+                from_email = settings.EMAIL_HOST_USER
+                recipient_list = [user.email]
+                send_mail(subject, message, from_email, recipient_list)
+                return render(request, 'confirm_registration.html',
+                              {'error': 'The code has expired. A new one has been sent to the email'})
         except MainUser.DoesNotExist:
             return render(request, 'confirm_registration.html', {'error': 'Invalid code'})
     return render(request, 'confirm_registration.html')
@@ -239,7 +269,8 @@ def confirm_keytaking(request, confirmation_code):  # step 4
                     try:
                         cells = StudyRoomSchedule.objects.get(room=settings_obj.room, start_time=interval_start_time)
                     except StudyRoomSchedule.DoesNotExist:
-                        messages.error(request, 'Ошибка при получении информации о расписании. Взять ключ можно только если до начала занятия осталось менее 30 минут и ключ находится у охраны.')
+                        messages.error(request,
+                                       'Ошибка при получении информации о расписании. Взять ключ можно только если до начала занятия осталось менее 30 минут и ключ находится у охраны.')
                         return redirect('home')
 
                     print('1 ' + interval_start_time)
@@ -261,7 +292,8 @@ def confirm_keytaking(request, confirmation_code):  # step 4
                         cells1 = StudyRoomSchedule.objects.get(room=settings_obj.room, start_time=interval_start_time1)
                         cells2 = StudyRoomSchedule.objects.get(room=settings_obj.room, start_time=interval_start_time2)
                     except StudyRoomSchedule.DoesNotExist:
-                        messages.error(request, 'Ошибка при получении информации о расписании. Взять ключ можно только если до начала занятия осталось менее 30 минут и ключ находится у охраны.')
+                        messages.error(request,
+                                       'Ошибка при получении информации о расписании. Взять ключ можно только если до начала занятия осталось менее 30 минут и ключ находится у охраны.')
                         return redirect('home')
 
                     print('2 ' + interval_start_time1 + ' + ' + interval_start_time2)
@@ -298,7 +330,8 @@ def confirm_keytaking(request, confirmation_code):  # step 4
                     try:
                         cells = StudyRoomSchedule.objects.get(room=settings_obj.room, start_time=interval_start_time)
                     except StudyRoomSchedule.DoesNotExist:
-                        messages.error(request, 'Ошибка при получении информации о расписании. Взять ключ можно только если до начала занятия осталось менее 30 минут и ключ находится у охраны.')
+                        messages.error(request,
+                                       'Ошибка при получении информации о расписании. Взять ключ можно только если до начала занятия осталось менее 30 минут и ключ находится у охраны.')
                         return redirect('home')
 
                     print('3 ' + interval_start_time)
@@ -480,7 +513,8 @@ def home(request):
                     print('1 ' + interval_start_time)
                     if not cells.professor:
                         messages.error(request,
-                                       'Кабинет не забронирован на ' + str(current_datetime.hour) + ':00. Для брони подойдите к охране.')
+                                       'Кабинет не забронирован на ' + str(
+                                           current_datetime.hour) + ':00. Для брони подойдите к охране.')
                         return redirect('home')
                     if not cells.professor.email == user_obj.email:
                         messages.error(request,
@@ -537,7 +571,8 @@ def home(request):
                     print('3 ' + interval_start_time)
                     if not cells.professor:
                         messages.error(request,
-                                       'Кабинет не забронирован на ' + str(current_datetime.hour+1) + ':00. Для брони подойдите к охране.')
+                                       'Кабинет не забронирован на ' + str(
+                                           current_datetime.hour + 1) + ':00. Для брони подойдите к охране.')
                         return redirect('home')
                     if not cells.professor.email == user_obj.email:
                         messages.error(request,
