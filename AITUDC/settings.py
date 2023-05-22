@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 from pathlib import Path
+from decouple import config
 # from django_ratelimit.decorators import ratelimit
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -94,14 +95,25 @@ ASGI_APPLICATION = 'AITUDC.asgi.application'
 #     }
 # }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'aituDC',
+#         'USER': 'postgres',
+#         'PASSWORD': '1234567',
+#         'HOST': 'localhost',
+#         'PORT': '',
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'aituDC',
-        'USER': 'postgres',
-        'PASSWORD': '1234567',
-        'HOST': 'localhost',
-        'PORT': '',
+        'NAME': config('name'),
+        'USER': config('user'),
+        'PASSWORD': config('password'),
+        'HOST': config('host'),
+        'PORT': '5432',
     }
 }
 

@@ -4,6 +4,11 @@ from django.db import migrations, models
 import django.db.models.deletion
 
 
+def create_initial_key_taker(apps, schema_editor):
+    SettingsKeyTaker = apps.get_model('keytaker', 'SettingsKeyTaker')
+    SettingsKeyTaker.objects.create(confirmation_code='your_code_here', is_confirm=False, in_process=False)
+
+
 class Migration(migrations.Migration):
 
     initial = True
@@ -83,4 +88,5 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'History',
             },
         ),
+        migrations.RunPython(create_initial_key_taker),
     ]

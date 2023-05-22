@@ -4,6 +4,17 @@ from django.db import migrations, models
 import django.db.models.deletion
 
 
+def create_default_settings(apps, schema_editor):
+    SettingsKeyReturner = apps.get_model('keyreturner', 'SettingsKeyReturner')
+
+    SettingsKeyReturner.objects.create(
+        token='your_token_here',
+        in_process=False,
+        step=1,
+        error=''
+    )
+
+
 class Migration(migrations.Migration):
 
     initial = True
@@ -29,4 +40,5 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'Settings KeyReturner',
             },
         ),
+        migrations.RunPython(create_default_settings),
     ]
