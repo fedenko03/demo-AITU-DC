@@ -87,6 +87,12 @@ If you would like to contribute to Digital Control, please follow these steps:
 ```KeyTakerSettings```, ```KeyReturnerSettings```, ```PIN```, ```Role```.
 
 
+## Перед установкой 
+`sudo apt-get update`
+`pip install -r requirements`:
+`sudo apt-get install libpq-dev`
+![img_1.png](img_1.png)
+
 ## Deploing on the server (Azure)
 1. Create new Microsoft Storage User
 2. Edit the MEDIA_URL in the `settings.py`
