@@ -88,6 +88,9 @@ If you would like to contribute to Digital Control, please follow these steps:
 
 
 ## Перед установкой 
+(https://habr.com/ru/articles/546778/)
+(https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-18-04#step-10-configure-nginx-to-proxy-pass-to-gunicorn)
+(https://www.linkedin.com/pulse/how-deploy-django-application-aws-ubuntu-ec2-nginx-uwsgi-yiqing-lan)
 `sudo apt-get update`
 `pip install -r requirements`:
 `sudo apt-get install libpq-dev`
@@ -101,6 +104,62 @@ If you would like to contribute to Digital Control, please follow these steps:
 5. Also edit firewall settings
 6. Configure Deployment Center
 7. Waiting for deployment
+
+
+## AWS (nginx & gunicorn)
+1. `sudo nano /etc/systemd/system/gunicorn.socket`
+`[Unit]
+Description=gunicorn socket
+
+[Socket]
+ListenStream=/run/gunicorn.sock
+
+[Install]
+WantedBy=sockets.target`
+
+2. `sudo nano /etc/systemd/system/gunicorn.service`
+`[Unit]
+Description=gunicorn daemon
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/demo-AITU-DC/
+ExecStart=/home/ubuntu/demo-AITU-DC/venv/bin/gunicorn \
+          --access-logfile - \
+          --workers 3 \
+          --bind unix:/run/gunicorn.sock \
+          AITUDC.wsgi:application
+
+[Install]
+WantedBy=multi-user.target`
+
+3. `sudo nano /etc/nginx/sites-available/AITUDC`
+`server {
+    listen 80;
+    server_name 54.93.192.225;
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location /static/ {
+        root /home/ubuntu/demo-AITU-DC/;
+    }
+
+    location /media/ {
+        root /home/ubuntu/demo-AITU-DC/;
+    }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/run/gunicorn.sock;
+    }
+}`
+
+4. `sudo nano /etc/nginx/nginx.conf`
+`user ubuntu;`
+
+5 `websockets settings ...`
 
 ## License
 
