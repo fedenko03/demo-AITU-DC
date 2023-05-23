@@ -109,17 +109,20 @@ If you would like to contribute to Digital Control, please follow these steps:
 
 ## AWS (nginx & gunicorn)
 1. `sudo nano /etc/systemd/system/gunicorn.socket`
-`[Unit]
+```
+[Unit]
 Description=gunicorn socket
 
 [Socket]
 ListenStream=/run/gunicorn.sock
 
 [Install]
-WantedBy=sockets.target`
+WantedBy=sockets.target
+```
 
 2. `sudo nano /etc/systemd/system/gunicorn.service`
-`[Unit]
+```
+[Unit]
 Description=gunicorn daemon
 Requires=gunicorn.socket
 After=network.target
@@ -135,10 +138,12 @@ ExecStart=/home/ubuntu/demo-AITU-DC/venv/bin/gunicorn \
           AITUDC.wsgi:application
 
 [Install]
-WantedBy=multi-user.target`
+WantedBy=multi-user.target
+```
 
 3. `sudo nano /etc/nginx/sites-available/AITUDC`
-`server {
+```
+server {
     listen 80;
     server_name 54.93.192.225;
 
@@ -155,13 +160,15 @@ WantedBy=multi-user.target`
         include proxy_params;
         proxy_pass http://unix:/run/gunicorn.sock;
     }
-}`
+}
+```
 
 4. `sudo nano /etc/nginx/nginx.conf`
 `user ubuntu;`
 
 5 `websockets settings ...`
-`[Unit]
+```
+[Unit]
 Description=Daphne ASGI Server
 After=network.target
 
@@ -173,7 +180,8 @@ ExecStart=/home/ubuntu/demo-AITU-DC/venv/bin/daphne -u /run/daphne.sock --fd 0 -
 Restart=always
 
 [Install]
-WantedBy=multi-user.target`
+WantedBy=multi-user.target
+```
 
 ## License
 
