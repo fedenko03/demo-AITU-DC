@@ -88,6 +88,7 @@ If you would like to contribute to Digital Control, please follow these steps:
 
 
 ## Перед установкой 
+(https://www.youtube.com/watch?v=PzSUOyshA6k)
 (https://habr.com/ru/articles/546778/)
 (https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-18-04#step-10-configure-nginx-to-proxy-pass-to-gunicorn)
 (https://www.linkedin.com/pulse/how-deploy-django-application-aws-ubuntu-ec2-nginx-uwsgi-yiqing-lan)
@@ -160,6 +161,19 @@ WantedBy=multi-user.target`
 `user ubuntu;`
 
 5 `websockets settings ...`
+`[Unit]
+Description=Daphne ASGI Server
+After=network.target
+
+[Service]
+User=ubuntu                              
+Group=www-data
+WorkingDirectory=/home/ubuntu/demo-AITU-DC
+ExecStart=/home/ubuntu/demo-AITU-DC/venv/bin/daphne -u /run/daphne.sock --fd 0 --access-log /var/log/daphne.log myp>
+Restart=always
+
+[Install]
+WantedBy=multi-user.target`
 
 ## License
 
